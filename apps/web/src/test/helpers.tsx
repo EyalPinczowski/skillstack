@@ -83,11 +83,12 @@ type Handler = (request: Request) => Response | Promise<Response>;
 
 /**
  * Stubs the global fetch with routes keyed like "GET /api/v1/me". Anything unlisted answers 404 in
- * the API's error shape. The health check, used by the Today page, defaults to "ok".
+ * the API's error shape. The health check defaults to "ok" and the plan list to empty.
  */
 export function installApi(routes: Record<string, Handler>) {
   const all: Record<string, Handler> = {
     'GET /api/v1/health': () => json({ status: 'ok', environment: 'test' }),
+    'GET /api/v1/plans': () => json({ plans: [] }),
     ...routes,
   };
   const calls: Request[] = [];

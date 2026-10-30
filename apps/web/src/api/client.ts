@@ -9,6 +9,34 @@ export type DataExport =
 export type LegalDocument =
   paths['/api/v1/me/legal-acceptances']['post']['requestBody']['content']['application/json']['document'];
 
+type Json<T> = T extends { content: { 'application/json': infer B } } ? B : never;
+type Ok<Op> = Op extends { responses: infer R }
+  ? R extends { 200: infer A }
+    ? Json<A>
+    : R extends { 201: infer C }
+      ? Json<C>
+      : never
+  : never;
+type Body<Op> = Op extends { requestBody: { content: { 'application/json': infer B } } }
+  ? B
+  : never;
+
+export type PlanSummary = Ok<paths['/api/v1/plans']['get']>['plans'][number];
+export type PlanDetail = Ok<paths['/api/v1/plans/{id}']['get']>;
+export type WeekPattern = NonNullable<PlanDetail['weekPattern']>;
+export type DayOverride = PlanDetail['overrides'][number];
+export type Schedule = Ok<paths['/api/v1/plans/{id}/schedule']['get']>;
+export type Block = Schedule['blocks'][number];
+export type SchedulePreview = Ok<paths['/api/v1/plans/{id}/schedule/preview']['post']>;
+export type PreviewRequest = Body<paths['/api/v1/plans/{id}/schedule/preview']['post']>;
+export type Task = Ok<paths['/api/v1/plans/{planId}/tasks']['get']>['tasks'][number];
+export type TaskType = Task['type'];
+export type Progress = Ok<paths['/api/v1/plans/{planId}/progress']['get']>;
+export type LogRequest = Body<paths['/api/v1/plans/{planId}/tasks/{taskId}/logs']['post']>;
+export type LogResult = Ok<paths['/api/v1/plans/{planId}/tasks/{taskId}/logs']['post']>;
+export type TaskPatch = Body<paths['/api/v1/plans/{planId}/tasks/{taskId}']['patch']>;
+export type ImportBody = Body<paths['/api/v1/plans/import']['post']>;
+
 export interface ApiClientOptions {
   /** Base URL of the API, without a trailing slash. */
   baseUrl: string;
@@ -71,6 +99,63 @@ export function createApiClient({
       unwrap(raw.PATCH('/api/v1/me', { body: { displayName } })),
     acceptLegal: (document: LegalDocument, version: string) =>
       unwrap(raw.POST('/api/v1/me/legal-acceptances', { body: { document, version } })),
+    listPlans: (signal?: AbortSignal) => unwrap(raw.GET('/api/v1/plans', { signal })),
+    getPlan: (id: string, signal?: AbortSignal) =>
+      unwrap(raw.GET('/api/v1/plans/{id}', { params: { path: { id } }, signal })),
+    importPlan: (body: ImportBody) => unwrap(raw.POST('/api/v1/plans/import', { body })),
+    getSchedule: (id: string, signal?: AbortSignal) =>
+      unwrap(raw.GET('/api/v1/plans/{id}/schedule', { params: { path: { id } }, signal })),
+    previewSchedule: (id: string, body: PreviewRequest) =>
+      unwrap(raw.POST('/api/v1/plans/{id}/schedule/preview', { params: { path: { id } }, body })),
+    putWeekPattern: (id: string, body: WeekPattern) =>
+      unwrap(raw.PUT('/api/v1/plans/{id}/week-pattern', { params: { path: { id } }, body })),
+    putDayOverride: (id: string, date: string, body: Omit<DayOverride, 'date'>) =>
+      unwrap(
+        raw.PUT('/api/v1/plans/{id}/day-overrides/{date}', {
+          params: { path: { id, date } },
+          body,
+        }),
+      ),
+    deleteDayOverride: (id: string, date: string) =>
+      unwrap(
+        raw.DELETE('/api/v1/plans/{id}/day-overrides/{date}', { params: { path: { id, date } } }),
+      ),
+    listTasks: (planId: string, signal?: AbortSignal) =>
+      unwrap(raw.GET('/api/v1/plans/{planId}/tasks', { params: { path: { planId } }, signal })),
+    patchTask: (planId: string, taskId: string, body: TaskPatch) =>
+      unwrap(
+        raw.PATCH('/api/v1/plans/{planId}/tasks/{taskId}', {
+          params: { path: { planId, taskId } },
+          body,
+        }),
+      ),
+    addLog: (planId: string, taskId: string, body: LogRequest) =>
+      unwrap(
+        raw.POST('/api/v1/plans/{planId}/tasks/{taskId}/logs', {
+          params: { path: { planId, taskId } },
+          body,
+        }),
+      ),
+    completeTask: (planId: string, taskId: string) =>
+      unwrap(
+        raw.POST('/api/v1/plans/{planId}/tasks/{taskId}/complete', {
+          params: { path: { planId, taskId } },
+        }),
+      ),
+    skipTask: (planId: string, taskId: string) =>
+      unwrap(
+        raw.POST('/api/v1/plans/{planId}/tasks/{taskId}/skip', {
+          params: { path: { planId, taskId } },
+        }),
+      ),
+    reopenTask: (planId: string, taskId: string) =>
+      unwrap(
+        raw.POST('/api/v1/plans/{planId}/tasks/{taskId}/reopen', {
+          params: { path: { planId, taskId } },
+        }),
+      ),
+    getProgress: (planId: string, signal?: AbortSignal) =>
+      unwrap(raw.GET('/api/v1/plans/{planId}/progress', { params: { path: { planId } }, signal })),
     exportData: () => unwrap(raw.GET('/api/v1/me/export')),
     deleteAccount: (confirmation: string) =>
       unwrap(raw.DELETE('/api/v1/me', { body: { confirmation } })),
