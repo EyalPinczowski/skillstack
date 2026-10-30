@@ -232,4 +232,39 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
       ).rejects.toThrow(/Invalid schema/);
     }
   });
+
+  it('lets the backup role read sequences of later tables (pg_dump needs SELECT on them)', async () => {
+    const dir = await copyOfMigrations();
+    await writeFile(
+      join(dir, '0002_counted.sql'),
+      [
+        'set local role {{owner}};',
+        'create table {{schema}}.counted (id bigint generated always as identity primary key);',
+        'alter table {{schema}}.counted enable row level security;',
+        'create policy backup_select on {{schema}}.counted for select to {{backup}} using (true);',
+        '',
+      ].join('\n'),
+    );
+    await migrate({ schema: 'rnd', connectionString: TEST_DATABASE_URL!, migrationsDir: dir });
+    await withClient(TEST_SUPERUSER_URL!, async (client) => {
+      const { rows } = await client.query(
+        `select has_sequence_privilege('backup_rnd', 'rnd.counted_id_seq', 'SELECT') as backup,
+                has_sequence_privilege('backup_rnd', 'rnd.counted_id_seq', 'UPDATE') as backup_write`,
+      );
+      expect(rows[0]).toEqual({ backup: true, backup_write: false });
+    });
+  });
+});
+
+describe('migration files', () => {
+  it('refuses two files with the same version number before it connects', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'skillstack-migrations-'));
+    tempDirs.push(dir);
+    await writeFile(join(dir, '0001_first.sql'), 'select 1;\n');
+    await writeFile(join(dir, '0001_second.sql'), 'select 2;\n');
+    // No connection string: without the duplicate check this would fail for another reason.
+    await expect(migrate({ schema: 'rnd', migrationsDir: dir })).rejects.toThrow(
+      /Duplicate migration version 0001: 0001_first\.sql and 0001_second\.sql/,
+    );
+  });
 });

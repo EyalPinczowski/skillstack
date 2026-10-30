@@ -77,6 +77,9 @@ alter default privileges for role {{owner}} in schema {{schema}}
   grant select on tables to {{backup}};
 alter default privileges for role {{owner}} in schema {{schema}}
   grant usage, select on sequences to {{app_user}};
+-- pg_dump reads every sequence (SELECT last_value ...), so the backup role needs SELECT on them.
+alter default privileges for role {{owner}} in schema {{schema}}
+  grant select on sequences to {{backup}};
 -- Functions are executable by PUBLIC by default; take that away. This default cannot be
 -- limited to one schema, it applies to every function {{owner}} creates.
 alter default privileges for role {{owner}} revoke execute on functions from public;
