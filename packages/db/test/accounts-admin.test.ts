@@ -210,3 +210,62 @@ describe.skipIf(!dbAvailable)('allowlist, provision_user and promote-admin (rnd)
     });
   });
 });
+
+describe.skipIf(!dbAvailable)('delete_account (rnd)', () => {
+  let env: TestEnvironments;
+
+  beforeAll(async () => {
+    env = await prepareEnvironments();
+    await withClient(TEST_SUPERUSER_URL!, async (c) => {
+      await c.query(
+        `insert into rnd.allowed_emails (email) values ('a@example.com'), ('b@example.com')`,
+      );
+      await c.query(
+        `insert into rnd.app_users (id, email) values ($1, 'a@example.com'), ($2, 'b@example.com')`,
+        [U1, U2],
+      );
+      await c.query(
+        `insert into rnd.legal_acceptances (user_id, document, version) values ($1, 'terms', '0.1'), ($2, 'terms', '0.1')`,
+        [U1, U2],
+      );
+    });
+  });
+
+  it('deletes only the user in the claims, with their rows and allowlist entry', async () => {
+    await withClient(env.appUrl('rnd'), async (c) => {
+      await c.query('begin');
+      await c.query('set local role app_rnd_user');
+      await c.query(`select set_config('request.jwt.claims', $1, true)`, [
+        JSON.stringify({ sub: U1 }),
+      ]);
+      const res = await c.query('select rnd.delete_account() as ok');
+      await c.query('commit');
+      expect(res.rows[0].ok).toBe(true);
+    });
+    await withClient(TEST_SUPERUSER_URL!, async (c) => {
+      const users = await c.query('select id from rnd.app_users');
+      expect(users.rows).toEqual([{ id: U2 }]);
+      const acc = await c.query('select user_id from rnd.legal_acceptances');
+      expect(acc.rows).toEqual([{ user_id: U2 }]);
+      const allowed = await c.query('select email from rnd.allowed_emails');
+      expect(allowed.rows).toEqual([{ email: 'b@example.com' }]);
+    });
+  });
+
+  it('does nothing without a user context and is not executable by the login role', async () => {
+    await withClient(env.appUrl('rnd'), async (c) => {
+      await expect(c.query('select rnd.delete_account()')).rejects.toThrow(
+        /permission denied for function/,
+      );
+      await c.query('begin');
+      await c.query('set local role app_rnd_user');
+      const res = await c.query('select rnd.delete_account() as ok');
+      await c.query('commit');
+      expect(res.rows[0].ok).toBe(false);
+    });
+    await withClient(TEST_SUPERUSER_URL!, async (c) => {
+      const users = await c.query('select id from rnd.app_users');
+      expect(users.rows).toEqual([{ id: U2 }]);
+    });
+  });
+});

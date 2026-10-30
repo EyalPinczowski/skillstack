@@ -73,3 +73,33 @@ $$;
 revoke all on function {{schema}}.provision_user(uuid, text) from public;
 revoke all on function {{schema}}.provision_user(uuid, text) from {{app_user}};
 grant execute on function {{schema}}.provision_user(uuid, text) to {{app}};
+
+-- "Delete my account" (spec 3.A). The app role cannot delete app_users rows, so this function
+-- does it. It takes no argument: it can only ever delete the user in the request's claims
+-- (current_user_id()), so a request cannot delete anyone else even if the backend were wrong.
+-- Every user-owned table references app_users with ON DELETE CASCADE, so all rows go with it.
+-- The email is also removed from the allowlist, so a token that is still valid cannot silently
+-- re-create the account; getting back in needs a new invite. Returns whether a row was deleted.
+create function {{schema}}.delete_account() returns boolean
+  language plpgsql
+  security definer
+  set search_path = {{schema}}, pg_temp
+  as $$
+declare
+  v_id uuid := {{schema}}.current_user_id();
+  v_email text;
+begin
+  if v_id is null then
+    return false;
+  end if;
+  delete from {{schema}}.app_users where id = v_id returning lower(email) into v_email;
+  if v_email is null then
+    return false;
+  end if;
+  delete from {{schema}}.allowed_emails where email = v_email;
+  return true;
+end
+$$;
+
+revoke all on function {{schema}}.delete_account() from public;
+grant execute on function {{schema}}.delete_account() to {{app_user}};
