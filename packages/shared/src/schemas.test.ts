@@ -117,6 +117,17 @@ describe('WeekPatternSchema', () => {
       false,
     );
   });
+
+  it('rejects a time zone the platform does not know, so exports cannot crash later', () => {
+    for (const timezone of ['Asia/Jerusalam', 'Mars/Olympus', 'not a zone']) {
+      const result = WeekPatternSchema.safeParse({ ...pattern, timezone });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.path).toEqual(['timezone']);
+    }
+    for (const timezone of ['Asia/Jerusalem', 'Europe/London', 'UTC']) {
+      expect(WeekPatternSchema.safeParse({ ...pattern, timezone }).success).toBe(true);
+    }
+  });
 });
 
 describe('parsePlanFile', () => {

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { isLocalDate, isTime, parseTime } from './dates';
+import { isTimeZone } from './zone';
 
 /**
  * Shared data shapes (spec section 4). The API validates with these schemas and the web app
@@ -101,7 +102,8 @@ export const WeekPatternSchema = z
     breakEveryHours: z.number().positive().max(12).default(2),
     breakMinutes: z.number().int().min(0).max(120).default(10),
     minBlockMinutes: z.number().int().min(5).max(240).default(30),
-    timezone: z.string().min(1),
+    /** An IANA time zone the platform knows, e.g. `Asia/Jerusalem`. */
+    timezone: z.string().min(1).refine(isTimeZone, { message: 'Unknown time zone' }),
   })
   .superRefine((p, ctx) => {
     if (parseTime(p.windowEnd) <= parseTime(p.windowStart)) {
