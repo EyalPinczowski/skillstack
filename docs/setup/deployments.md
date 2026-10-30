@@ -66,7 +66,7 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 | Where  | Names                                                                                                       |
 | ------ | ----------------------------------------------------------------------------------------------------------- |
 | Vercel | `VITE_APP_ENV`, `VITE_API_URL`                                                                              |
-| Render | `NODE_VERSION`, `APP_ENV`, `HOST`, `CORS_ORIGINS`, `RATE_LIMIT_PER_MINUTE`, `TRUST_PROXY` (`PORT`: needs check whether Render injects it) |
+| Render | `NODE_VERSION`, `APP_ENV`, `HOST`, `CORS_ORIGINS`, `RATE_LIMIT_PER_MINUTE`, `TRUST_PROXY`, `NODE_ENV`, `SUPABASE_JWKS_URL`, `SUPABASE_JWT_ISSUER`, `DATABASE_URL` (see `docs/setup/api-auth.md`) (`PORT`: needs check whether Render injects it) |
 | GitHub | `API_HEALTH_URL` (repository variable or secret)                                                            |
 
 See `.env.example` and `apps/web/.env.example` for what each one means.

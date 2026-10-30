@@ -12,7 +12,14 @@ import {
 } from 'fastify-type-provider-zod';
 import pkg from '../package.json' with { type: 'json' };
 import type { Config } from './config';
+import { createDatabase, type Database } from './db/database';
 import { installErrorHandling } from './errors';
+import { accountRoutes } from './modules/accounts/routes';
+import {
+  createSupabaseVerifierFromUrl,
+  rejectAllVerifier,
+  type TokenVerifier,
+} from './modules/accounts/token-verifier';
 import { healthRoutes } from './modules/health/routes';
 import { installIdempotency } from './plugins/idempotency';
 import { generateRequestId, installRequestId } from './plugins/request-id';
@@ -26,8 +33,26 @@ const sharedScope = (fn: (instance: FastifyInstance) => void) =>
     [Symbol.for('skip-override')]: true,
   });
 
+/** Replaceable collaborators, so tests and local development can inject fakes. */
+export interface AppDeps {
+  /** Defaults to Supabase verification from config, or to rejecting every token when unconfigured. */
+  verifier?: TokenVerifier;
+  /** Defaults to a pool from config.databaseUrl, or to none (account routes answer 503). */
+  db?: Database | null;
+}
+
 /** Builds the app without listening, so tests can use `app.inject`. */
-export function buildApp(config: Config) {
+export function buildApp(config: Config, deps: AppDeps = {}) {
+  const verifier =
+    deps.verifier ??
+    (config.supabase ? createSupabaseVerifierFromUrl(config.supabase) : rejectAllVerifier);
+  const db =
+    deps.db !== undefined
+      ? deps.db
+      : config.databaseUrl
+        ? createDatabase({ connectionString: config.databaseUrl, appEnv: config.appEnv })
+        : null;
+
   const app = Fastify({
     // Default request logging has no headers or body; redact is a second line of defence.
     logger: {
@@ -82,7 +107,14 @@ export function buildApp(config: Config) {
   );
 
   app.register(swagger, {
-    openapi: { info: { title: `${APP_NAME} API`, version: pkg.version } },
+    openapi: {
+      info: { title: `${APP_NAME} API`, version: pkg.version },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        },
+      },
+    },
     transform: jsonSchemaTransform,
   });
   app.register(swaggerUi, { routePrefix: '/api/v1/docs' });
@@ -91,9 +123,17 @@ export function buildApp(config: Config) {
     async (v1) => {
       v1.get('/openapi.json', { schema: { hide: true } }, async () => app.swagger());
       v1.register(healthRoutes, { config });
+      v1.register(accountRoutes, { verifier, db });
     },
     { prefix: '/api/v1' },
   );
+
+  // An injected database belongs to whoever created it; only a pool built here is closed here.
+  if (db && deps.db === undefined) {
+    app.addHook('onClose', async () => {
+      await db.close();
+    });
+  }
 
   return app;
 }

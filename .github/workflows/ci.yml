@@ -47,6 +47,26 @@ jobs:
   api:
     name: api
     runs-on: ubuntu-latest
+    # The account tests run against real Postgres, like the `db` job.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          # Throwaway password of a CI-only service container that is destroyed with the job.
+          # It is not a secret and protects nothing.
+          POSTGRES_PASSWORD: ci-only-throwaway
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: ci-only-throwaway
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -56,7 +76,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @skillstack/api typecheck
-      - run: pnpm --filter @skillstack/api test
+      - name: Create the test database and the non-superuser admin role
+        run: |
+          psql -v ON_ERROR_STOP=1 -f packages/db/test/setup.sql
+          psql -v ON_ERROR_STOP=1 -c "alter role migrator password 'ci-only-throwaway'"
+      - name: Test against real Postgres
+        run: pnpm --filter @skillstack/api test
+        env:
+          CI: 'true'
+          TEST_DATABASE_URL: postgres://migrator:ci-only-throwaway@127.0.0.1:5432/skillstack_test
+          TEST_SUPERUSER_URL: postgres://postgres:ci-only-throwaway@127.0.0.1:5432/skillstack_test
       - run: pnpm --filter @skillstack/api build
 
   db:

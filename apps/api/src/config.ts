@@ -15,7 +15,10 @@ const originSchema = z
 
 const MAX_TRUST_PROXY = 5;
 
+const httpsUrl = z.url().refine((v) => v.startsWith('https://'), 'must be an https URL');
+
 const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   APP_ENV: z.enum(['operational', 'rnd']).default('operational'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   HOST: z.string().min(1).default('0.0.0.0'),
@@ -40,10 +43,25 @@ const envSchema = z.object({
     .refine((v) => Number(v) <= MAX_TRUST_PROXY, `must be at most ${MAX_TRUST_PROXY}`)
     .default('0')
     .transform(Number),
+  // Accounts (spec 3.A). All three are required when NODE_ENV=production (see loadConfig).
+  // Supabase Auth's JWKS endpoint, e.g. https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json
+  SUPABASE_JWKS_URL: httpsUrl.optional(),
+  // The `iss` of access tokens, e.g. https://<project-ref>.supabase.co/auth/v1
+  SUPABASE_JWT_ISSUER: httpsUrl.optional(),
+  // Connection string of the app_<schema> login (not the admin). Never logged.
+  DATABASE_URL: z
+    .string()
+    .regex(/^postgres(ql)?:\/\//, 'must be a postgres:// connection string')
+    .optional(),
   ...featureEnvShape,
 });
 
 export interface Config {
+  nodeEnv: 'development' | 'test' | 'production';
+  /** Null when not configured: sign-in then rejects every token (fail closed). */
+  supabase: { jwksUrl: string; issuer: string } | null;
+  /** Null when not configured: account routes answer 503. */
+  databaseUrl: string | null;
   appEnv: 'operational' | 'rnd';
   port: number;
   host: string;
@@ -69,7 +87,24 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     );
   }
   const e = parsed.data;
+  if (e.NODE_ENV === 'production') {
+    const missing = (['SUPABASE_JWKS_URL', 'SUPABASE_JWT_ISSUER', 'DATABASE_URL'] as const).filter(
+      (name) => !e[name],
+    );
+    if (missing.length > 0) {
+      throw new ConfigError(missing.map((name) => `${name}: required when NODE_ENV=production`));
+    }
+  }
+  if (Boolean(e.SUPABASE_JWKS_URL) !== Boolean(e.SUPABASE_JWT_ISSUER)) {
+    throw new ConfigError(['SUPABASE_JWKS_URL and SUPABASE_JWT_ISSUER: set both or neither']);
+  }
   return {
+    nodeEnv: e.NODE_ENV,
+    supabase:
+      e.SUPABASE_JWKS_URL && e.SUPABASE_JWT_ISSUER
+        ? { jwksUrl: e.SUPABASE_JWKS_URL, issuer: e.SUPABASE_JWT_ISSUER }
+        : null,
+    databaseUrl: e.DATABASE_URL ?? null,
     appEnv: e.APP_ENV,
     port: e.PORT,
     host: e.HOST,
