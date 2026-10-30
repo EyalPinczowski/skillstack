@@ -58,7 +58,7 @@ CONTRIBUTING.md     branching and merge strategy
 
 ## Development
 
-Node 22 and pnpm 10. The API reads plain environment variables (see `.env.example`; `TRUST_PROXY` stays `0` until the Render hop count is verified, needs check); the web app reads `apps/web/.env` (see `apps/web/.env.example`).
+Node 22 and pnpm 10. The API reads plain environment variables (see `.env.example`; `TRUST_PROXY` stays `0` until the Render hop count and X-Forwarded-For format are verified, needs check; maximum 5, and a value above the real number of proxy hops lets clients spoof their IP and defeats the rate limit); the web app reads `apps/web/.env` (see `apps/web/.env.example`).
 
 ```bash
 pnpm install

@@ -13,6 +13,8 @@ const originSchema = z
   .string()
   .refine(isBareOrigin, 'must be a bare origin such as https://app.example.com');
 
+const MAX_TRUST_PROXY = 5;
+
 const envSchema = z.object({
   APP_ENV: z.enum(['operational', 'rnd']).default('operational'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -31,9 +33,11 @@ const envSchema = z.object({
     .pipe(z.array(originSchema)),
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(120),
   // Number of reverse proxies in front of the API. 0 trusts nothing, so X-Forwarded-For is ignored.
+  // Capped: a value above the real hop count lets clients spoof their IP and defeats the rate limit.
   TRUST_PROXY: z
     .string()
     .regex(/^(0|[1-9]\d*)$/, 'must be a non-negative whole number of proxy hops, e.g. 0 or 1')
+    .refine((v) => Number(v) <= MAX_TRUST_PROXY, `must be at most ${MAX_TRUST_PROXY}`)
     .default('0')
     .transform(Number),
   ...featureEnvShape,

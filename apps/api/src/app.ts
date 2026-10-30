@@ -18,6 +18,8 @@ import { installIdempotency } from './plugins/idempotency';
 import { generateRequestId, installRequestId } from './plugins/request-id';
 import { installSecurityHeaders } from './plugins/security-headers';
 
+const HEALTH_URL = '/api/v1/health';
+
 /** A plugin that shares the root scope, so its hooks apply to every route (like fastify-plugin). */
 const sharedScope = (fn: (instance: FastifyInstance) => void) =>
   Object.assign(async (instance: FastifyInstance) => fn(instance), {
@@ -34,6 +36,8 @@ export function buildApp(config: Config) {
     },
     genReqId: generateRequestId,
     requestIdHeader: false,
+    // NEEDS CHECK (deployment branch): entries written as "[2001:db8::1]" or "1.2.3.4:80" are keyed
+    // separately from the plain address, so verify the format Render writes with the hop count.
     // Trust exactly `trustProxy` hops, so request.ip is the address the nearest trusted proxy
     // saw. 0 trusts nothing, so X-Forwarded-For cannot be spoofed. A function, because this
     // Fastify version fails closed on a bare number and would ignore the hop count.
@@ -60,6 +64,8 @@ export function buildApp(config: Config) {
   // global: false, because the plugin's own per-route hook would run after the app-level hooks.
   app.register(rateLimit, {
     global: false,
+    // Health is exempt so a client behind the same proxy IP cannot starve the keep-warm ping.
+    allowList: (request) => request.method === 'GET' && request.routeOptions.url === HEALTH_URL,
     max: config.rateLimitPerMinute,
     timeWindow: '1 minute',
   });

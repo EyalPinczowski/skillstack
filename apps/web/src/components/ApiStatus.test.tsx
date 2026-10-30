@@ -125,4 +125,71 @@ describe('ApiStatus', () => {
     expect(screen.getByText(/Connected/)).toBeInTheDocument();
     expect(screen.queryByText(/You're offline/)).not.toBeInTheDocument();
   });
+
+  it('shows the checking row while a retry runs, then the error again if it fails', async () => {
+    fetchMock.mockRejectedValueOnce(new TypeError('down'));
+    renderStatus();
+    await advance(0);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+
+    fetchMock.mockImplementationOnce(hangingFetch);
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    await advance(0);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    expect(screen.getByText('Checking the server…')).toBeInTheDocument();
+
+    await advance(3_000);
+    expect(screen.getByText(WAKING)).toBeInTheDocument();
+
+    await advance(60_000);
+    await advance(100);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+  });
+
+  describe('without AbortSignal.any (Safari before 17.4)', () => {
+    const original = AbortSignal.any;
+    beforeEach(() => {
+      // @ts-expect-error simulate an older browser
+      delete AbortSignal.any;
+    });
+    afterEach(() => {
+      AbortSignal.any = original;
+    });
+
+    it('still connects', async () => {
+      fetchMock.mockResolvedValue(health('rnd'));
+      renderStatus();
+      await advance(0);
+      expect(screen.getByText(/Connected/)).toBeInTheDocument();
+    });
+
+    it('still times out after 60 seconds', async () => {
+      fetchMock.mockImplementation(hangingFetch);
+      renderStatus();
+      await advance(59_000);
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      await advance(1_000);
+      await advance(100);
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+
+    it('forwards an abort from the caller (for example on unmount)', async () => {
+      let received: AbortSignal | undefined;
+      fetchMock.mockImplementation((_input, init) => {
+        received = init?.signal ?? undefined;
+        return hangingFetch(_input, init);
+      });
+      const { unmount } = render(
+        <QueryClientProvider client={createQueryClient()}>
+          <ApiStatus apiUrl={API} />
+        </QueryClientProvider>,
+      );
+      await advance(0);
+      expect(received?.aborted).toBe(false);
+      unmount();
+      await advance(0);
+      expect(received?.aborted).toBe(true);
+    });
+  });
 });

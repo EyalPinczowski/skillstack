@@ -58,13 +58,17 @@ describe('TRUST_PROXY', () => {
     ['0', 0],
     ['1', 1],
     ['2', 2],
+    ['5', 5],
   ])('accepts the hop count %s', (value, expected) => {
     expect(loadConfig({ TRUST_PROXY: value }).trustProxy).toBe(expected);
   });
 
-  it.each(['true', 'false', '-1', '1.5', 'abc', '', '01'])('rejects %j', (value) => {
-    expect(() => loadConfig({ TRUST_PROXY: value })).toThrow(/TRUST_PROXY/);
-  });
+  it.each(['true', 'false', '-1', '1.5', 'abc', '', '01', '6', '99999999999999999999999'])(
+    'rejects %j',
+    (value) => {
+      expect(() => loadConfig({ TRUST_PROXY: value })).toThrow(/TRUST_PROXY/);
+    },
+  );
 });
 
 describe('boolean variables', () => {
