@@ -2,7 +2,6 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { Database } from '../../db/database';
-import { ProvisionDeniedError } from '../../db/database';
 import { errorResponseSchema, HttpError } from '../../errors';
 import { CURRENT_LEGAL_VERSIONS } from './legal';
 import {
@@ -14,25 +13,8 @@ import {
   updateMeBody,
 } from './schemas';
 import { createAccountService } from './service';
-import { InvalidTokenError, type TokenVerifier } from './token-verifier';
-
-declare module 'fastify' {
-  interface FastifyRequest {
-    /** Set by the account guard: the user id comes only from the verified token's `sub`. */
-    accountId?: string;
-  }
-}
-
-const unauthorized = () => new HttpError(401, 'unauthorized', 'Authentication is required.');
-/** One message for every refusal (not on the list, cap reached, disabled): nothing to probe. */
-const forbidden = () => new HttpError(403, 'forbidden', 'This account cannot use Skillstack.');
-
-function bearerToken(request: FastifyRequest): string | null {
-  const header = request.headers.authorization;
-  if (typeof header !== 'string') return null;
-  const match = /^Bearer ([A-Za-z0-9._~+/=-]+)$/.exec(header);
-  return match ? match[1]! : null;
-}
+import { installAccountGuard } from './guard';
+import type { TokenVerifier } from './token-verifier';
 
 export interface AccountRoutesOptions {
   verifier: TokenVerifier;
@@ -52,35 +34,7 @@ export const accountRoutes: FastifyPluginAsyncZod<AccountRoutesOptions> = async 
 ) => {
   const service = db ? createAccountService(db) : null;
 
-  /** Verifies the token, provisions the account on first use and checks it is active. */
-  app.decorateRequest('accountId', undefined);
-  app.addHook('onRequest', async (request) => {
-    const token = bearerToken(request);
-    if (!token) throw unauthorized();
-    let verified;
-    try {
-      verified = await verifier.verify(token);
-    } catch (error) {
-      if (error instanceof InvalidTokenError) {
-        request.log.info({ reason: error.message }, 'token rejected');
-        throw unauthorized();
-      }
-      throw error;
-    }
-    if (!service) throw new HttpError(503, 'unavailable', 'The service is not available.');
-    try {
-      const user = await service.provision(verified.userId, verified.email);
-      if (user.status !== 'active') throw forbidden();
-    } catch (error) {
-      if (error instanceof ProvisionDeniedError) {
-        // The reason is for the operator only; the client gets the same answer every time.
-        request.log.info({ reason: error.reason }, 'account not provisioned');
-        throw forbidden();
-      }
-      throw error;
-    }
-    request.accountId = verified.userId;
-  });
+  installAccountGuard(app, verifier, service);
 
   const userId = (request: FastifyRequest) => request.accountId!;
 
