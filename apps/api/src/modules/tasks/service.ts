@@ -255,7 +255,7 @@ export function createTaskService(db: Database) {
       }),
 
     /**
-     * Adds a log in one transaction: the log, done_hours as the sum of logs, pending to
+     * Adds a log in one transaction: the log, done_hours raised by its hours, pending to
      * in_progress on the first log, and the events. Never closes the task by itself.
      */
     addLog: (userId: string, planId: string, taskId: string, input: LogBody) =>
@@ -306,15 +306,16 @@ export function createTaskService(db: Database) {
           return { replayed: true, log: toLogView(existing), task, suggestDone: suggestDone(task) };
         }
 
+        // Added to the stored value (under the row lock), not recomputed from the logs: an
+        // imported plan can carry doneHours that have no log rows, and those must not be lost.
         const { rows } = await ctx.client.query<TaskRow>(
           `update ${ctx.schema}.tasks set
-             done_hours = (select coalesce(sum(hours), 0) from ${ctx.schema}.logs
-                           where user_id = $1 and plan_id = $2 and task_id = $3),
+             done_hours = done_hours + $4::numeric,
              status = case when status = 'pending' then 'in_progress' else status end,
              updated_at = now()
            where user_id = $1 and plan_id = $2 and id = $3
            returning ${TASK_COLUMNS}`,
-          [userId, planId, taskId],
+          [userId, planId, taskId, input.hours],
         );
         const task = toTaskView(rows[0]!);
         if (before.status === 'pending' && task.status === 'in_progress') {

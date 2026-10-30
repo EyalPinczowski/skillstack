@@ -102,7 +102,7 @@ export const taskRoutes: FastifyPluginAsyncZod<TaskRoutesOptions> = async (
         tags,
         summary: 'Log hours worked on a task (idempotent by the client-generated log id)',
         description:
-          'Creates the log (201) or, for a retry with the same id and data, returns it (200). The same id with different data answers 409. done_hours becomes the sum of the logs; the first log moves a pending task to in_progress. The task is never closed here: when the hours reach the estimate the response sets suggestDone and the user completes it explicitly.',
+          'Creates the log (201) or, for a retry with the same id and data, returns it (200). The same id with different data answers 409. done_hours goes up by the logged hours (it keeps hours that came with an imported plan); the first log moves a pending task to in_progress. The task is never closed here: when the hours reach the estimate the response sets suggestDone and the user completes it explicitly.',
         security,
         params: taskParams,
         body: logBody,

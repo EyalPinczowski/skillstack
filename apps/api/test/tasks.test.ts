@@ -390,6 +390,23 @@ describe.skipIf(!dbAvailable)('tasks and logs (real Postgres, locally signed tok
   });
 
   describe('POST logs', () => {
+    it('adds to done hours that came with an imported plan instead of dropping them', async () => {
+      // An imported task can carry doneHours without any log rows (the plan file format allows it).
+      await testDb.admin((c) =>
+        c.query(
+          `update rnd.tasks set done_hours = 2 where user_id = $1 and plan_id = $2 and id = 't1'`,
+          [A, PLAN_A],
+        ),
+      );
+      const res = await call('POST', `${T()}/logs`, await asA(), logBody({ hours: 0.5 }));
+      expect(res.statusCode).toBe(201);
+      expect((res.json() as { task: { doneHours: number } }).task.doneHours).toBe(2.5);
+      expect(await taskRow()).toMatchObject({ done_hours: 2.5 });
+      // A retry of the same log adds nothing.
+      await call('POST', `${T()}/logs`, await asA(), logBody({ hours: 0.5 }));
+      expect(await taskRow()).toMatchObject({ done_hours: 2.5 });
+    });
+
     it('creates a log, recomputes done_hours, starts the task and writes both events', async () => {
       const res = await call('POST', `${T()}/logs`, await asA(), logBody({ note: 'n', score: 80 }));
       expect(res.statusCode).toBe(201);
