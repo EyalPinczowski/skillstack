@@ -27,9 +27,18 @@ export class InvalidEmailError extends Error {
 /** Lower-cases and trims; accepts only a simple local@domain shape without whitespace. */
 export function normalizeEmail(value: string): string {
   const email = value.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
-    throw new InvalidEmailError();
-  }
+  // Plain string checks instead of a regular expression: no backtracking on hostile input.
+  const at = email.indexOf('@');
+  const domain = email.slice(at + 1);
+  const dot = domain.lastIndexOf('.');
+  const valid =
+    email.length <= 254 &&
+    !/\s/.test(email) &&
+    at > 0 &&
+    at === email.lastIndexOf('@') &&
+    dot > 0 &&
+    dot < domain.length - 1;
+  if (!valid) throw new InvalidEmailError();
   return email;
 }
 
