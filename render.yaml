@@ -1,0 +1,49 @@
+# Render Blueprint: free web services for the Skillstack API.
+# Env var NAMES only; secrets use `sync: false` and are entered in the Render dashboard.
+# See docs/setup/deployments.md.
+services:
+  - type: web
+    name: skillstack-api
+    runtime: node
+    plan: free
+    branch: main
+    autoDeployTrigger: commit
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @skillstack/api build
+    startCommand: node apps/api/dist/server.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_VERSION # needs check: confirm Render reads this name (docs/setup/deployments.md)
+        value: '22'
+      - key: APP_ENV
+        value: operational
+      - key: HOST
+        value: 0.0.0.0
+      - key: CORS_ORIGINS
+        sync: false
+      - key: RATE_LIMIT_PER_MINUTE
+        sync: false
+      - key: TRUST_PROXY
+        sync: false
+
+  - type: web
+    name: skillstack-api-rnd
+    runtime: node
+    plan: free
+    branch: rnd
+    autoDeployTrigger: commit
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @skillstack/api build
+    startCommand: node apps/api/dist/server.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_VERSION
+        value: '22'
+      - key: APP_ENV
+        value: rnd
+      - key: HOST
+        value: 0.0.0.0
+      - key: CORS_ORIGINS
+        sync: false
+      - key: RATE_LIMIT_PER_MINUTE
+        sync: false
+      - key: TRUST_PROXY
+        sync: false
