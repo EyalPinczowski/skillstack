@@ -1,0 +1,3 @@
+# False positive: an arbitrary UUID used as an Idempotency-Key in a test, not a credential.
+# The test now generates its key at runtime; this exact finding stays in the pull request's history.
+a08bb18fe1f25d3d206ff183aed11fabf6f7e7aa:apps/api/test/idempotency.test.ts:generic-api-key:5

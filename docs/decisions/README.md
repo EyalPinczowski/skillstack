@@ -1,0 +1,17 @@
+# Architecture decision records
+
+One short record per significant choice: the context, the options considered, the decision and its consequences. A new record is written whenever a decision changes direction. Status values: **Accepted** (decided and, unless noted, built), **Planned** (decided, not built yet), **Superseded**.
+
+| # | Decision | Status |
+|---|---|---|
+| [001](001-dynamic-scheduling-as-pure-functions.md) | Dynamic scheduling as pure functions | Accepted |
+| [002](002-minimal-calendar-scopes-and-write-guard.md) | Minimal calendar scopes and a write guard | Planned |
+| [003](003-one-supabase-project-two-schemas.md) | One Supabase project, two schemas, per-environment roles | Planned |
+| [004](004-free-tier-ai-with-provider-fallback.md) | Free-tier AI with provider fallback, and AI as an optional extra | Planned |
+| [005](005-in-browser-demo-with-mocked-api.md) | In-browser demo with a mocked API | Planned |
+| [006](006-oauth-production-status-without-verification.md) | OAuth in production status, without Google verification at first | Planned |
+| [007](007-catalog-grounded-plan-generation.md) | The AI picks from a verified catalog | Planned |
+| [008](008-visual-design.md) | Visual design: Blocks direction, logo A | Accepted |
+| [009](009-hosting-on-free-tiers.md) | Hosting on free tiers: Vercel, Render, Supabase | Planned |
+
+Facts about third-party free plans change often. Anything in these records that has not been confirmed on the provider's own documentation is marked **needs check**.
