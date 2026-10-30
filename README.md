@@ -4,7 +4,7 @@
 
 Skillstack is a web app (PWA) that turns a learning goal into a study plan – courses, certificates and practice sized to the time you have – and then runs that plan day by day: what to do today, practice sessions, an end-of-day review, and automatic rescheduling based on what actually happened.
 
-> **Status: early development.** Phase 0 (environments) is built on `rnd` and in review; the owner's setup steps are in `docs/reviews/phase-0.md`. This README grows with each release.
+> **Status: early development.** Phase 0 (environments) and v0.1 (foundation) are built on `rnd` and in review; the owner's setup steps are in `docs/reviews/phase-0.md` and `docs/reviews/v0.1.md`. This README grows with each release.
 
 ## Why
 
@@ -15,7 +15,7 @@ Study plans usually fail on the second day: something takes longer, something co
 | Phase | What | Status |
 |---|---|---|
 | 0 | Environments: `main` / `rnd`, CI, two database schemas, deployments, backups | In review |
-| v0.1 | Foundation: accounts with row-level security, data model, scheduling engine, tasks API, minimal UI | Planned |
+| v0.1 | Foundation: accounts with row-level security, data model, scheduling engine, tasks API, minimal UI | In review |
 | v0.2 | Daily experience: dashboard, day briefing, day review, adjustment rules | Planned |
 | v0.3 | Practices: in-app practice with free AI models and provider fallback | Planned |
 | v0.4 | Content, plan and admin console | Planned |
