@@ -46,9 +46,19 @@ interface LedgerRow {
 async function loadMigrations(dir: string): Promise<MigrationFile[]> {
   const entries = (await readdir(dir)).filter((f) => f.endsWith('.sql')).sort();
   const migrations: MigrationFile[] = [];
+  const seen = new Map<string, string>();
   for (const file of entries) {
     const match = MIGRATION_FILE.exec(file);
     if (!match) throw new Error(`Migration file name must look like 0001_name.sql: ${file}`);
+    // The ledger is keyed by version: a second file with the same number would be skipped
+    // as "already applied" or reported as a changed file. Two branches picked the same number.
+    const other = seen.get(match[1]!);
+    if (other) {
+      throw new Error(
+        `Duplicate migration version ${match[1]}: ${other} and ${file}. Renumber one.`,
+      );
+    }
+    seen.set(match[1]!, file);
     const sql = await readFile(`${dir}/${file}`, 'utf8');
     migrations.push({
       file,

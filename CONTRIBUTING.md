@@ -27,7 +27,7 @@ feature/<area>-<name> ──PR──▶ rnd ──release PR──▶ main
 
 - [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `test:`, `docs:`, `refactor:`, `chore:`.
 - A PR describes what changed, why, how to test it, and includes a screenshot for UI changes. It links its issue ("Closes #n").
-- CI must pass: lint, type-check and tests for each of `web`, `api` and `shared`.
+- CI must pass: lint, type-check and tests for each of `web`, `api` and `shared`, and the `db` tests against real Postgres.
 
 ## Ready to release
 
@@ -50,7 +50,7 @@ Set these in GitHub under **Settings → Rules → Rulesets**, which can allow a
 **Ruleset `rnd`** (target: branch `rnd`)
 - Restrict deletions and block force pushes.
 - Require a pull request before merging: 0 required approvals, allowed merge method **squash** only, require conversation resolution.
-- Require status checks: `shared`, `catalog-drift`, `gitleaks`, `analyze (javascript-typescript)`, `analyze (python)`. Add `web` and `api` when those jobs exist. Don't require the branch to be up to date.
+- Require status checks: `shared`, `web`, `api`, `db`, `catalog-drift`, `gitleaks`, `analyze (javascript-typescript)`, `analyze (python)`. Don't require the branch to be up to date.
 - No bypass actors.
 
 **Ruleset `main`** (target: branch `main`)

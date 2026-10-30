@@ -14,7 +14,7 @@ From [Project pausing](https://supabase.com/docs/guides/platform/free-project-pa
 - A free project with low activity over a week is paused. A few database requests a day are typically enough to prevent it.
 - A paused project is resumed from the dashboard, and the docs currently give a one-year restore window.
 
-Skillstack plans for this: the keep-warm workflow pings the API, and the API's health check touches the database, so a project in daily use is not paused. The R&D schema shares the same project, so only one of the two free projects is used.
+Skillstack plans for this: the keep-warm workflow pings the API. **Not yet true:** the API's health check (`GET /api/v1/health`) does not touch the database, and nothing else queries it in Phase 0, so the project can still be paused after a week without database activity. Until the API reads from the database on every health check (planned for v0.1), resume a paused project from the dashboard or run the `status` action of the DB migrate workflow at least weekly (needs check that a read-only query counts as activity). The R&D schema shares the same project, so only one of the two free projects is used.
 
 **Needs check:** whether the free plan asks for a credit card when creating the project. If it does, stop and tell the maintainer; the rule for this project is $0 and no card.
 

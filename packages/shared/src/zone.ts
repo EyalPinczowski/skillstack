@@ -1,5 +1,15 @@
 import { parseLocalDate, type LocalDate, type Minutes } from './dates';
 
+/** True when the platform's time-zone database knows `timeZone` (e.g. `Asia/Jerusalem`). */
+export function isTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Offset of `timeZone` from UTC at the given instant, in minutes (e.g. +120 for UTC+2).
  * Uses the platform's time-zone database through `Intl`, so no extra dependency.
