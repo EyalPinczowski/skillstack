@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { loadFeatures, type Features } from './features';
+import { featureEnvShape, toFeatures, type Features } from './features';
 
 const isBareOrigin = (value: string) => {
   try {
@@ -30,8 +30,13 @@ const envSchema = z.object({
     )
     .pipe(z.array(originSchema)),
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().min(1).default(120),
-  // Set behind a reverse proxy (Render) so rate limits see the client IP, not the proxy's.
-  TRUST_PROXY: z.enum(['true', 'false']).default('false'),
+  // Number of reverse proxies in front of the API. 0 trusts nothing, so X-Forwarded-For is ignored.
+  TRUST_PROXY: z
+    .string()
+    .regex(/^(0|[1-9]\d*)$/, 'must be a non-negative whole number of proxy hops, e.g. 0 or 1')
+    .default('0')
+    .transform(Number),
+  ...featureEnvShape,
 });
 
 export interface Config {
@@ -41,7 +46,7 @@ export interface Config {
   logLevel: z.infer<typeof envSchema>['LOG_LEVEL'];
   corsOrigins: string[];
   rateLimitPerMinute: number;
-  trustProxy: boolean;
+  trustProxy: number;
   features: Features;
 }
 
@@ -67,7 +72,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     logLevel: e.LOG_LEVEL,
     corsOrigins: e.CORS_ORIGINS,
     rateLimitPerMinute: e.RATE_LIMIT_PER_MINUTE,
-    trustProxy: e.TRUST_PROXY === 'true',
-    features: loadFeatures(env),
+    trustProxy: e.TRUST_PROXY,
+    features: toFeatures(e),
   };
 }

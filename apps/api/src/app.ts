@@ -3,7 +3,7 @@ import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { APP_NAME } from '@skillstack/shared';
-import Fastify from 'fastify';
+import Fastify, { type FastifyInstance } from 'fastify';
 import {
   jsonSchemaTransform,
   serializerCompiler,
@@ -16,6 +16,13 @@ import { installErrorHandling } from './errors';
 import { healthRoutes } from './modules/health/routes';
 import { installIdempotency } from './plugins/idempotency';
 import { generateRequestId, installRequestId } from './plugins/request-id';
+import { installSecurityHeaders } from './plugins/security-headers';
+
+/** A plugin that shares the root scope, so its hooks apply to every route (like fastify-plugin). */
+const sharedScope = (fn: (instance: FastifyInstance) => void) =>
+  Object.assign(async (instance: FastifyInstance) => fn(instance), {
+    [Symbol.for('skip-override')]: true,
+  });
 
 /** Builds the app without listening, so tests can use `app.inject`. */
 export function buildApp(config: Config) {
@@ -27,25 +34,47 @@ export function buildApp(config: Config) {
     },
     genReqId: generateRequestId,
     requestIdHeader: false,
-    trustProxy: config.trustProxy,
+    // Trust exactly `trustProxy` hops, so request.ip is the address the nearest trusted proxy
+    // saw. 0 trusts nothing, so X-Forwarded-For cannot be spoofed. A function, because this
+    // Fastify version fails closed on a bare number and would ignore the hop count.
+    trustProxy: (_address: string, hop: number) => hop < config.trustProxy,
   }).withTypeProvider<ZodTypeProvider>();
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
+  // Order matters because hooks run in registration order: the request id first so every
+  // response carries it, then CORS and the rate limit so that errors thrown by any later hook
+  // (and 404s) still get CORS headers and still count against the limit.
   installRequestId(app);
-  installIdempotency(app);
   installErrorHandling(app);
 
   app.register(cors, {
     // Exact-match allow list; an empty list denies every cross-origin request.
     origin: (origin, callback) =>
       callback(null, origin !== undefined && config.corsOrigins.includes(origin)),
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['content-type', 'authorization', 'idempotency-key', 'x-request-id'],
+    exposedHeaders: ['x-request-id', 'retry-after'],
   });
+  // global: false, because the plugin's own per-route hook would run after the app-level hooks.
   app.register(rateLimit, {
+    global: false,
     max: config.rateLimitPerMinute,
     timeWindow: '1 minute',
   });
+  app.register(
+    sharedScope((instance) => {
+      instance.addHook('onRequest', instance.rateLimit());
+    }),
+  );
+  app.register(
+    sharedScope((instance) => {
+      installIdempotency(instance);
+      installSecurityHeaders(instance);
+    }),
+  );
+
   app.register(swagger, {
     openapi: { info: { title: `${APP_NAME} API`, version: pkg.version } },
     transform: jsonSchemaTransform,

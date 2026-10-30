@@ -1,9 +1,18 @@
 import { z } from 'zod';
 
+const isHttpUrl = (value: string) => {
+  try {
+    return /^https?:$/.test(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+};
+
 const envSchema = z.object({
   VITE_APP_ENV: z.enum(['operational', 'rnd', 'demo']).default('operational'),
   VITE_API_URL: z
-    .url()
+    .string()
+    .refine(isHttpUrl, 'must be an http: or https: URL, e.g. https://api.example.com')
     .default('http://localhost:3000')
     .transform((url) => url.replace(/\/+$/, '')),
 });
@@ -24,5 +33,3 @@ export function parseEnv(raw: Record<string, unknown>): Env {
   }
   return { appEnv: parsed.data.VITE_APP_ENV, apiUrl: parsed.data.VITE_API_URL };
 }
-
-export const env = parseEnv(import.meta.env);

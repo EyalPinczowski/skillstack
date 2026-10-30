@@ -3,18 +3,20 @@ import { z } from 'zod';
 import { errorResponseSchema } from '../src/errors';
 import { testApp } from './helpers';
 
-/** An app with two test-only routes: one validates input, one throws. */
-function appWithTestRoutes(overrides: Parameters<typeof testApp>[0] = {}) {
-  const app = testApp(overrides);
+/** An app with test-only routes: one validates input, one throws, one fails with a given status. */
+function appWithTestRoutes() {
+  const app = testApp();
   app.get(
     '/test/validate',
     { schema: { querystring: z.object({ n: z.coerce.number().int() }) } },
-    async () => ({
-      ok: true,
-    }),
+    async () => ({ ok: true }),
   );
   app.get('/test/boom', async () => {
     throw new Error('secret database password is hunter2');
+  });
+  app.get('/test/status/:code', async (request) => {
+    const { code } = request.params as { code: string };
+    throw Object.assign(new Error('internal detail xyzzy'), { statusCode: Number(code) });
   });
   return app;
 }
@@ -67,17 +69,37 @@ describe('error shape', () => {
   });
 });
 
-describe('rate limit', () => {
-  it('returns 429 in the error shape once the limit is exceeded', async () => {
-    const app = testApp({ rateLimitPerMinute: 2 });
-    const hit = () => app.inject({ method: 'GET', url: '/api/v1/health' });
-    expect((await hit()).statusCode).toBe(200);
-    expect((await hit()).statusCode).toBe(200);
-    const res = await hit();
-    expect(res.statusCode).toBe(429);
-    const body = errorResponseSchema.parse(res.json());
-    expect(body.error.code).toBe('rate_limited');
-    expect(body.error.requestId).toBe(res.headers['x-request-id']);
+describe('error codes follow the status', () => {
+  it.each([
+    [400, 'bad_request'],
+    [401, 'unauthorized'],
+    [403, 'forbidden'],
+    [404, 'not_found'],
+    [409, 'conflict'],
+    [422, 'unprocessable'],
+    [429, 'rate_limited'],
+    [418, 'client_error'],
+    [451, 'client_error'],
+  ])('%i becomes %s', async (status, code) => {
+    const app = appWithTestRoutes();
+    const res = await app.inject({ method: 'GET', url: `/test/status/${status}` });
+    expect(res.statusCode).toBe(status);
+    const { error } = errorResponseSchema.parse(res.json());
+    expect(error.code).toBe(code);
+    expect(res.body).not.toContain('xyzzy');
+    await app.close();
+  });
+
+  it('only 400 uses the 400 message', async () => {
+    const app = appWithTestRoutes();
+    const messages = new Map<number, string>();
+    for (const status of [400, 401, 403, 409, 418, 422]) {
+      const res = await app.inject({ method: 'GET', url: `/test/status/${status}` });
+      messages.set(status, errorResponseSchema.parse(res.json()).error.message);
+    }
+    for (const status of [401, 403, 409, 418, 422]) {
+      expect(messages.get(status)).not.toBe(messages.get(400));
+    }
     await app.close();
   });
 });

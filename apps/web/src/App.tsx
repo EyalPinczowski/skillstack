@@ -10,7 +10,7 @@ export function App({ env, queryClient }: { env: Env; queryClient: QueryClient }
     <QueryClientProvider client={queryClient}>
       <a
         href="#main"
-        className="sr-only rounded-sm bg-accent px-4 py-3 font-bold text-on-accent focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-10"
+        className="fixed left-4 top-4 z-10 inline-flex min-h-11 -translate-y-[200%] items-center rounded-sm bg-accent px-4 py-3 font-bold text-on-accent focus:translate-y-0"
       >
         Skip to main content
       </a>

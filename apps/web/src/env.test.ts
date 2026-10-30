@@ -13,6 +13,20 @@ describe('parseEnv', () => {
     });
   });
 
+  it.each([
+    'localhost:3000',
+    'ftp://api.example.test',
+    'javascript:alert(1)',
+    'api.example.test',
+    '',
+  ])('rejects %j as the API url', (url) => {
+    expect(() => parseEnv({ VITE_API_URL: url })).toThrow(/VITE_API_URL/);
+  });
+
+  it.each(['http://localhost:3000', 'https://api.example.test'])('accepts %s', (url) => {
+    expect(parseEnv({ VITE_API_URL: url }).apiUrl).toBe(url);
+  });
+
   it('rejects an unknown environment and a bad url, naming both', () => {
     expect(() => parseEnv({ VITE_APP_ENV: 'staging', VITE_API_URL: 'nope' })).toThrow(
       /VITE_APP_ENV[\s\S]*VITE_API_URL/,

@@ -1,19 +1,29 @@
 import { describe, expect, it } from 'vitest';
 import { ConfigError, loadConfig } from '../src/config';
-import { featureNames, loadFeatures } from '../src/features';
+import { featureNames } from '../src/features';
 
-describe('loadConfig', () => {
-  it('applies the documented defaults', () => {
-    expect(loadConfig({})).toMatchObject({
+describe('loadConfig defaults', () => {
+  it('are exactly the documented ones, with every feature flag off', () => {
+    expect(loadConfig({})).toEqual({
       appEnv: 'operational',
       port: 3000,
       host: '0.0.0.0',
       logLevel: 'info',
       corsOrigins: [],
       rateLimitPerMinute: 120,
+      trustProxy: 0,
+      features: {
+        notifications: false,
+        sharing: false,
+        offline: false,
+        pushNotifications: false,
+      },
     });
+    expect(featureNames).toHaveLength(4);
   });
+});
 
+describe('loadConfig', () => {
   it('parses a comma separated origin list', () => {
     const config = loadConfig({ CORS_ORIGINS: 'https://a.example.com, http://localhost:5173' });
     expect(config.corsOrigins).toEqual(['https://a.example.com', 'http://localhost:5173']);
@@ -43,32 +53,41 @@ describe('loadConfig', () => {
   );
 });
 
-describe('feature flags', () => {
-  it('are all off by default', () => {
-    expect(featureNames).toHaveLength(4);
-    for (const features of [loadFeatures({}), loadConfig({}).features]) {
-      expect(Object.keys(features).sort()).toEqual([
-        'notifications',
-        'offline',
-        'pushNotifications',
-        'sharing',
-      ]);
-      expect(Object.values(features).every((v) => v === false)).toBe(true);
-    }
+describe('TRUST_PROXY', () => {
+  it.each([
+    ['0', 0],
+    ['1', 1],
+    ['2', 2],
+  ])('accepts the hop count %s', (value, expected) => {
+    expect(loadConfig({ TRUST_PROXY: value }).trustProxy).toBe(expected);
   });
 
-  it('can be turned on, but only by FEATURE_<NAME>=true', () => {
-    const features = loadFeatures({
+  it.each(['true', 'false', '-1', '1.5', 'abc', '', '01'])('rejects %j', (value) => {
+    expect(() => loadConfig({ TRUST_PROXY: value })).toThrow(/TRUST_PROXY/);
+  });
+});
+
+describe('boolean variables', () => {
+  it('turns a feature flag on only with the literal "true"', () => {
+    const config = loadConfig({
       FEATURE_SHARING: 'true',
-      FEATURE_PUSH_NOTIFICATIONS: '1',
+      FEATURE_PUSH_NOTIFICATIONS: 'true',
       FEATURE_OFFLINE: 'false',
-      FEATURE_NOTIFICATIONS: 'yes',
     });
-    expect(features).toEqual({
+    expect(config.features).toEqual({
       notifications: false,
       sharing: true,
       offline: false,
       pushNotifications: true,
     });
   });
+
+  it.each(['1', 'yes', 'TRUE', 'True', 'on', ' true', ''])(
+    'rejects %j and names the variable',
+    (value) => {
+      expect(() => loadConfig({ FEATURE_NOTIFICATIONS: value })).toThrow(
+        /FEATURE_NOTIFICATIONS: must be exactly "true" or "false"/,
+      );
+    },
+  );
 });
