@@ -1,0 +1,39 @@
+name: Wake up API
+
+# Keeps the free Render API awake during study hours (docs/decisions/009).
+# Render Free spins down after 15 minutes without traffic, so we ping every 14 minutes.
+# Cron is UTC. 04:00-19:59 UTC covers 07:00-22:00 Asia/Jerusalem in both daylight-saving
+# offsets (UTC+2 and UTC+3); the guard step below enforces the exact local window.
+# Study hours 07:00-22:00 are a placeholder: NEEDS CHECK, the spec does not define them.
+on:
+  schedule:
+    - cron: '*/14 4-19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      API_HEALTH_URL: ${{ vars.API_HEALTH_URL || secrets.API_HEALTH_URL }}
+    steps:
+      - name: Check local time window
+        id: window
+        run: |
+          hour=$(TZ=Asia/Jerusalem date +%H)
+          hour=$((10#$hour))
+          if [ -z "$API_HEALTH_URL" ]; then
+            echo "API_HEALTH_URL is not set; skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "$hour" -ge 7 ] && [ "$hour" -lt 22 ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Outside 07:00-22:00 Asia/Jerusalem; skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Ping API health
+        if: steps.window.outputs.run == 'true'
+        run: curl --fail --silent --show-error --max-time 90 --retry 2 --retry-delay 10 "$API_HEALTH_URL" > /dev/null
