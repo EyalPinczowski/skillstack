@@ -11,6 +11,7 @@ export default tseslint.config(
       '**/dist/**',
       '**/coverage/**',
       'data/**',
+      'apps/web/src/api/schema.d.ts',
       '.claude/worktrees/**',
     ],
   },

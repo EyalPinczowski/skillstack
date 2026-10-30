@@ -15,7 +15,9 @@
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",
-    "catalog:check": "bash scripts/check-catalog-drift.sh"
+    "catalog:check": "bash scripts/check-catalog-drift.sh",
+    "api:types": "bash scripts/generate-api-types.sh",
+    "api:types:check": "bash scripts/check-api-types-drift.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
