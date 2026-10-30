@@ -1,0 +1,18 @@
+{
+  "name": "Skillstack",
+  "short_name": "Skillstack",
+  "description": "Build your skills, one block at a time.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#3546C9",
+  "background_color": "#F4F5F8",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

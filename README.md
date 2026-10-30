@@ -46,11 +46,25 @@ flowchart LR
 ## Repository layout
 
 ```
+apps/web/           React + Vite + Tailwind PWA
+apps/api/           Fastify REST API (/api/v1, OpenAPI docs)
+packages/shared/    Zod schemas, date helpers, scheduling engine
 docs/SPEC.md        build spec (source of truth)
 docs/legal/         privacy policy, terms of use, disclaimer (drafts)
 data/catalog/       course catalog, roles, skills, intake questions, RAG documents
 CLAUDE.md           rules for Claude Code
 CONTRIBUTING.md     branching and merge strategy
+```
+
+## Development
+
+Node 22 and pnpm 10. The API reads plain environment variables (see `.env.example`); the web app reads `apps/web/.env` (see `apps/web/.env.example`).
+
+```bash
+pnpm install
+CORS_ORIGINS=http://localhost:5173 pnpm --filter @skillstack/api dev   # http://localhost:3000, docs at /api/v1/docs
+pnpm --filter @skillstack/web dev     # http://localhost:5173
+pnpm lint && pnpm typecheck && pnpm test
 ```
 
 ## Legal
