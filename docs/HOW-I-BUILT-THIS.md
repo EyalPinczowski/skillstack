@@ -4,7 +4,7 @@ A short, honest account of the working method behind Skillstack. It only describ
 
 ## Spec first
 
-The project starts from [`docs/SPEC.md`](SPEC.md). `CLAUDE.md` tells the AI assistant to treat it as the source of truth and to say so when the spec, the catalog data and the code disagree, instead of guessing. This guide is an example: while writing the backup setup, the spec (backups as a short-lived private Actions artifact, never committed) and a later decision (encrypted files in a separate private repo) did not match, so [`docs/setup/backup.md`](setup/backup.md) states the conflict at the top rather than quietly picking one.
+The project starts from [`docs/SPEC.md`](SPEC.md). `CLAUDE.md` tells the AI assistant to treat it as the source of truth and to say so when the spec, the catalog data and the code disagree, instead of guessing. The backup setup is an example: a first draft of [`docs/setup/backup.md`](setup/backup.md) differed from the spec (committed weekly files instead of short-lived artifacts), the mismatch was raised instead of silently chosen, and the owner decided to follow the spec: a daily encrypted dump kept as a private Actions artifact for 30 days, never committed.
 
 ## Phases with review gates
 
@@ -30,7 +30,7 @@ The rule is $0: free plans of Supabase, Vercel and Render, nothing that needs a 
 - The API never accepts a `user_id` from the client.
 - Personal details are not sent to AI models.
 - The calendar integration uses the narrowest scopes and a write guard so the app only touches events it created (ADR 002).
-- Secrets stay out of the repo (secret scanning with gitleaks runs in CI). The owner's personal data and the backup files live in a separate private repo; backups are encrypted with `age` and the private key stays offline.
+- Secrets stay out of the repo (secret scanning with gitleaks runs in CI). The owner's personal data lives in a separate private repo, which also runs the backup job; backups are encrypted with `age`, kept as 30-day private artifacts, and the private key stays offline.
 
 ## Tests that fail without the fix
 

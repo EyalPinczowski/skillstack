@@ -2,14 +2,9 @@
 
 Background: SPEC section 5 (Backups), ADR 003 (the read-only `backup_<schema>` role) and `packages/db/README.md`. The Supabase free plan has no point-in-time restore, so a scheduled job dumps one schema, encrypts it and stores it away from the app.
 
-## Open conflict with the spec (decide before relying on this)
+## Retention
 
-SPEC section 5 says: daily export, encrypted, to a private GitHub Actions artifact with 30-day retention, **never committed to a git repo**, and "deleted accounts disappear from backups within the retention window". This guide follows the owner's newer instruction instead: a **weekly** job that **commits the encrypted file to a separate private repo** (`skillstack-private`) and uploads nothing as an Actions artifact. Two consequences:
-
-- Git history keeps every committed file. Deleting a file later does not remove it from history, so "deleted accounts disappear within the retention window" is **not true** unless old backups are purged from history (for example by force-pushing a squashed orphan branch on a schedule). Until that is decided, the privacy page must not make that promise for backups.
-- The files are encrypted with a public key, so a leak of the private repo alone does not expose data. The age private key is the only thing that matters (below).
-
-SPEC section 5 should be updated (or this guide changed) once the owner decides. Cadence (weekly vs daily) is the same kind of open point.
+This follows SPEC section 5: a **daily** job in the private repo uploads the encrypted dump as a private Actions artifact with `retention-days: 30`. It is **never committed** to any repo, so old backups (and deleted accounts) expire with the artifact. The files are encrypted with a public key; the age private key is the only thing that can read them.
 
 ## What you need
 
@@ -52,11 +47,11 @@ name: backup
 
 on:
   schedule:
-    - cron: '17 3 * * 0' # weekly, Sunday 03:17 UTC
+    - cron: '17 3 * * *' # daily, 03:17 UTC
   workflow_dispatch:
 
 permissions:
-  contents: write # commits the encrypted file to this private repo
+  contents: read
 
 concurrency:
   group: backup
@@ -72,9 +67,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Check out this private repo
-        uses: actions/checkout@v4 # needs check: pin to a full commit SHA
-
       - name: Check out the backup script from the public repo
         uses: actions/checkout@v4 # needs check: pin to a full commit SHA
         with:
@@ -98,21 +90,21 @@ jobs:
         run: |
           bash skillstack-public/packages/db/scripts/backup.sh --schema "$SCHEMA" --out-dir backups
 
-      - name: Commit the encrypted file to this private repo
-        run: |
-          git config user.name "backup-bot"
-          git config user.email "backup-bot@users.noreply.github.com"
-          git add backups/*.dump.age
-          git commit -m "chore: ${SCHEMA} backup $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push
+      - name: Upload the encrypted file as a private artifact
+        uses: actions/upload-artifact@v4 # needs check: pin to a full commit SHA
+        with:
+          name: ${{ env.SCHEMA }}-backup
+          path: backups/*.dump.age
+          retention-days: 30
+          if-no-files-found: error
 ```
 
 Notes:
 
-- Nothing is uploaded with `actions/upload-artifact`. The only output is the encrypted `.dump.age` file committed to the private repo.
+- The only output is the encrypted `.dump.age` file as an Actions artifact kept 30 days. Nothing is committed or pushed. Artifacts of a private repo are visible only to people with access to it.
 - GitHub masks secrets in logs, and the script never prints the connection string. Do not add `set -x` or `echo` of secrets.
-- GitHub disables scheduled workflows in a repo after 60 days without repo activity. The weekly commit counts as activity, but check once in a while that new files keep appearing. Needs check against GitHub's current docs.
-- Needs check: free-plan limits on private-repo Actions minutes and on repo size. Weekly dumps add up in git history (see the open conflict above).
+- GitHub disables scheduled workflows in a repo after 60 days without repo activity, and this job makes no commits. Check from time to time that new artifacts appear, and re-enable the workflow if needed. Needs check against GitHub's current docs.
+- Needs check: free-plan limits on private-repo Actions minutes and artifact storage (30 daily dumps are kept at once).
 
 ### Connection string: pooler or direct
 
@@ -132,7 +124,8 @@ Needs check. `pg_dump` refuses to dump a server with a newer major version than 
 
 Do this once on `rnd` before relying on the backups, and again after any change to the scripts or the Supabase plan. SPEC section 9 expects the backup action and restore script to be proven.
 
-- [ ] Run the workflow manually (`workflow_dispatch`) with `SCHEMA` set to `rnd` and confirm a new `rnd-<timestamp>.dump.age` appears in the private repo.
+- [ ] Run the workflow manually (`workflow_dispatch`) with `SCHEMA` set to `rnd` and confirm the run succeeds and an `rnd-backup` artifact appears.
+- [ ] Download the artifact (zip) from the run page and unzip it.
 - [ ] Check the file is encrypted: `head -c 20 file` shows no `PGDMP`.
 - [ ] Get the private key from the password manager into a temporary file outside any repo (`chmod 600`).
 - [ ] Create a scratch database that is **not** the live one (a local Postgres, or a throwaway Supabase project). Create the roles named in the policies (`backup_rnd`, `app_rnd_user`) first if you want a clean restore; otherwise `pg_restore` reports errors for those policy statements.
@@ -151,4 +144,3 @@ If a step fails, the backup is not trustworthy: fix it before the next release.
 - Whether `backup_<schema>` can read everything `pg_dump` needs on Supabase (sequences, extensions in other schemas are not dumped with `--schema`).
 - GitHub's current rules for scheduled workflows in inactive repos, and private-repo Actions minutes and storage on the free plan.
 - Pinning `actions/checkout` to a full commit SHA.
-- The retention conflict with SPEC section 5 described at the top.
