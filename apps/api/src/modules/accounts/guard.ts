@@ -1,8 +1,8 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import type { Database } from '../../db/database';
 import { ProvisionDeniedError } from '../../db/database';
 import { HttpError } from '../../errors';
-import { InvalidTokenError, type TokenVerifier } from '../accounts/token-verifier';
+import type { AccountService } from './service';
+import { InvalidTokenError, type TokenVerifier } from './token-verifier';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -12,6 +12,7 @@ declare module 'fastify' {
 }
 
 const unauthorized = () => new HttpError(401, 'unauthorized', 'Authentication is required.');
+/** One message for every refusal (not on the list, cap reached, disabled): nothing to probe. */
 const forbidden = () => new HttpError(403, 'forbidden', 'This account cannot use Skillstack.');
 
 /** A bearer token of token characters only: a linear check, no backtracking on user input. */
@@ -23,12 +24,14 @@ function bearerToken(request: FastifyRequest): string | null {
 }
 
 /**
- * Verifies the token, checks the account is active and sets `request.accountId` from `sub`.
- * Same rules and the same answers as the account routes (generic 403 for every refusal).
+ * Verifies the token, provisions the account on first use and checks it is active. Install it
+ * once in every plugin scope that serves signed-in routes; it sets `request.accountId` from the
+ * verified token and from nowhere else.
  */
 export function installAccountGuard(
   app: FastifyInstance,
-  { verifier, db }: { verifier: TokenVerifier; db: Database | null },
+  verifier: TokenVerifier,
+  service: AccountService | null,
 ): void {
   app.decorateRequest('accountId', undefined);
   app.addHook('onRequest', async (request) => {
@@ -38,15 +41,22 @@ export function installAccountGuard(
     try {
       verified = await verifier.verify(token);
     } catch (error) {
-      if (error instanceof InvalidTokenError) throw unauthorized();
+      if (error instanceof InvalidTokenError) {
+        request.log.info({ reason: error.message }, 'token rejected');
+        throw unauthorized();
+      }
       throw error;
     }
-    if (!db) throw new HttpError(503, 'unavailable', 'The service is not available.');
+    if (!service) throw new HttpError(503, 'unavailable', 'The service is not available.');
     try {
-      const user = await db.provision(verified.userId, verified.email ?? '');
+      const user = await service.provision(verified.userId, verified.email);
       if (user.status !== 'active') throw forbidden();
     } catch (error) {
-      if (error instanceof ProvisionDeniedError) throw forbidden();
+      if (error instanceof ProvisionDeniedError) {
+        // The reason is for the operator only; the client gets the same answer every time.
+        request.log.info({ reason: error.reason }, 'account not provisioned');
+        throw forbidden();
+      }
       throw error;
     }
     request.accountId = verified.userId;

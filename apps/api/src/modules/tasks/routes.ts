@@ -2,8 +2,9 @@ import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import type { FastifyRequest } from 'fastify';
 import type { Database } from '../../db/database';
 import { errorResponseSchema } from '../../errors';
+import { installAccountGuard } from '../accounts/guard';
+import { createAccountService } from '../accounts/service';
 import type { TokenVerifier } from '../accounts/token-verifier';
-import { installAccountGuard } from './auth';
 import {
   logBody,
   logList,
@@ -38,7 +39,7 @@ export const taskRoutes: FastifyPluginAsyncZod<TaskRoutesOptions> = async (
   app,
   { verifier, db },
 ) => {
-  installAccountGuard(app, { verifier, db });
+  installAccountGuard(app, verifier, db ? createAccountService(db) : null);
   const service = db ? createTaskService(db) : null;
   /** The user id comes only from the verified token, never from the request. */
   const user = (request: FastifyRequest) => request.accountId!;
