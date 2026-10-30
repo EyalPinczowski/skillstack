@@ -66,6 +66,9 @@ alter schema {{schema}} owner to {{owner}};
 revoke all on schema {{schema}} from public;
 revoke all on schema {{schema}} from {{app}};
 grant usage on schema {{schema}} to {{app_user}}, {{backup}};
+-- The login role needs USAGE (nothing else) to call provision_user(), the one function it may
+-- execute directly (migration 0006). It still has no privilege on any table.
+grant usage on schema {{schema}} to {{app}};
 
 -- The login role has no way into the database objects except via {{app_user}}.
 revoke all on all tables in schema {{schema}} from {{app}};

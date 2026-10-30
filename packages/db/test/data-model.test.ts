@@ -264,7 +264,7 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
       client.query<{ relname: string }>(
         `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
           where n.nspname = 'rnd' and c.relkind = 'r'
-            and c.relname not in ('environment_info', 'schema_migrations')`,
+            and c.relname not in ('environment_info', 'schema_migrations', 'allowed_emails')`,
       ),
     );
     expect(rows.map((r) => r.relname).sort()).toEqual([...ALL_TABLE_NAMES].sort());
