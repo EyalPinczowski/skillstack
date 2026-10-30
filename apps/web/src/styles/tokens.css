@@ -1,0 +1,134 @@
+/* Design tokens, "Blocks" direction. Light is the default; dark follows the OS unless
+   data-theme="light" is set, and data-theme="dark" forces it. The two dark blocks must match. */
+:root {
+  --bg: #f4f5f8;
+  --surface: #ffffff;
+  --surface-2: #ebedf2;
+  --border: #d3d8e0;
+  --text: #161a22;
+  --muted: #525a68;
+  --accent: #3546c9;
+  --accent-2: #7d8bea;
+  --on-accent: #ffffff;
+  --accent-soft: #e4e8fc;
+  --accent-soft-text: #27349a;
+  --warn: #a04500;
+  --warn-soft: #fceadb;
+  --ok: #1f6f4a;
+  --ok-soft: #ddf1e7;
+
+  --task-course: #2456c4;
+  --task-course-soft: #e3ebfb;
+  --task-exam: #a04500;
+  --task-exam-soft: #fceadb;
+  --task-practice: #6a3db5;
+  --task-practice-soft: #eee7fa;
+  --task-admin: #4f5866;
+  --task-admin-soft: #eceef1;
+  --task-cv: #1f6f4a;
+  --task-cv-soft: #ddf1e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #111319;
+    --surface: #1a1d25;
+    --surface-2: #242833;
+    --border: #343a47;
+    --text: #eceef3;
+    --muted: #a6adbb;
+    --accent: #93a3ff;
+    --accent-2: #5464d6;
+    --on-accent: #0d1333;
+    --accent-soft: #252d5a;
+    --accent-soft-text: #c9d1ff;
+    --warn: #ffa46e;
+    --warn-soft: #3b2618;
+    --ok: #6fd3a2;
+    --ok-soft: #173327;
+
+    --task-course: #86a9ff;
+    --task-course-soft: #1e2a4a;
+    --task-exam: #ffa46e;
+    --task-exam-soft: #3b2618;
+    --task-practice: #c4a6ff;
+    --task-practice-soft: #2d2245;
+    --task-admin: #b1b8c5;
+    --task-admin-soft: #262a33;
+    --task-cv: #6fd3a2;
+    --task-cv-soft: #173327;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #111319;
+  --surface: #1a1d25;
+  --surface-2: #242833;
+  --border: #343a47;
+  --text: #eceef3;
+  --muted: #a6adbb;
+  --accent: #93a3ff;
+  --accent-2: #5464d6;
+  --on-accent: #0d1333;
+  --accent-soft: #252d5a;
+  --accent-soft-text: #c9d1ff;
+  --warn: #ffa46e;
+  --warn-soft: #3b2618;
+  --ok: #6fd3a2;
+  --ok-soft: #173327;
+
+  --task-course: #86a9ff;
+  --task-course-soft: #1e2a4a;
+  --task-exam: #ffa46e;
+  --task-exam-soft: #3b2618;
+  --task-practice: #c4a6ff;
+  --task-practice-soft: #2d2245;
+  --task-admin: #b1b8c5;
+  --task-admin-soft: #262a33;
+  --task-cv: #6fd3a2;
+  --task-cv-soft: #173327;
+}
+
+/* Expose the tokens as Tailwind utilities (bg-surface, text-muted, rounded-lg, ...).
+   "inline" keeps the var() reference so the dark overrides above apply at runtime. */
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-text: var(--accent-soft-text);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-task-course: var(--task-course);
+  --color-task-course-soft: var(--task-course-soft);
+  --color-task-exam: var(--task-exam);
+  --color-task-exam-soft: var(--task-exam-soft);
+  --color-task-practice: var(--task-practice);
+  --color-task-practice-soft: var(--task-practice-soft);
+  --color-task-admin: var(--task-admin);
+  --color-task-admin-soft: var(--task-admin-soft);
+  --color-task-cv: var(--task-cv);
+  --color-task-cv-soft: var(--task-cv-soft);
+}
+
+@theme {
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --spacing: 4px;
+  --font-sans: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-body: 16px;
+  --text-h2: 22px;
+  --text-h1: 26px;
+}
