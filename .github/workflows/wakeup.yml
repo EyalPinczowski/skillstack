@@ -2,12 +2,12 @@ name: Wake up API
 
 # Keeps the free Render API awake during study hours (docs/decisions/009).
 # Render Free spins down after 15 minutes without traffic, so we ping every 14 minutes.
-# Cron is UTC. 04:00-19:59 UTC covers 07:00-22:00 Asia/Jerusalem in both daylight-saving
+# Cron is UTC. 05:00-18:59 UTC covers 08:00-20:00 Asia/Jerusalem in both daylight-saving
 # offsets (UTC+2 and UTC+3); the guard step below enforces the exact local window.
-# Study hours 07:00-22:00 are a placeholder: NEEDS CHECK, the spec does not define them.
+# Study hours 08:00-20:00 were chosen by the owner; the spec does not define them.
 on:
   schedule:
-    - cron: '*/14 4-19 * * *'
+    - cron: '*/14 5-18 * * *'
   workflow_dispatch:
 
 permissions:
@@ -28,10 +28,10 @@ jobs:
           if [ -z "$API_HEALTH_URL" ]; then
             echo "API_HEALTH_URL is not set; skipping."
             echo "run=false" >> "$GITHUB_OUTPUT"
-          elif [ "$hour" -ge 7 ] && [ "$hour" -lt 22 ]; then
+          elif [ "$hour" -ge 8 ] && [ "$hour" -lt 20 ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Outside 07:00-22:00 Asia/Jerusalem; skipping."
+            echo "Outside 08:00-20:00 Asia/Jerusalem; skipping."
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Ping API health

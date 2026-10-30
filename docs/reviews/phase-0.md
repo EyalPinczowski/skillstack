@@ -136,7 +136,7 @@ Collected from the code and the guides. None were verified in this review.
   - `pg_dump` version compared with the server's;
   - `age` and the right `postgresql-client` on `ubuntu-latest`;
   - session pooler versus direct connection for `pg_dump`.
-- **Study hours** for the wake-up job: 07:00–22:00 `Asia/Jerusalem` is a placeholder; the spec does not define them.
+- **Study hours** for the wake-up job: the owner chose 08:00–20:00 `Asia/Jerusalem` (resolved); the spec does not define them.
 - **Provider facts listed as verified on 2026-10-30** in `docs/setup/deployments.md` and `docs/setup/supabase.md` (Render's 750 h and 15-minute sleep, Vercel Hobby limits, Supabase's two projects, 500 MB and 50,000 MAU, the 2 emails an hour) were taken from the guides and not re-checked here.
 
 ## Suggested improvements for v0.1
