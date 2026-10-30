@@ -534,6 +534,28 @@ describe.skipIf(!dbAvailable)('plans and schedule (real Postgres, locally signed
       expect(after.warnings.some((w: { kind: string }) => w.kind === 'anchor_at_risk')).toBe(true);
     });
 
+    it('schedules nothing before the plan start date when today is earlier', async () => {
+      // The demo plan starts on Sunday 2026-11-01; Sunday 2026-10-25 is a study weekday too.
+      const res = await call('GET', `/plans/${PLAN}/schedule?today=2026-10-25`, await asA());
+      expect(res.statusCode).toBe(200);
+      const body = res.json() as { today: string; blocks: { date: string }[] };
+      expect(body.today).toBe('2026-10-25');
+      expect(body.blocks.length).toBeGreaterThan(0);
+      expect(body.blocks.filter((b) => b.date < '2026-11-01')).toEqual([]);
+      // Same answer as asking on the start date itself.
+      const onStart = (
+        await call('GET', `/plans/${PLAN}/schedule?today=2026-11-01`, await asA())
+      ).json() as { blocks: unknown[]; finishDate: string };
+      expect(body.blocks).toEqual(onStart.blocks);
+
+      const preview = await call('POST', `/plans/${PLAN}/schedule/preview`, await asA(), {
+        today: '2026-10-25',
+      });
+      expect(preview.statusCode).toBe(200);
+      const proposed = (preview.json() as { proposed: { blocks: { date: string }[] } }).proposed;
+      expect(proposed.blocks.filter((b) => b.date < '2026-11-01')).toEqual([]);
+    });
+
     it('reports anchor_at_risk with the engine options', async () => {
       const res = await call('GET', `/plans/${PLAN}/schedule?today=2026-11-20`, await asA());
       expect(res.statusCode).toBe(200);
