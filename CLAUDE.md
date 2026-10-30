@@ -35,6 +35,10 @@ Skillstack turns a learning goal into a study plan and runs it day by day (PWA; 
 - Stop at the end of every phase: run the review gate, show what works on the R&D environment, and wait for approval before releasing.
 - When sending the owner a plan for approval, send only what is new.
 - The whole project (UI, content, code, comments, commits, docs) is in English.
+- **Model split:** plan and review on Opus. Code is written by Sonnet subagents, each working from a precise brief (files, tests, acceptance criteria) in an isolated worktree. Every diff is reviewed on Opus before it merges, and a fix's test must fail without the fix.
+- **Questions for the owner** go in the question box (`AskUserQuestion`), asked in the same step as ongoing work so building doesn't wait.
+- **Save tokens:** delegate broad reads and coding to subagents, read file ranges instead of whole files, cap search output, and don't re-read files just written.
+- **Design:** no design plugin is installed. Follow the approved Blocks design and the craft rules in the web app's brief (no gradients, no nested cards, no decorative emoji) and check the result against them in review.
 
 ## Catalog data (`data/catalog/`)
 - Read `data/catalog/README.md` first. Don't hand-edit the generated JSON/SQL: edit `build/catalog.py`, `taxonomy.py` or `questions.py` and run `python3 data/catalog/build/build.py` (run it from `data/catalog/build`). CI fails if generated files drift.
