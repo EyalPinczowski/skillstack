@@ -54,9 +54,15 @@ const describeWarning = (w: ScheduleWarning): string => {
     case 'anchor_in_past':
       return `${title(w.taskId)} was set for ${longDate(w.anchorDate)}, which has passed.`;
     case 'unscheduled':
-      return `${title(w.taskId)} doesn't fit (${Math.round(w.remainingMinutes / 6) / 10} h left over).`;
+      return `${title(w.taskId)} doesn't fit (${Math.round(w.remainingMinutes / 6) / 10} h left over)${w.blockedBy ? `, because ${title(w.blockedBy)} can never be placed` : ''}.`;
     case 'dependency_cycle':
       return `These tasks depend on each other in a loop: ${w.taskIds.map(title).join(', ')}.`;
+    case 'fixed_block_truncated':
+      return `${title(w.taskId)} on ${longDate(w.date)} runs past 23:59; ${w.droppedMinutes} min were cut.`;
+    case 'over_capacity':
+      return `${longDate(w.date)} has ${Math.round(w.scheduledMinutes / 6) / 10} h of fixed blocks but only ${Math.round(w.capacityMinutes / 6) / 10} h of capacity.`;
+    case 'fixed_overlap':
+      return `Fixed blocks overlap on ${longDate(w.date)}: ${w.taskIds.map(title).join(', ')}.`;
   }
 };
 const warnings = result.warnings.map(describeWarning);

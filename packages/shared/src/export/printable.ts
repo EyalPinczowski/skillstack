@@ -1,5 +1,6 @@
 import { parseLocalDate, weekday, WEEKDAY_NAMES } from '../dates';
 import type { Task } from '../schemas';
+import { TASK_TYPE_LABEL } from '../labels';
 import type { ScheduleResult } from '../scheduling/engine';
 
 /**
@@ -21,14 +22,6 @@ const MONTHS = [
   'November',
   'December',
 ];
-
-const TYPE_LABEL: Record<Task['type'], string> = {
-  course: 'Course',
-  cert_exam: 'Exam',
-  practice: 'Practice',
-  admin: 'Admin',
-  cv_update: 'CV update',
-};
 
 /** Task-type colours from the chosen "Blocks" design (light theme), each with a text label. */
 const TYPE_COLOR: Record<Task['type'], string> = {
@@ -69,7 +62,8 @@ export function scheduleToHtml(
         .map((b) => {
           const task = byId.get(b.taskId);
           const type = task?.type ?? 'course';
-          const label = b.kind === 'anchor' ? `${TYPE_LABEL[type]} · fixed time` : TYPE_LABEL[type];
+          const label =
+            b.kind === 'anchor' ? `${TASK_TYPE_LABEL[type]} · fixed time` : TASK_TYPE_LABEL[type];
           return `<tr>
   <td class="time">${b.start}–${b.end}</td>
   <td class="task" style="border-left-color:${TYPE_COLOR[type]}">${escapeHtml(task?.title ?? b.taskId)}</td>
@@ -136,8 +130,9 @@ ${sections}
 }
 
 function csvCell(value: string | number): string {
-  const s = String(value);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  // Text that starts like a formula gets a leading quote so spreadsheets show it as text.
+  const s = typeof value === 'string' && /^[=+\-@\t\r]/.test(value) ? `'${value}` : String(value);
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 /** One row per task per day, with empty columns for actual hours, status and a note. */

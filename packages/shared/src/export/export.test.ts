@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { schedule } from '../scheduling/engine';
 import { basePattern, task } from '../scheduling/test-helpers';
+import { TASK_TYPE_LABEL } from '../labels';
 import { escapeIcsText, foldIcsLine, scheduleToIcs } from './ics';
 import { logTemplateCsv, longDate, scheduleToHtml } from './printable';
 
@@ -67,5 +68,31 @@ describe('printable schedule and log template', () => {
     expect(lines[0]).toBe('date,task_id,task,type,planned_hours,actual_hours,status,note');
     expect(csv).toContain('2026-11-01,course,SQL basics,course,3,,,');
     expect(csv).toContain('"Exam, part 1; final"');
+  });
+
+  it('quotes carriage returns and neutralises spreadsheet formulas', () => {
+    const risky = [
+      task({ id: 'f1', title: '=SUM(A1)', estHours: 1, order: 1 }),
+      task({ id: 'f2', title: '@cmd', estHours: 1, order: 2 }),
+      task({ id: 'f3', title: 'a\rb', estHours: 1, order: 3 }),
+      task({ id: 'f4', title: '-5, then', estHours: 1, order: 4 }),
+      task({ id: 'f5', title: '\tTabbed', estHours: 1, order: 5 }),
+    ];
+    const res = schedule({ tasks: risky, pattern: basePattern, today: '2026-11-01' });
+    const csv = logTemplateCsv(res, risky);
+    expect(csv).toContain(",'=SUM(A1),");
+    expect(csv).toContain(",'@cmd,");
+    expect(csv).toContain(',"a\rb",');
+    expect(csv).toContain(',"\'-5, then",');
+    expect(csv).toContain(",'\tTabbed,");
+    // Planned hours stay plain numbers.
+    expect(csv).toContain("f1,'=SUM(A1),course,1,,,");
+  });
+});
+
+describe('task type labels', () => {
+  it('are shared by both exports', () => {
+    expect(TASK_TYPE_LABEL.cert_exam).toBe('Exam');
+    expect(TASK_TYPE_LABEL.cv_update).toBe('CV update');
   });
 });

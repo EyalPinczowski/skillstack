@@ -80,8 +80,19 @@ export type ScheduleWarning =
       options: AnchorOption[];
     }
   | { kind: 'anchor_in_past'; taskId: string; anchorDate: LocalDate }
-  | { kind: 'unscheduled'; taskId: string; remainingMinutes: number }
-  | { kind: 'dependency_cycle'; taskIds: string[] };
+  | {
+      kind: 'unscheduled';
+      taskId: string;
+      remainingMinutes: number;
+      /** The first task that can never finish (on a cycle, or an anchor in the past). */
+      blockedBy?: string;
+    }
+  | { kind: 'dependency_cycle'; taskIds: string[] }
+  /** A fixed block ran past 23:59; the part after it was dropped. */
+  | { kind: 'fixed_block_truncated'; taskId: string; date: LocalDate; droppedMinutes: number }
+  /** Fixed blocks (anchor, pinned, locked) alone take more than the day's capacity. */
+  | { kind: 'over_capacity'; date: LocalDate; scheduledMinutes: number; capacityMinutes: number }
+  | { kind: 'fixed_overlap'; date: LocalDate; taskIds: string[] };
 
 export interface ScheduleResult {
   days: DayPlan[];
@@ -93,6 +104,8 @@ export interface ScheduleResult {
 
 const DONE = Number.NEGATIVE_INFINITY;
 const MINUTES_PER_DAY = 1440;
+/** The last minute a block may end on: 23:59. */
+const LAST_MINUTE = MINUTES_PER_DAY - 1;
 
 /** Remaining minutes of a task: estimate minus logged hours; 0 when done or skipped. */
 export function remainingMinutes(task: Task): number {
@@ -100,31 +113,48 @@ export function remainingMinutes(task: Task): number {
   return Math.max(0, hoursToMinutes(task.estHours) - hoursToMinutes(task.doneHours));
 }
 
-/** Ids of tasks on a dependency cycle (empty when the graph is acyclic). */
+/** Sorted ids of every task on a dependency cycle (empty when the graph is acyclic). */
 export function findDependencyCycle(tasks: Task[]): string[] {
   const byId = new Map(tasks.map((t) => [t.id, t]));
-  const state = new Map<string, 'visiting' | 'done'>();
+  const nodes = new Map<string, { index: number; low: number }>();
+  const onStack = new Set<string>();
   const stack: string[] = [];
-  const visit = (id: string): string[] => {
-    const s = state.get(id);
-    if (s === 'done') return [];
-    if (s === 'visiting') return stack.slice(stack.indexOf(id));
-    state.set(id, 'visiting');
+  const onCycle: string[] = [];
+  const connect = (id: string) => {
+    const node = { index: nodes.size, low: nodes.size };
+    nodes.set(id, node);
     stack.push(id);
-    for (const dep of byId.get(id)?.dependsOn ?? []) {
+    onStack.add(id);
+    const deps = byId.get(id)?.dependsOn ?? [];
+    for (const dep of deps) {
       if (!byId.has(dep)) continue;
-      const cycle = visit(dep);
-      if (cycle.length) return cycle;
+      const other = nodes.get(dep);
+      if (!other) {
+        connect(dep);
+        node.low = Math.min(node.low, nodes.get(dep)?.low ?? node.low);
+      } else if (onStack.has(dep)) {
+        node.low = Math.min(node.low, other.index);
+      }
     }
-    stack.pop();
-    state.set(id, 'done');
-    return [];
+    if (node.low !== node.index) return;
+    const component: string[] = [];
+    let member: string | undefined;
+    do {
+      member = stack.pop();
+      if (member === undefined) break;
+      onStack.delete(member);
+      component.push(member);
+    } while (member !== id);
+    if (component.length > 1 || deps.includes(id)) onCycle.push(...component);
   };
-  for (const t of tasks) {
-    const cycle = visit(t.id);
-    if (cycle.length) return cycle;
-  }
-  return [];
+  for (const t of tasks) if (!nodes.has(t.id)) connect(t.id);
+  return onCycle.sort();
+}
+
+function pushByDate(map: Map<LocalDate, Block[]>, b: Block): void {
+  const list = map.get(b.date);
+  if (list) list.push(b);
+  else map.set(b.date, [b]);
 }
 
 function block(
@@ -176,6 +206,8 @@ export function schedule(input: ScheduleInput): ScheduleResult {
 
   // 1. Fixed blocks: anchors (exams), pinned tasks and blocks the user locked.
   const fixed: Block[] = [];
+  const fixedByDate = new Map<LocalDate, Block[]>();
+  const earliest = new Map<string, number>(); // a task may not start before this absolute time
   const takeFixed = (
     task: Task,
     date: LocalDate,
@@ -186,11 +218,31 @@ export function schedule(input: ScheduleInput): ScheduleResult {
     const left = remaining.get(task.id) ?? 0;
     const len = Math.min(minutes, left);
     if (len <= 0) return;
-    const end = Math.min(start + len, MINUTES_PER_DAY);
-    fixed.push(block(task.id, date, start, end, kind));
-    remaining.set(task.id, left - (end - start));
+    const end = Math.min(start + len, LAST_MINUTE);
+    const dropped = start + len - end;
+    if (end > start) {
+      const b = block(task.id, date, start, end, kind);
+      fixed.push(b);
+      pushByDate(fixedByDate, b);
+    }
+    remaining.set(task.id, dropped > 0 ? 0 : left - len);
     lastFixedEnd.set(task.id, Math.max(lastFixedEnd.get(task.id) ?? DONE, abs(date, end)));
+    if (dropped > 0) {
+      warnings.push({
+        kind: 'fixed_block_truncated',
+        taskId: task.id,
+        date,
+        droppedMinutes: dropped,
+      });
+    }
   };
+
+  const isFixedAnchor = (task: Task) =>
+    task.isAnchor && task.anchorDate !== undefined && task.anchorStartTime !== undefined;
+  const pinnedFrom = (task: Task) =>
+    !isFixedAnchor(task) && task.pinnedStart && compareDates(task.pinnedStart.date, today) >= 0
+      ? task.pinnedStart
+      : undefined;
 
   for (const lb of input.lockedBlocks ?? []) {
     const task = byId.get(lb.taskId);
@@ -207,15 +259,90 @@ export function schedule(input: ScheduleInput): ScheduleResult {
       }
       takeFixed(task, task.anchorDate, parseTime(task.anchorStartTime), Infinity, 'anchor');
       noGreedy.add(task.id);
-    } else if (task.pinnedStart && compareDates(task.pinnedStart.date, today) >= 0) {
-      takeFixed(task, task.pinnedStart.date, parseTime(task.pinnedStart.start), Infinity, 'pinned');
+    } else {
+      // A task that can't be split is placed whole at the pinned time, like an anchor.
+      const pin = pinnedFrom(task);
+      if (pin && !task.splittable) {
+        takeFixed(task, pin.date, parseTime(pin.start), Infinity, 'pinned');
+      }
     }
+  }
+  // A splittable pinned task starts at the pinned time and uses the free time from there.
+  for (const task of tasks) {
+    const pin = pinnedFrom(task);
+    const need = remaining.get(task.id) ?? 0;
+    if (!pin || !task.splittable || need <= 0) continue;
+    const start = parseTime(pin.start);
+    earliest.set(task.id, abs(pin.date, start));
+    const cap = dayCapacity(pin.date, pattern, overrides, busy);
+    if (!cap.isStudyDay) continue;
+    const dayFixed = fixedByDate.get(pin.date) ?? [];
+    const capLeft = cap.capacityMinutes - dayFixed.reduce((s, b) => s + b.minutes, 0);
+    const slot = subtractIntervals(window, [
+      ...busyIntervalsOn(pin.date, busy),
+      ...dayFixed.map((b) => ({ start: parseTime(b.start), end: parseTime(b.end) })),
+    ]).find((i) => i.start <= start && start < i.end);
+    if (!slot) continue;
+    const len = Math.min(need, slot.end - start, capLeft);
+    if (len <= 0) continue;
+    takeFixed(task, pin.date, start, len, 'pinned');
+    if ((remaining.get(task.id) ?? 0) > 0) earliest.set(task.id, abs(pin.date, start + len));
   }
   for (const t of tasks) {
     if ((remaining.get(t.id) ?? 0) === 0 && !endAt.has(t.id)) {
       endAt.set(t.id, lastFixedEnd.get(t.id) ?? DONE);
     }
   }
+
+  for (const [date, list] of [...fixedByDate].sort((a, b) => compareDates(a[0], b[0]))) {
+    const capacityMinutes = dayCapacity(date, pattern, overrides, busy).capacityMinutes;
+    const scheduledMinutes = list.reduce((s, b) => s + b.minutes, 0);
+    if (scheduledMinutes > capacityMinutes) {
+      warnings.push({ kind: 'over_capacity', date, scheduledMinutes, capacityMinutes });
+    }
+    const sorted = [...list].sort((a, b) => parseTime(a.start) - parseTime(b.start));
+    const overlapping = new Set<string>();
+    let reach = -1;
+    let reachTask = '';
+    for (const b of sorted) {
+      if (parseTime(b.start) < reach) {
+        overlapping.add(b.taskId);
+        overlapping.add(reachTask);
+      }
+      if (parseTime(b.end) > reach) {
+        reach = parseTime(b.end);
+        reachTask = b.taskId;
+      }
+    }
+    if (overlapping.size) {
+      warnings.push({ kind: 'fixed_overlap', date, taskIds: [...overlapping].sort() });
+    }
+  }
+
+  // Tasks that wait on a task that can never finish would only make the day loop run to the
+  // end of the horizon, so they are left out of the greedy pass.
+  const blockerMemo = new Map<string, string | undefined>();
+  const blockerOf = (id: string): string | undefined => {
+    if (blockerMemo.has(id)) return blockerMemo.get(id);
+    let found: string | undefined;
+    if (!byId.has(id) || endAt.has(id)) found = undefined;
+    else if (noGreedy.has(id)) found = id;
+    else {
+      for (const dep of byId.get(id)?.dependsOn ?? []) {
+        found = blockerOf(dep);
+        if (found) break;
+      }
+    }
+    blockerMemo.set(id, found);
+    return found;
+  };
+  const blockedBy = new Map<string, string>();
+  for (const t of tasks) {
+    if (noGreedy.has(t.id) || (remaining.get(t.id) ?? 0) <= 0) continue;
+    const blocker = blockerOf(t.id);
+    if (blocker) blockedBy.set(t.id, blocker);
+  }
+  for (const id of blockedBy.keys()) noGreedy.add(id);
 
   // Priority: CV updates first, then the plan order.
   const queue = [...tasks].sort(
@@ -233,23 +360,19 @@ export function schedule(input: ScheduleInput): ScheduleResult {
     });
 
   const greedy: Block[] = [];
+  const greedyByDate = new Map<LocalDate, Block[]>();
   const breaksByDate = new Map<LocalDate, Interval[]>();
-  const lastFixedDate = fixed.reduce<LocalDate>(
-    (max, b) => (compareDates(b.date, max) > 0 ? b.date : max),
-    today,
-  );
 
   // 2. Fill the days, one at a time.
   for (let offset = 0; offset <= horizon; offset++) {
     const date = addDays(today, offset);
     const workLeft = queue.some((t) => !noGreedy.has(t.id) && (remaining.get(t.id) ?? 0) > 0);
-    if (!workLeft && compareDates(date, lastFixedDate) > 0) break;
-    if (!workLeft) continue;
+    if (!workLeft) break;
 
     const cap = dayCapacity(date, pattern, overrides, busy);
     if (!cap.isStudyDay) continue;
 
-    const fixedToday = fixed.filter((b) => b.date === date);
+    const fixedToday = fixedByDate.get(date) ?? [];
     let capLeft = Math.max(0, cap.capacityMinutes - fixedToday.reduce((s, b) => s + b.minutes, 0));
     let free = subtractIntervals(window, [
       ...busyIntervalsOn(date, busy),
@@ -276,10 +399,16 @@ export function schedule(input: ScheduleInput): ScheduleResult {
         }
 
         let placed = false;
+        let wake = Infinity; // when a task held back by `earliest` may start
         for (const task of queue) {
           const need = remaining.get(task.id) ?? 0;
           if (need <= 0 || noGreedy.has(task.id)) continue;
           if (task.notBefore && compareDates(date, task.notBefore) < 0) continue;
+          const from = earliest.get(task.id);
+          if (from !== undefined && abs(date, t) < from) {
+            wake = Math.min(wake, from - abs(date, 0));
+            continue;
+          }
           if (!depsDoneBy(task, abs(date, t))) continue;
 
           const room = Math.min(slot.end - t, capLeft);
@@ -299,7 +428,9 @@ export function schedule(input: ScheduleInput): ScheduleResult {
             len = need;
           }
 
-          greedy.push(block(task.id, date, t, t + len, 'study'));
+          const placedBlock = block(task.id, date, t, t + len, 'study');
+          greedy.push(placedBlock);
+          pushByDate(greedyByDate, placedBlock);
           remaining.set(task.id, need - len);
           capLeft -= len;
           continuous += len;
@@ -320,12 +451,16 @@ export function schedule(input: ScheduleInput): ScheduleResult {
           prevEnd = -1;
           continue;
         }
+        if (wake < slot.end) {
+          t = wake;
+          continue;
+        }
         break;
       }
     }
 
     // Keep only breaks that are followed by study.
-    const starts = new Set(greedy.filter((b) => b.date === date).map((b) => parseTime(b.start)));
+    const starts = new Set((greedyByDate.get(date) ?? []).map((b) => parseTime(b.start)));
     breaksByDate.set(
       date,
       breaks.filter((b) => starts.has(b.end)),
@@ -336,7 +471,13 @@ export function schedule(input: ScheduleInput): ScheduleResult {
   for (const t of tasks) {
     const left = remaining.get(t.id) ?? 0;
     if (left > 0 && !(t.isAnchor && noGreedy.has(t.id))) {
-      warnings.push({ kind: 'unscheduled', taskId: t.id, remainingMinutes: left });
+      const blocker = blockedBy.get(t.id);
+      warnings.push({
+        kind: 'unscheduled',
+        taskId: t.id,
+        remainingMinutes: left,
+        ...(blocker ? { blockedBy: blocker } : {}),
+      });
     }
   }
 
@@ -424,9 +565,11 @@ function buildDays(
   const start = compareDates(first, today) < 0 ? first : today;
   const end = finishDate && compareDates(finishDate, today) > 0 ? finishDate : today;
   const days: DayPlan[] = [];
+  const byDate = new Map<LocalDate, Block[]>();
+  for (const b of blocks) pushByDate(byDate, b);
   for (let d = start; compareDates(d, end) <= 0; d = addDays(d, 1)) {
     const cap = dayCapacity(d, pattern, overrides, busy);
-    const dayBlocks = blocks.filter((b) => b.date === d);
+    const dayBlocks = byDate.get(d) ?? [];
     days.push({
       date: d,
       isStudyDay: cap.isStudyDay,

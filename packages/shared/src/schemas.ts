@@ -66,6 +66,16 @@ export const TaskSchema = z
         path: ['anchorDate'],
       });
     }
+    if (task.isAnchor && task.anchorStartTime) {
+      const end = parseTime(task.anchorStartTime) + Math.round(task.estHours * 60);
+      if (end > 1439) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'An anchor task must end by 23:59',
+          path: ['anchorStartTime'],
+        });
+      }
+    }
     if (task.dependsOn.includes(task.id)) {
       ctx.addIssue({
         code: 'custom',

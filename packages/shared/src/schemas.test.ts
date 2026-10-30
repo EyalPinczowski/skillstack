@@ -56,6 +56,22 @@ describe('TaskSchema', () => {
     ).toBe(true);
   });
 
+  it('rejects an anchor task that would end after 23:59', () => {
+    const base = {
+      id: 'x',
+      title: 'Exam',
+      type: 'cert_exam',
+      estHours: 1,
+      order: 1,
+      isAnchor: true,
+      anchorDate: '2026-11-23',
+    };
+    const late = TaskSchema.safeParse({ ...base, anchorStartTime: '23:00' });
+    expect(late.success).toBe(false);
+    expect(late.error?.issues[0]?.path).toEqual(['anchorStartTime']);
+    expect(TaskSchema.safeParse({ ...base, anchorStartTime: '22:59' }).success).toBe(true);
+  });
+
   it('rejects a task that depends on itself', () => {
     const result = TaskSchema.safeParse({
       id: 'a',

@@ -3,7 +3,8 @@ import { WeekPatternSchema } from '../schemas';
 import { dayCapacity } from './capacity';
 import { summarizeChanges } from './changes';
 import { createCvUpdateTask } from './cv';
-import { schedule } from './engine';
+import { scheduleToIcs } from '../export/ics';
+import { findDependencyCycle, schedule } from './engine';
 import { basePattern, endOf, minutesOn, startOf, task } from './test-helpers';
 
 // 1 November 2026 is a Sunday.
@@ -292,5 +293,273 @@ describe('engine details', () => {
     expect(result.blocks.every((b) => b.start >= '19:00' && b.end <= '22:00')).toBe(true);
     expect(minutesOn(result.blocks, SUN)).toBe(0); // Sunday is not a study day here
     expect(result.blocks.find((b) => b.taskId === project.id)?.minutes).toBe(120);
+  });
+});
+
+const longWindow = WeekPatternSchema.parse({
+  studyWeekdays: [0, 1, 2, 3, 4],
+  defaultHours: 12,
+  windowStart: '08:00',
+  windowEnd: '23:59',
+  timezone: 'UTC',
+});
+
+describe('midnight overflow', () => {
+  it('clamps a fixed block at 23:59, warns, and does not block dependents', () => {
+    // Built without the schema check, as stored data might be.
+    const exam = {
+      ...task({
+        id: 'late',
+        estHours: 2,
+        isAnchor: true,
+        splittable: false,
+        anchorDate: MON,
+        anchorStartTime: '09:00',
+      }),
+      anchorStartTime: '23:00',
+    };
+    const after = task({ id: 'after', estHours: 1, dependsOn: ['late'], order: 9 });
+    const result = schedule({ tasks: [exam, after], pattern: longWindow, today: SUN });
+    expect(result.blocks.find((b) => b.taskId === 'late')).toMatchObject({
+      start: '23:00',
+      end: '23:59',
+      minutes: 59,
+    });
+    expect(result.warnings).toContainEqual({
+      kind: 'fixed_block_truncated',
+      taskId: 'late',
+      date: MON,
+      droppedMinutes: 61,
+    });
+    expect(result.warnings.some((w) => w.kind === 'unscheduled')).toBe(false);
+    expect(result.blocks.find((b) => b.taskId === 'after')?.date).toBe('2026-11-03');
+    expect(() =>
+      scheduleToIcs(result.blocks, [exam, after], { timeZone: 'UTC', generatedAt: new Date(0) }),
+    ).not.toThrow();
+  });
+
+  it('clamps a pinned non-splittable task that starts near midnight', () => {
+    const t = task({
+      id: 'pin',
+      estHours: 3,
+      splittable: false,
+      pinnedStart: { date: MON, start: '22:30' },
+    });
+    const result = schedule({ tasks: [t], pattern: basePattern, today: SUN });
+    expect(result.blocks.every((b) => b.end <= '23:59')).toBe(true);
+    expect(result.warnings.some((w) => w.kind === 'fixed_block_truncated')).toBe(true);
+  });
+});
+
+describe('pinned tasks', () => {
+  it('places a non-splittable pinned task whole at its time, even over lunch', () => {
+    const t = task({
+      id: 'mock',
+      estHours: 2,
+      splittable: false,
+      pinnedStart: { date: MON, start: '12:00' },
+    });
+    const result = schedule({ tasks: [t], pattern: basePattern, today: SUN });
+    expect(result.blocks).toEqual([
+      { taskId: 'mock', date: MON, start: '12:00', end: '14:00', minutes: 120, kind: 'pinned' },
+    ]);
+  });
+
+  it('stops a splittable pinned block at lunch and continues after it', () => {
+    const t = task({ id: 'p', estHours: 4, pinnedStart: { date: MON, start: '11:00' } });
+    const result = schedule({ tasks: [t], pattern: basePattern, today: SUN });
+    const blocks = result.blocks.filter((b) => b.taskId === 'p');
+    expect(blocks[0]).toMatchObject({ start: '11:00', end: '13:00', kind: 'pinned' });
+    const rest = blocks.slice(1);
+    expect(rest.reduce((s, b) => s + b.minutes, 0)).toBe(120);
+    expect(rest.every((b) => b.kind === 'study' && startOf(b) >= 14 * 60)).toBe(true);
+  });
+
+  it('stops a splittable pinned block at the day capacity', () => {
+    const pattern = { ...basePattern, defaultHours: 2 };
+    const t = task({ id: 'p', estHours: 5, pinnedStart: { date: MON, start: '09:00' } });
+    const result = schedule({ tasks: [t], pattern, today: SUN });
+    expect(minutesOn(result.blocks, MON, 'p')).toBe(120);
+    expect(result.blocks[0]).toMatchObject({ kind: 'pinned', end: '11:00' });
+    expect(minutesOn(result.blocks, '2026-11-03', 'p')).toBe(120);
+  });
+
+  it('stops a splittable pinned block at a busy event', () => {
+    const busy = [{ date: MON, start: '10:00', end: '11:00' }];
+    const t = task({ id: 'p', estHours: 3, pinnedStart: { date: MON, start: '09:00' } });
+    const result = schedule({ tasks: [t], pattern: basePattern, today: SUN, busy });
+    expect(result.blocks[0]).toMatchObject({ start: '09:00', end: '10:00', kind: 'pinned' });
+    const rest = result.blocks.slice(1);
+    expect(rest.every((b) => startOf(b) >= 11 * 60)).toBe(true);
+  });
+
+  it('treats a pin outside free study time as "not before"', () => {
+    const t = task({ id: 'p', estHours: 1, pinnedStart: { date: MON, start: '13:30' } });
+    const early = task({ id: 'e', estHours: 1, order: 99 });
+    const result = schedule({ tasks: [t, early], pattern: basePattern, today: SUN });
+    const p = result.blocks.filter((b) => b.taskId === 'p');
+    expect(p.every((b) => b.kind === 'study')).toBe(true);
+    expect(p[0]).toMatchObject({ date: MON, start: '14:00' });
+    expect(result.blocks.find((b) => b.taskId === 'e')?.date).toBe(SUN);
+  });
+
+  it('lets other work use the day before a pinned time', () => {
+    const t = task({ id: 'p', estHours: 1, order: 1, pinnedStart: { date: MON, start: '15:00' } });
+    const other = task({ id: 'o', estHours: 3, order: 2 });
+    const result = schedule({ tasks: [t, other], pattern: basePattern, today: MON });
+    expect(result.blocks.find((b) => b.taskId === 'o')).toMatchObject({ start: '09:00' });
+    expect(result.blocks.find((b) => b.taskId === 'p')).toMatchObject({ start: '15:00' });
+  });
+
+  it('warns when fixed blocks exceed the day capacity', () => {
+    const pattern = { ...basePattern, defaultHours: 1 };
+    const t = task({
+      id: 'mock',
+      estHours: 2,
+      splittable: false,
+      pinnedStart: { date: MON, start: '09:00' },
+    });
+    const result = schedule({ tasks: [t], pattern, today: SUN });
+    expect(result.warnings).toContainEqual({
+      kind: 'over_capacity',
+      date: MON,
+      scheduledMinutes: 120,
+      capacityMinutes: 60,
+    });
+    expect(result.blocks).toHaveLength(1);
+  });
+});
+
+describe('fixed block overlaps', () => {
+  it('keeps both blocks and warns', () => {
+    const a = task({
+      id: 'a',
+      estHours: 2,
+      splittable: false,
+      isAnchor: true,
+      anchorDate: MON,
+      anchorStartTime: '10:00',
+    });
+    const b = task({
+      id: 'b',
+      estHours: 1,
+      splittable: false,
+      pinnedStart: { date: MON, start: '11:00' },
+    });
+    const result = schedule({ tasks: [a, b], pattern: basePattern, today: SUN });
+    expect(result.blocks).toHaveLength(2);
+    expect(result.warnings).toContainEqual({
+      kind: 'fixed_overlap',
+      date: MON,
+      taskIds: ['a', 'b'],
+    });
+  });
+
+  it('does not warn for back-to-back blocks', () => {
+    const a = task({
+      id: 'a',
+      estHours: 1,
+      splittable: false,
+      pinnedStart: { date: MON, start: '10:00' },
+    });
+    const b = task({
+      id: 'b',
+      estHours: 1,
+      splittable: false,
+      pinnedStart: { date: MON, start: '11:00' },
+    });
+    const result = schedule({ tasks: [a, b], pattern: basePattern, today: SUN });
+    expect(result.warnings.some((w) => w.kind === 'fixed_overlap')).toBe(false);
+  });
+});
+
+describe('dependency cycles and blocked tasks', () => {
+  it('finds every task on every cycle, sorted', () => {
+    const tasks = [
+      task({ id: 'c', estHours: 1, dependsOn: ['d'] }),
+      task({ id: 'd', estHours: 1, dependsOn: ['c'] }),
+      task({ id: 'a', estHours: 1, dependsOn: ['b'] }),
+      task({ id: 'b', estHours: 1, dependsOn: ['a'] }),
+      task({ id: 'x', estHours: 1, dependsOn: ['a'] }),
+      task({ id: 'ok', estHours: 1 }),
+    ];
+    expect(findDependencyCycle(tasks)).toEqual(['a', 'b', 'c', 'd']);
+    const warning = schedule({ tasks, pattern: basePattern, today: SUN, horizonDays: 5 }).warnings;
+    expect(warning.filter((w) => w.kind === 'dependency_cycle')).toEqual([
+      { kind: 'dependency_cycle', taskIds: ['a', 'b', 'c', 'd'] },
+    ]);
+  });
+
+  it('finds nothing in an acyclic graph', () => {
+    const tasks = [
+      task({ id: 'a', estHours: 1 }),
+      task({ id: 'b', estHours: 1, dependsOn: ['a'] }),
+    ];
+    expect(findDependencyCycle(tasks)).toEqual([]);
+  });
+
+  it('reports tasks waiting on a cycle as unscheduled with blockedBy, without running the horizon', () => {
+    const a = task({ id: 'a', estHours: 1, dependsOn: ['b'], order: 1 });
+    const b = task({ id: 'b', estHours: 1, dependsOn: ['a'], order: 2 });
+    const c = task({ id: 'c', estHours: 1, dependsOn: ['b'], order: 3 });
+    const d = task({ id: 'd', estHours: 1, dependsOn: ['c'], order: 4 });
+    const result = schedule({ tasks: [a, b, c, d], pattern: basePattern, today: SUN });
+    expect(result.warnings).toContainEqual({
+      kind: 'unscheduled',
+      taskId: 'c',
+      remainingMinutes: 60,
+      blockedBy: 'b',
+    });
+    expect(result.warnings).toContainEqual({
+      kind: 'unscheduled',
+      taskId: 'd',
+      remainingMinutes: 60,
+      blockedBy: 'b',
+    });
+    expect(result.days).toHaveLength(1);
+  });
+
+  it('reports tasks waiting on an anchor in the past', () => {
+    const exam = task({
+      id: 'old',
+      estHours: 1,
+      isAnchor: true,
+      anchorDate: '2026-10-01',
+      anchorStartTime: '09:00',
+    });
+    const after = task({ id: 'next', estHours: 1, dependsOn: ['old'] });
+    const result = schedule({ tasks: [exam, after], pattern: basePattern, today: SUN });
+    expect(result.warnings).toContainEqual({
+      kind: 'unscheduled',
+      taskId: 'next',
+      remainingMinutes: 60,
+      blockedBy: 'old',
+    });
+  });
+});
+
+describe('change summary for a missing finish date', () => {
+  const pattern = basePattern;
+  const none = schedule({ tasks: [], pattern, today: SUN });
+  const some = schedule({ tasks: [task({ estHours: 1 })], pattern, today: SUN });
+
+  it('says the plan now finishes when it had no finish before', () => {
+    const summary = summarizeChanges(none, some, { today: SUN, pattern });
+    expect(summary.finishChanged).toBe(true);
+    expect(summary.text).toContain(`plan now finishes on ${SUN}`);
+    expect(summary.text).not.toContain('unchanged');
+  });
+
+  it('says nothing is left when the finish disappears', () => {
+    const summary = summarizeChanges(some, none, { today: SUN, pattern });
+    expect(summary.finishChanged).toBe(true);
+    expect(summary.text).toContain('nothing left to schedule');
+  });
+
+  it('keeps "unchanged" when both agree', () => {
+    const summary = summarizeChanges(some, some, { today: SUN, pattern });
+    expect(summary.finishChanged).toBe(false);
+    expect(summary.text).toContain('plan finish unchanged');
+    expect(summarizeChanges(none, none, { today: SUN, pattern }).finishChanged).toBe(false);
   });
 });

@@ -8,6 +8,8 @@ export interface ChangeSummary {
   movedTaskIds: string[];
   finishBefore: LocalDate | null;
   finishAfter: LocalDate | null;
+  /** True when the finish date differs, including when a plan gains or loses its finish. */
+  finishChanged: boolean;
   /** Study days the finish moved: positive = later, negative = earlier. */
   finishShiftStudyDays: number;
   newAnchorRisks: string[];
@@ -70,6 +72,9 @@ export function summarizeChanges(
   );
   if (shift > 0) parts.push(`plan finish pushed back by ${plural(shift, 'study day')}`);
   else if (shift < 0) parts.push(`plan finish moved up by ${plural(-shift, 'study day')}`);
+  else if (!before.finishDate && after.finishDate) {
+    parts.push(`plan now finishes on ${after.finishDate}`);
+  } else if (before.finishDate && !after.finishDate) parts.push('nothing left to schedule');
   else parts.push('plan finish unchanged');
   if (newAnchorRisks.length) {
     const names = newAnchorRisks.map((id) => options.tasks?.find((t) => t.id === id)?.title ?? id);
@@ -80,6 +85,7 @@ export function summarizeChanges(
     movedTaskIds,
     finishBefore: before.finishDate,
     finishAfter: after.finishDate,
+    finishChanged: before.finishDate !== after.finishDate,
     finishShiftStudyDays: shift,
     newAnchorRisks,
     text: parts.join(', ') + '.',

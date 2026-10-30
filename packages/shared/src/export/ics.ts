@@ -1,5 +1,6 @@
 import { parseTime } from '../dates';
 import type { Block, Task } from '../schemas';
+import { TASK_TYPE_LABEL } from '../labels';
 import { zonedTimeToUtc } from '../zone';
 
 /**
@@ -13,14 +14,6 @@ export interface IcsOptions {
   /** Fixed timestamp for DTSTAMP, so the same schedule always gives the same file. */
   generatedAt: Date;
 }
-
-const TYPE_LABEL: Record<Task['type'], string> = {
-  course: 'Course',
-  cert_exam: 'Exam',
-  practice: 'Practice',
-  admin: 'Admin',
-  cv_update: 'CV update',
-};
 
 function utcStamp(d: Date): string {
   return d
@@ -60,7 +53,7 @@ export function foldIcsLine(line: string): string {
 
 function describe(task: Task | undefined, block: Block): string {
   if (!task) return '';
-  const lines = [`${TYPE_LABEL[task.type]} · ${block.minutes} min`];
+  const lines = [`${TASK_TYPE_LABEL[task.type]} · ${block.minutes} min`];
   if (task.provider) lines.push(`Provider: ${task.provider}`);
   if (task.url) lines.push(task.url);
   for (const step of task.howToSteps) lines.push(`- ${step}`);
@@ -91,7 +84,7 @@ export function scheduleToIcs(blocks: Block[], tasks: Task[], options: IcsOption
       `DTEND:${utcStamp(end)}`,
       `SUMMARY:${escapeIcsText(task?.title ?? b.taskId)}`,
       `DESCRIPTION:${escapeIcsText(describe(task, b))}`,
-      `CATEGORIES:${escapeIcsText(task ? TYPE_LABEL[task.type] : 'Study')}`,
+      `CATEGORIES:${escapeIcsText(task ? TASK_TYPE_LABEL[task.type] : 'Study')}`,
       `X-SKILLSTACK-TASK-ID:${escapeIcsText(b.taskId)}`,
       'TRANSP:OPAQUE',
       'END:VEVENT',
