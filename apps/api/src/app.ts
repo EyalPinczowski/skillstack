@@ -22,6 +22,7 @@ import {
 } from './modules/accounts/token-verifier';
 import { healthRoutes } from './modules/health/routes';
 import { planRoutes } from './modules/plans/routes';
+import { taskRoutes } from './modules/tasks/routes';
 import { installIdempotency } from './plugins/idempotency';
 import { generateRequestId, installRequestId } from './plugins/request-id';
 import { installSecurityHeaders } from './plugins/security-headers';
@@ -126,6 +127,7 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
       v1.register(healthRoutes, { config });
       v1.register(accountRoutes, { verifier, db });
       v1.register(planRoutes, { verifier, db });
+      v1.register(taskRoutes, { verifier, db });
     },
     { prefix: '/api/v1' },
   );

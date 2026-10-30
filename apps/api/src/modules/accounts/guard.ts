@@ -15,11 +15,12 @@ const unauthorized = () => new HttpError(401, 'unauthorized', 'Authentication is
 /** One message for every refusal (not on the list, cap reached, disabled): nothing to probe. */
 const forbidden = () => new HttpError(403, 'forbidden', 'This account cannot use Skillstack.');
 
+/** A bearer token of token characters only: a linear check, no backtracking on user input. */
 function bearerToken(request: FastifyRequest): string | null {
   const header = request.headers.authorization;
-  if (typeof header !== 'string') return null;
-  const match = /^Bearer ([A-Za-z0-9._~+/=-]+)$/.exec(header);
-  return match ? match[1]! : null;
+  if (typeof header !== 'string' || !header.startsWith('Bearer ')) return null;
+  const token = header.slice('Bearer '.length);
+  return /^[A-Za-z0-9._~+/=-]+$/.test(token) ? token : null;
 }
 
 /**
