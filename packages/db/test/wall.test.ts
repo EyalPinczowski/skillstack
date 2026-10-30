@@ -121,6 +121,7 @@ describe.skipIf(!dbAvailable)('the wall between prod and rnd', () => {
           [schema],
         );
         expect(acl.map((row) => row.grantee)).toEqual([
+          `app_${schema}`,
           `app_${schema}_user`,
           `backup_${schema}`,
           `owner_${schema}`,

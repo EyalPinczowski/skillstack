@@ -5,6 +5,9 @@ import { featureNames } from '../src/features';
 describe('loadConfig defaults', () => {
   it('are exactly the documented ones, with every feature flag off', () => {
     expect(loadConfig({})).toEqual({
+      nodeEnv: 'development',
+      supabase: null,
+      databaseUrl: null,
       appEnv: 'operational',
       port: 3000,
       host: '0.0.0.0',
@@ -94,4 +97,63 @@ describe('boolean variables', () => {
       );
     },
   );
+});
+
+describe('sign-in and database settings', () => {
+  const full = {
+    SUPABASE_JWKS_URL: 'https://abc.supabase.co/auth/v1/.well-known/jwks.json',
+    SUPABASE_JWT_ISSUER: 'https://abc.supabase.co/auth/v1',
+    DATABASE_URL: 'postgres://app_rnd:secret@db.example.com:5432/postgres',
+  };
+
+  it('parses them', () => {
+    const config = loadConfig(full);
+    expect(config.supabase).toEqual({
+      jwksUrl: full.SUPABASE_JWKS_URL,
+      issuer: full.SUPABASE_JWT_ISSUER,
+    });
+    expect(config.databaseUrl).toBe(full.DATABASE_URL);
+  });
+
+  it('refuses to start in production without any of them, naming each', () => {
+    try {
+      loadConfig({ NODE_ENV: 'production' });
+      expect.unreachable();
+    } catch (err) {
+      expect((err as ConfigError).problems).toEqual([
+        'SUPABASE_JWKS_URL: required when NODE_ENV=production',
+        'SUPABASE_JWT_ISSUER: required when NODE_ENV=production',
+        'DATABASE_URL: required when NODE_ENV=production',
+      ]);
+    }
+    expect(() => loadConfig({ NODE_ENV: 'production', ...full })).not.toThrow();
+    for (const name of Object.keys(full)) {
+      const partial: Record<string, string> = { NODE_ENV: 'production', ...full };
+      delete partial[name];
+      expect(() => loadConfig(partial), name).toThrow(new RegExp(name));
+    }
+  });
+
+  it('lets development and tests run without them', () => {
+    expect(() => loadConfig({ NODE_ENV: 'development' })).not.toThrow();
+    expect(() => loadConfig({ NODE_ENV: 'test' })).not.toThrow();
+  });
+
+  it('wants the JWKS URL and the issuer together', () => {
+    expect(() => loadConfig({ SUPABASE_JWKS_URL: full.SUPABASE_JWKS_URL })).toThrow(/set both/);
+    expect(() => loadConfig({ SUPABASE_JWT_ISSUER: full.SUPABASE_JWT_ISSUER })).toThrow(/set both/);
+  });
+
+  it('requires https URLs and a postgres connection string, without echoing the value', () => {
+    expect(() => loadConfig({ ...full, SUPABASE_JWKS_URL: 'http://x.test/jwks' })).toThrow(
+      /SUPABASE_JWKS_URL/,
+    );
+    try {
+      loadConfig({ DATABASE_URL: 'mysql://user:hunter2@host/db' });
+      expect.unreachable();
+    } catch (err) {
+      expect((err as ConfigError).message).toMatch(/DATABASE_URL/);
+      expect((err as ConfigError).message).not.toContain('hunter2');
+    }
+  });
 });

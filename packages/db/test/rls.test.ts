@@ -90,11 +90,13 @@ describe.skipIf(!dbAvailable)('row-level security model (rnd)', () => {
 
   it('gives app_rnd nothing until it switches role (NOINHERIT)', async () => {
     await withClient(env.appUrl('rnd'), async (client) => {
+      // The login holds USAGE on the schema (to call provision_user, migration 0006) but no
+      // privilege on any table.
       await expect(client.query('select * from rnd.notes')).rejects.toThrow(
-        /permission denied for schema rnd/,
+        /permission denied for table notes/,
       );
       await expect(client.query('select * from rnd.environment_info')).rejects.toThrow(
-        /permission denied for schema rnd/,
+        /permission denied for table environment_info/,
       );
     });
   });

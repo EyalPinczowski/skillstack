@@ -38,6 +38,7 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
           [schema],
         );
         expect(rows.map((r) => r.relname).sort()).toEqual([
+          'allowed_emails',
           'app_settings',
           'app_users',
           'day_overrides',
