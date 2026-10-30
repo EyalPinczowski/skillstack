@@ -16,4 +16,4 @@ Option 3. `app_prod` and `app_rnd` can only touch their own schema; they do not 
 ## Consequences
 - Row-level security is tested directly against the database, not just through the API: a second user cannot read the first user's rows, and a query with no user context returns nothing.
 - Backups use a read-only role with explicit select policies rather than any role that bypasses row-level security. The decryption key stays offline with the owner.
-- Needs check: the Supabase pooler's transaction mode keeps no session state, so every request must run as one transaction with `SET LOCAL`; custom role names may need the `role.project-ref` form.
+- Verified in Supabase's documentation: the shared pooler is IPv4 on every plan while the direct connection is IPv6-only on the Free plan; transaction mode keeps no session state, so every request runs as one transaction with `SET LOCAL`; a custom role connects through the pooler as `role.project-ref`. Still **needs check**: whether Supabase's default admin role can create the roles and memberships the migrations need (the tests use a non-superuser stand-in).

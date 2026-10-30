@@ -3,7 +3,7 @@
 **Status:** Planned · built in Phase 0
 
 ## Context
-Everything must run at $0, with an Operational and an R&D environment, for a small group of users. Free limits change; each one below is **needs check** against the provider's documentation before the service is created, including that no card is required.
+Everything must run at $0, with an Operational and an R&D environment, for a small group of users. Free limits change. Supabase's are verified (see `docs/setup/supabase.md`: two free projects, 500 MB, 50,000 monthly users, pausing after a week of low activity). Vercel's and Render's are still **needs check** against their documentation before those services are created, including that no card is required.
 
 ## Options
 - Frontend: Vercel Hobby (production for `main`, preview for `rnd`).
