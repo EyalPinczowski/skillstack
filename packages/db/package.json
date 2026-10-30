@@ -1,0 +1,21 @@
+{
+  "name": "@skillstack/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Database environments (prod, rnd) and the migration runner.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "migrate": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}
