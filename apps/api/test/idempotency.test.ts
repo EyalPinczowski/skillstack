@@ -1,7 +1,8 @@
+import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { testApp } from './helpers';
 
-const KEY = '3b0f4b1e-6d47-4a5e-9d0a-5a2f0e8d7c11';
+const KEY = randomUUID();
 const ORIGIN = 'https://app.example.com';
 
 function appWithEcho(overrides: Parameters<typeof testApp>[0] = {}) {
