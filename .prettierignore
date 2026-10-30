@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+pnpm-lock.yaml
+# generated or third-party content, not formatted by us
+data/catalog
+docs
+*.md
