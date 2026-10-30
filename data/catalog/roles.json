@@ -1,0 +1,1847 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "generated": "2026-10-29",
+    "currency_default": "USD",
+    "verification_note": "url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
+  },
+  "roles": [
+    {
+      "id": "operations-associate",
+      "title": "Operations Associate / Analyst",
+      "aliases": [
+        "Operations Associate",
+        "Operations Analyst",
+        "Business Operations Associate",
+        "Operations Coordinator",
+        "Ops Specialist",
+        "Business Operations Analyst",
+        "Operations Manager (junior)"
+      ],
+      "summary": "Keeps the business running: processes, reporting, vendors, internal tools, and cross-team coordination. Strong fit for ex-military officers with planning and management experience.",
+      "skills": [
+        {
+          "skill": "operations-management",
+          "weight": 5
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 5
+        },
+        {
+          "skill": "sql",
+          "weight": 4
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 4
+        },
+        {
+          "skill": "project-management",
+          "weight": 4
+        },
+        {
+          "skill": "bi-visualization",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 4
+        },
+        {
+          "skill": "jira",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "no-code-automation",
+          "weight": 3
+        },
+        {
+          "skill": "people-leadership",
+          "weight": 3
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 2
+        }
+      ],
+      "jd_keywords": [
+        "operations",
+        "processes",
+        "kpis",
+        "reporting",
+        "cross-functional",
+        "stakeholders",
+        "excel",
+        "sql",
+        "dashboards",
+        "vendor",
+        "efficiency",
+        "sop",
+        "ownership",
+        "fast-paced"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-data-analytics",
+          "lean-six-sigma-yellow-belt",
+          "google-project-management",
+          "excel-skills-for-business",
+          "pl-300",
+          "itil-4-foundation"
+        ],
+        "optional": [
+          "power-bi-learn-path",
+          "zapier-ai-builder",
+          "cfi-fundamentals-challenge",
+          "mos-excel",
+          "lean-six-sigma-white-belt",
+          "hackerrank-sql-basic"
+        ],
+        "practice": [
+          "practice-ops-assignment",
+          "practice-data-assignment",
+          "practice-case-interview",
+          "practice-automation-build"
+        ],
+        "free_only": [
+          "power-bi-learn-path",
+          "zapier-ai-builder",
+          "cfi-fundamentals-challenge",
+          "lean-six-sigma-white-belt",
+          "hackerrank-sql-basic",
+          "hackerrank-sql-intermediate"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "technical-operations",
+      "title": "Technical Operations / Support Specialist",
+      "aliases": [
+        "Technical Operations Specialist",
+        "Tech Ops",
+        "Technical Support Specialist",
+        "Support Engineer (junior)",
+        "Production Support",
+        "NOC Operator",
+        "Application Support"
+      ],
+      "summary": "Monitors and supports a live product: incidents, troubleshooting, APIs, logs, and escalation to R&D.",
+      "skills": [
+        {
+          "skill": "incident-management",
+          "weight": 5
+        },
+        {
+          "skill": "apis",
+          "weight": 5
+        },
+        {
+          "skill": "it-support",
+          "weight": 5
+        },
+        {
+          "skill": "sql",
+          "weight": 4
+        },
+        {
+          "skill": "cloud",
+          "weight": 3
+        },
+        {
+          "skill": "jira",
+          "weight": 4
+        },
+        {
+          "skill": "python",
+          "weight": 2
+        },
+        {
+          "skill": "communication",
+          "weight": 4
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "linux",
+          "weight": 3
+        },
+        {
+          "skill": "networking",
+          "weight": 2
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "troubleshooting",
+        "incidents",
+        "escalation",
+        "sla",
+        "api",
+        "logs",
+        "monitoring",
+        "sql",
+        "jira",
+        "linux",
+        "on-call",
+        "shifts",
+        "technical",
+        "customer-facing"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-it-support",
+          "itil-4-foundation",
+          "postman-api-fundamentals",
+          "hackerrank-rest-api",
+          "hackerrank-sql-basic",
+          "aws-cloud-practitioner"
+        ],
+        "optional": [
+          "jira-fundamentals",
+          "kaggle-intro-sql",
+          "sqlbolt",
+          "az-900",
+          "aws-cloud-practitioner-essentials",
+          "cisco-networking-basics"
+        ],
+        "practice": [
+          "practice-techops-assignment",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "postman-api-fundamentals",
+          "hackerrank-rest-api",
+          "hackerrank-sql-basic",
+          "jira-fundamentals",
+          "kaggle-intro-sql",
+          "sqlbolt"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "product-operations",
+      "title": "Product Operations / Junior Product Manager",
+      "aliases": [
+        "Product Operations",
+        "Product Ops",
+        "Junior Product Manager",
+        "Associate Product Manager",
+        "APM",
+        "Product Analyst",
+        "Product Specialist"
+      ],
+      "summary": "Connects product, data and teams: roadmaps, requirements, analytics, tooling and launch processes.",
+      "skills": [
+        {
+          "skill": "product-management",
+          "weight": 5
+        },
+        {
+          "skill": "product-analytics",
+          "weight": 4
+        },
+        {
+          "skill": "agile-scrum",
+          "weight": 4
+        },
+        {
+          "skill": "jira",
+          "weight": 4
+        },
+        {
+          "skill": "sql",
+          "weight": 3
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 4
+        },
+        {
+          "skill": "ux-basics",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "business-analysis",
+          "weight": 3
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "product",
+        "roadmap",
+        "requirements",
+        "prd",
+        "user stories",
+        "prioritization",
+        "analytics",
+        "stakeholders",
+        "launch",
+        "agile",
+        "jira",
+        "data-driven",
+        "customer insights"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-project-management",
+          "pspo-1",
+          "google-data-analytics",
+          "pendo-ai-for-pm",
+          "productled-plg-fundamentals",
+          "jira-fundamentals"
+        ],
+        "optional": [
+          "psm-1",
+          "pendo-pm-basics",
+          "pendo-product-analytics",
+          "google-ux-design",
+          "iiba-ecba",
+          "google-project-management-audit"
+        ],
+        "practice": [
+          "practice-product-prd",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-case-interview"
+        ],
+        "free_only": [
+          "pendo-ai-for-pm",
+          "productled-plg-fundamentals",
+          "jira-fundamentals",
+          "pendo-pm-basics",
+          "google-project-management-audit",
+          "scrum-guide"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "project-coordinator",
+      "title": "Project Coordinator / Junior Project Manager",
+      "aliases": [
+        "Project Coordinator",
+        "Junior Project Manager",
+        "Project Manager",
+        "Program Coordinator",
+        "PMO Analyst",
+        "Delivery Coordinator"
+      ],
+      "summary": "Plans and tracks projects: schedules, risks, resources and stakeholder updates.",
+      "skills": [
+        {
+          "skill": "project-management",
+          "weight": 5
+        },
+        {
+          "skill": "agile-scrum",
+          "weight": 5
+        },
+        {
+          "skill": "jira",
+          "weight": 4
+        },
+        {
+          "skill": "excel",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 3
+        },
+        {
+          "skill": "operations-management",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "people-leadership",
+          "weight": 3
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "project management",
+        "timelines",
+        "milestones",
+        "risk",
+        "stakeholders",
+        "gantt",
+        "scrum",
+        "agile",
+        "pmo",
+        "budget",
+        "status reports",
+        "coordination",
+        "capm",
+        "pmp"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-project-management",
+          "jira-fundamentals",
+          "psm-1",
+          "capm",
+          "scrum-guide",
+          "scrum-open"
+        ],
+        "optional": [
+          "google-project-management-audit",
+          "excel-skills-for-business"
+        ],
+        "practice": [
+          "practice-ops-assignment",
+          "practice-jira-board",
+          "practice-star-bank",
+          "practice-mock-english"
+        ],
+        "free_only": [
+          "google-project-management-audit",
+          "jira-fundamentals",
+          "scrum-guide",
+          "scrum-open"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "data-analyst",
+      "title": "Junior Data / BI Analyst",
+      "aliases": [
+        "Data Analyst",
+        "Junior Data Analyst",
+        "BI Analyst",
+        "Business Analyst",
+        "Reporting Analyst",
+        "Business Intelligence Analyst"
+      ],
+      "summary": "Turns data into decisions: SQL, dashboards, metrics and business insights.",
+      "skills": [
+        {
+          "skill": "sql",
+          "weight": 5
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 5
+        },
+        {
+          "skill": "bi-visualization",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 5
+        },
+        {
+          "skill": "python",
+          "weight": 3
+        },
+        {
+          "skill": "product-analytics",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 4
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "statistics",
+          "weight": 4
+        }
+      ],
+      "jd_keywords": [
+        "sql",
+        "power bi",
+        "tableau",
+        "dashboards",
+        "excel",
+        "python",
+        "kpis",
+        "data",
+        "insights",
+        "reporting",
+        "etl",
+        "analysis",
+        "statistics",
+        "bigquery"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-data-analytics",
+          "google-advanced-data-analytics",
+          "pl-300",
+          "excel-skills-for-business",
+          "power-bi-learn-path",
+          "kaggle-pandas"
+        ],
+        "optional": [
+          "kaggle-data-visualization",
+          "hackerrank-sql-basic",
+          "hackerrank-sql-intermediate",
+          "tableau-desktop-foundations",
+          "kaggle-intro-sql",
+          "kaggle-advanced-sql"
+        ],
+        "practice": [
+          "practice-data-assignment",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-excel-test"
+        ],
+        "free_only": [
+          "power-bi-learn-path",
+          "kaggle-pandas",
+          "kaggle-data-visualization",
+          "hackerrank-sql-basic",
+          "hackerrank-sql-intermediate",
+          "kaggle-intro-sql"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "ai-deployment-specialist",
+      "title": "AI Implementation / Deployment Specialist",
+      "aliases": [
+        "Deployment Strategist",
+        "Implementation Specialist",
+        "Solutions Specialist",
+        "AI Implementation Manager",
+        "Forward Deployed (junior)",
+        "Solutions Consultant",
+        "Customer Solutions"
+      ],
+      "summary": "Deploys AI products at customers: understands their processes, configures agents, manages rollout and adoption.",
+      "skills": [
+        {
+          "skill": "ai-agents",
+          "weight": 5
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 5
+        },
+        {
+          "skill": "apis",
+          "weight": 4
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 4
+        },
+        {
+          "skill": "project-management",
+          "weight": 4
+        },
+        {
+          "skill": "customer-success",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "cloud",
+          "weight": 3
+        },
+        {
+          "skill": "sql",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "no-code-automation",
+          "weight": 3
+        },
+        {
+          "skill": "presales-demos",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "ai",
+        "llm",
+        "agents",
+        "deployment",
+        "implementation",
+        "customer",
+        "workflows",
+        "integration",
+        "api",
+        "consulting",
+        "rollout",
+        "adoption",
+        "stakeholders",
+        "enterprise"
+      ],
+      "suggested_path": {
+        "core": [
+          "anthropic-claude-code-in-action",
+          "google-ai-professional",
+          "aws-ai-practitioner",
+          "anthropic-building-with-api",
+          "anthropic-intro-mcp",
+          "ai-900"
+        ],
+        "optional": [
+          "anthropic-ai-fluency",
+          "pendo-ai-for-pm",
+          "postman-api-fundamentals",
+          "aws-cloud-practitioner",
+          "google-genai-path",
+          "deeplearning-crewai"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-solution-demo",
+          "practice-product-prd"
+        ],
+        "free_only": [
+          "anthropic-claude-code-in-action",
+          "anthropic-building-with-api",
+          "anthropic-intro-mcp",
+          "anthropic-ai-fluency",
+          "pendo-ai-for-pm",
+          "postman-api-fundamentals"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "customer-success",
+      "title": "Customer Success / Account Manager",
+      "aliases": [
+        "Customer Success Manager",
+        "CSM",
+        "Customer Success Associate",
+        "Account Manager",
+        "Onboarding Specialist",
+        "Customer Experience Specialist"
+      ],
+      "summary": "Owns customer outcomes after the sale: onboarding, adoption, renewals and expansion.",
+      "skills": [
+        {
+          "skill": "customer-success",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "crm",
+          "weight": 4
+        },
+        {
+          "skill": "product-analytics",
+          "weight": 3
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 3
+        },
+        {
+          "skill": "project-management",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "presales-demos",
+          "weight": 2
+        }
+      ],
+      "jd_keywords": [
+        "customer success",
+        "onboarding",
+        "retention",
+        "churn",
+        "renewals",
+        "upsell",
+        "crm",
+        "health score",
+        "nps",
+        "relationships",
+        "saas",
+        "qbr"
+      ],
+      "suggested_path": {
+        "core": [
+          "trailhead-customer-success",
+          "salesforce-admin",
+          "hubspot-customer-success",
+          "hubspot-inbound-sales",
+          "successhacker-csm-101",
+          "northwestern-art-of-sales"
+        ],
+        "optional": [
+          "anthropic-ai-fluency",
+          "google-ai-essentials",
+          "productled-plg-fundamentals",
+          "apollo-social-selling"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-solution-demo",
+          "practice-sales-roleplay"
+        ],
+        "free_only": [
+          "trailhead-customer-success",
+          "hubspot-customer-success",
+          "hubspot-inbound-sales",
+          "northwestern-art-of-sales",
+          "anthropic-ai-fluency",
+          "productled-plg-fundamentals"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "sales-development",
+      "title": "Sales Development (SDR / BDR)",
+      "aliases": [
+        "SDR",
+        "BDR",
+        "Sales Development Representative",
+        "Business Development Representative",
+        "Inside Sales",
+        "Account Executive (junior)"
+      ],
+      "summary": "Generates pipeline: prospecting, outreach, qualification and handoff to account executives.",
+      "skills": [
+        {
+          "skill": "sales",
+          "weight": 5
+        },
+        {
+          "skill": "crm",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "digital-marketing",
+          "weight": 2
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "prospecting",
+        "outbound",
+        "cold calling",
+        "email outreach",
+        "pipeline",
+        "quota",
+        "crm",
+        "salesforce",
+        "hubspot",
+        "lead qualification",
+        "meetings booked",
+        "b2b",
+        "saas"
+      ],
+      "suggested_path": {
+        "core": [
+          "hubspot-inbound-sales",
+          "hubspot-sales-software",
+          "salesforce-sdr-certificate",
+          "northwestern-art-of-sales",
+          "trailhead-sales-fundamentals",
+          "apollo-ai-prospecting"
+        ],
+        "optional": [
+          "salesforce-admin",
+          "udemy-sales-prospecting",
+          "apollo-cold-email",
+          "apollo-outbound-program",
+          "apollo-social-selling",
+          "google-ai-essentials"
+        ],
+        "practice": [
+          "practice-sales-roleplay",
+          "practice-cold-sequence",
+          "practice-objection-handling",
+          "practice-star-bank"
+        ],
+        "free_only": [
+          "hubspot-inbound-sales",
+          "hubspot-sales-software",
+          "northwestern-art-of-sales",
+          "trailhead-sales-fundamentals",
+          "apollo-ai-prospecting",
+          "apollo-cold-email"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "growth-marketing",
+      "title": "Growth / Digital Marketing (junior)",
+      "aliases": [
+        "Growth Marketing",
+        "Digital Marketing Specialist",
+        "Performance Marketing",
+        "Marketing Associate",
+        "Content Marketing",
+        "Marketing Operations"
+      ],
+      "summary": "Drives acquisition and engagement through campaigns, content, analytics and experiments.",
+      "skills": [
+        {
+          "skill": "digital-marketing",
+          "weight": 5
+        },
+        {
+          "skill": "web-analytics",
+          "weight": 5
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 4
+        },
+        {
+          "skill": "excel",
+          "weight": 3
+        },
+        {
+          "skill": "product-analytics",
+          "weight": 3
+        },
+        {
+          "skill": "crm",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 4
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        },
+        {
+          "skill": "statistics",
+          "weight": 2
+        },
+        {
+          "skill": "no-code-automation",
+          "weight": 2
+        }
+      ],
+      "jd_keywords": [
+        "growth",
+        "campaigns",
+        "google ads",
+        "seo",
+        "content",
+        "email",
+        "analytics",
+        "ga4",
+        "conversion",
+        "a/b testing",
+        "funnels",
+        "cac",
+        "roi",
+        "social media"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-digital-marketing",
+          "google-ads-search",
+          "hubspot-inbound-marketing",
+          "hubspot-email-marketing",
+          "google-analytics-cert",
+          "anthropic-ai-fluency"
+        ],
+        "optional": [
+          "google-ai-essentials",
+          "pendo-product-analytics",
+          "productled-plg-fundamentals",
+          "khan-statistics"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "google-ads-search",
+          "hubspot-inbound-marketing",
+          "hubspot-email-marketing",
+          "google-analytics-cert",
+          "anthropic-ai-fluency",
+          "productled-plg-fundamentals"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "qa-tester",
+      "title": "QA Tester / Junior QA Engineer",
+      "aliases": [
+        "QA Tester",
+        "Manual QA",
+        "QA Analyst",
+        "Junior QA Engineer",
+        "Software Tester",
+        "Test Engineer"
+      ],
+      "summary": "Makes sure the product works before customers see it: test plans, test cases, bug reports and regression.",
+      "skills": [
+        {
+          "skill": "software-testing",
+          "weight": 5
+        },
+        {
+          "skill": "apis",
+          "weight": 4
+        },
+        {
+          "skill": "sql",
+          "weight": 3
+        },
+        {
+          "skill": "jira",
+          "weight": 4
+        },
+        {
+          "skill": "git",
+          "weight": 2
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        },
+        {
+          "skill": "agile-scrum",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "qa",
+        "testing",
+        "test cases",
+        "bugs",
+        "regression",
+        "jira",
+        "api testing",
+        "postman",
+        "sql",
+        "agile",
+        "automation",
+        "istqb"
+      ],
+      "suggested_path": {
+        "core": [
+          "jira-fundamentals",
+          "istqb-ctfl",
+          "psm-1",
+          "postman-api-fundamentals",
+          "hackerrank-rest-api",
+          "hackerrank-sql-basic"
+        ],
+        "optional": [
+          "kaggle-intro-sql",
+          "github-foundations",
+          "google-tech-writing",
+          "linux-foundation-intro-linux"
+        ],
+        "practice": [
+          "practice-qa-test-plan",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "jira-fundamentals",
+          "postman-api-fundamentals",
+          "hackerrank-rest-api",
+          "hackerrank-sql-basic",
+          "kaggle-intro-sql",
+          "google-tech-writing"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "soc-analyst",
+      "title": "Junior Cybersecurity / SOC Analyst",
+      "aliases": [
+        "SOC Analyst",
+        "Security Analyst",
+        "Cybersecurity Analyst",
+        "Tier 1 SOC",
+        "Security Operations"
+      ],
+      "summary": "Monitors alerts, investigates incidents and escalates threats in a security operations center.",
+      "skills": [
+        {
+          "skill": "cybersecurity",
+          "weight": 5
+        },
+        {
+          "skill": "networking",
+          "weight": 4
+        },
+        {
+          "skill": "linux",
+          "weight": 4
+        },
+        {
+          "skill": "incident-management",
+          "weight": 5
+        },
+        {
+          "skill": "it-support",
+          "weight": 3
+        },
+        {
+          "skill": "python",
+          "weight": 2
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "soc",
+        "siem",
+        "alerts",
+        "incident response",
+        "threats",
+        "phishing",
+        "network",
+        "linux",
+        "security+",
+        "logs",
+        "shifts",
+        "escalation"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-cybersecurity",
+          "comptia-security-plus",
+          "cisco-intro-cybersecurity",
+          "isc2-cc",
+          "cisco-networking-basics",
+          "linux-foundation-intro-linux"
+        ],
+        "optional": [],
+        "practice": [
+          "practice-soc-alert-triage",
+          "practice-star-bank",
+          "practice-mock-behavioral",
+          "practice-mock-english"
+        ],
+        "free_only": [
+          "cisco-intro-cybersecurity",
+          "cisco-networking-basics",
+          "linux-foundation-intro-linux"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "it-sysadmin",
+      "title": "IT Support / Junior System Administrator",
+      "aliases": [
+        "IT Support",
+        "Helpdesk",
+        "IT Specialist",
+        "Junior Sysadmin",
+        "System Administrator",
+        "IT Technician"
+      ],
+      "summary": "Keeps people and systems running: devices, accounts, networks, cloud tools and user support.",
+      "skills": [
+        {
+          "skill": "it-support",
+          "weight": 5
+        },
+        {
+          "skill": "linux",
+          "weight": 4
+        },
+        {
+          "skill": "networking",
+          "weight": 4
+        },
+        {
+          "skill": "cloud",
+          "weight": 4
+        },
+        {
+          "skill": "cybersecurity",
+          "weight": 3
+        },
+        {
+          "skill": "incident-management",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "it support",
+        "helpdesk",
+        "windows",
+        "linux",
+        "active directory",
+        "office 365",
+        "google workspace",
+        "network",
+        "tickets",
+        "hardware",
+        "sla"
+      ],
+      "suggested_path": {
+        "core": [
+          "google-cybersecurity",
+          "google-it-support",
+          "comptia-security-plus",
+          "itil-4-foundation",
+          "aws-cloud-practitioner",
+          "az-900"
+        ],
+        "optional": [
+          "cisco-networking-basics",
+          "aws-cloud-practitioner-essentials",
+          "cisco-intro-cybersecurity",
+          "isc2-cc",
+          "linux-foundation-intro-linux"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "cisco-networking-basics",
+          "aws-cloud-practitioner-essentials",
+          "cisco-intro-cybersecurity",
+          "linux-foundation-intro-linux"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "business-analyst",
+      "title": "Business Analyst",
+      "aliases": [
+        "Business Analyst",
+        "Junior BA",
+        "Systems Analyst",
+        "Process Analyst",
+        "Requirements Analyst"
+      ],
+      "summary": "Translates business needs into clear requirements and process changes for product and tech teams.",
+      "skills": [
+        {
+          "skill": "business-analysis",
+          "weight": 5
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 4
+        },
+        {
+          "skill": "sql",
+          "weight": 3
+        },
+        {
+          "skill": "excel",
+          "weight": 4
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 3
+        },
+        {
+          "skill": "agile-scrum",
+          "weight": 3
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "requirements",
+        "stakeholders",
+        "process mapping",
+        "bpmn",
+        "user stories",
+        "use cases",
+        "gap analysis",
+        "sql",
+        "documentation",
+        "agile",
+        "ecba"
+      ],
+      "suggested_path": {
+        "core": [
+          "iiba-ecba",
+          "psm-1",
+          "lean-six-sigma-yellow-belt",
+          "lean-six-sigma-white-belt",
+          "hackerrank-sql-basic",
+          "google-tech-writing"
+        ],
+        "optional": [
+          "jira-fundamentals",
+          "kaggle-intro-sql",
+          "wharton-financial-accounting",
+          "wharton-corporate-finance-audit"
+        ],
+        "practice": [
+          "practice-requirements-doc",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "lean-six-sigma-white-belt",
+          "hackerrank-sql-basic",
+          "google-tech-writing",
+          "jira-fundamentals",
+          "kaggle-intro-sql",
+          "wharton-financial-accounting"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "revenue-operations",
+      "title": "Revenue Operations / Sales Ops",
+      "aliases": [
+        "RevOps",
+        "Revenue Operations",
+        "Sales Operations",
+        "Marketing Operations",
+        "GTM Operations",
+        "CRM Admin"
+      ],
+      "summary": "Runs the systems and data behind sales and marketing: CRM, pipeline reporting, routing and forecasting.",
+      "skills": [
+        {
+          "skill": "revops",
+          "weight": 5
+        },
+        {
+          "skill": "crm",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 4
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 4
+        },
+        {
+          "skill": "no-code-automation",
+          "weight": 4
+        },
+        {
+          "skill": "sql",
+          "weight": 3
+        },
+        {
+          "skill": "bi-visualization",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "revops",
+        "salesforce",
+        "hubspot",
+        "crm",
+        "pipeline",
+        "forecasting",
+        "dashboards",
+        "lead routing",
+        "automation",
+        "gtm",
+        "attribution",
+        "data hygiene"
+      ],
+      "suggested_path": {
+        "core": [
+          "excel-skills-for-business",
+          "pl-300",
+          "salesforce-admin",
+          "hubspot-sales-software",
+          "salesforce-sdr-certificate",
+          "apollo-outbound-program"
+        ],
+        "optional": [
+          "trailhead-sales-fundamentals",
+          "hackerrank-sql-basic",
+          "make-automation-foundation",
+          "zapier-ai-builder",
+          "kaggle-intro-sql"
+        ],
+        "practice": [
+          "practice-crm-cleanup",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-automation-build"
+        ],
+        "free_only": [
+          "hubspot-sales-software",
+          "apollo-outbound-program",
+          "trailhead-sales-fundamentals",
+          "hackerrank-sql-basic",
+          "make-automation-foundation",
+          "zapier-ai-builder"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "people-operations",
+      "title": "People Operations / Recruiting Coordinator",
+      "aliases": [
+        "People Operations",
+        "HR Coordinator",
+        "Recruiting Coordinator",
+        "Talent Acquisition Coordinator",
+        "HR Generalist (junior)",
+        "Talent Sourcer"
+      ],
+      "summary": "Hiring and the employee lifecycle: recruiting pipelines, onboarding, HR processes and people data.",
+      "skills": [
+        {
+          "skill": "recruiting-hr",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 3
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 3
+        },
+        {
+          "skill": "people-leadership",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "recruiting",
+        "sourcing",
+        "interviews",
+        "onboarding",
+        "hris",
+        "employee experience",
+        "people",
+        "hr",
+        "talent",
+        "ats",
+        "linkedin recruiter"
+      ],
+      "suggested_path": {
+        "core": [
+          "umn-hr-management",
+          "hireez-recruiting-academy",
+          "hrci-aphr",
+          "shrm-cp",
+          "hrci-aphr-prep-free",
+          "anthropic-ai-fluency"
+        ],
+        "optional": [
+          "umn-recruiting-onboarding-audit",
+          "google-ai-essentials",
+          "mos-excel"
+        ],
+        "practice": [
+          "practice-candidate-screen",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-recruiting-pipeline"
+        ],
+        "free_only": [
+          "hireez-recruiting-academy",
+          "umn-recruiting-onboarding-audit",
+          "hrci-aphr-prep-free",
+          "anthropic-ai-fluency"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "supply-chain-analyst",
+      "title": "Supply Chain / Logistics Analyst",
+      "aliases": [
+        "Supply Chain Analyst",
+        "Logistics Coordinator",
+        "Procurement Analyst",
+        "Demand Planner",
+        "Operations Planner",
+        "Purchasing Coordinator"
+      ],
+      "summary": "Plans and optimizes the flow of goods: inventory, suppliers, demand planning and logistics data.",
+      "skills": [
+        {
+          "skill": "supply-chain",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 5
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 4
+        },
+        {
+          "skill": "operations-management",
+          "weight": 4
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 4
+        },
+        {
+          "skill": "sql",
+          "weight": 3
+        },
+        {
+          "skill": "bi-visualization",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "supply chain",
+        "logistics",
+        "inventory",
+        "procurement",
+        "suppliers",
+        "demand planning",
+        "erp",
+        "sap",
+        "excel",
+        "kpis",
+        "forecasting"
+      ],
+      "suggested_path": {
+        "core": [
+          "excel-skills-for-business",
+          "lean-six-sigma-yellow-belt",
+          "pl-300",
+          "mos-excel",
+          "mitx-supply-chain-fundamentals",
+          "lean-six-sigma-white-belt"
+        ],
+        "optional": [
+          "khan-statistics"
+        ],
+        "practice": [
+          "practice-inventory-case",
+          "practice-excel-test",
+          "practice-star-bank",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "mitx-supply-chain-fundamentals",
+          "lean-six-sigma-white-belt",
+          "khan-statistics"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "finance-operations",
+      "title": "Finance Operations / Junior Financial Analyst",
+      "aliases": [
+        "Financial Analyst",
+        "FP&A Analyst (junior)",
+        "Finance Operations",
+        "Accounting Assistant",
+        "Billing Specialist"
+      ],
+      "summary": "Budgets, forecasts, reporting and financial processes, mostly in Excel.",
+      "skills": [
+        {
+          "skill": "finance-basics",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 5
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 4
+        },
+        {
+          "skill": "bi-visualization",
+          "weight": 3
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "fp&a",
+        "budget",
+        "forecast",
+        "excel",
+        "financial model",
+        "p&l",
+        "reporting",
+        "variance analysis",
+        "accounting",
+        "erp"
+      ],
+      "suggested_path": {
+        "core": [
+          "cfi-fmva",
+          "cfi-fundamentals-challenge",
+          "excel-skills-for-business",
+          "pl-300",
+          "quickbooks-proadvisor",
+          "xero-advisor"
+        ],
+        "optional": [
+          "mos-excel",
+          "wharton-financial-accounting",
+          "wharton-corporate-finance-audit"
+        ],
+        "practice": [
+          "practice-variance-analysis",
+          "practice-budget-model",
+          "practice-reconciliation",
+          "practice-star-bank"
+        ],
+        "free_only": [
+          "cfi-fundamentals-challenge",
+          "quickbooks-proadvisor",
+          "xero-advisor",
+          "wharton-financial-accounting",
+          "wharton-corporate-finance-audit"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "solutions-engineer",
+      "title": "Solutions Engineer / Pre-sales (junior)",
+      "aliases": [
+        "Solutions Engineer",
+        "Sales Engineer",
+        "Pre-sales Engineer",
+        "Solutions Consultant",
+        "Technical Account Manager"
+      ],
+      "summary": "The technical voice in the sales process: discovery, demos, proofs of concept and integration questions.",
+      "skills": [
+        {
+          "skill": "presales-demos",
+          "weight": 5
+        },
+        {
+          "skill": "apis",
+          "weight": 4
+        },
+        {
+          "skill": "cloud",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "product-management",
+          "weight": 3
+        },
+        {
+          "skill": "sales",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "demos",
+        "poc",
+        "technical discovery",
+        "integrations",
+        "api",
+        "cloud",
+        "saas",
+        "rfp",
+        "customers",
+        "solution design",
+        "sales cycle"
+      ],
+      "suggested_path": {
+        "core": [
+          "northwestern-art-of-sales",
+          "aws-cloud-practitioner",
+          "postman-api-fundamentals",
+          "gcp-cloud-digital-leader",
+          "az-900",
+          "hackerrank-rest-api"
+        ],
+        "optional": [
+          "aws-cloud-practitioner-essentials",
+          "github-foundations"
+        ],
+        "practice": [
+          "practice-solution-demo",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-objection-handling"
+        ],
+        "free_only": [
+          "northwestern-art-of-sales",
+          "postman-api-fundamentals",
+          "hackerrank-rest-api",
+          "aws-cloud-practitioner-essentials"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "automation-specialist",
+      "title": "No-code / AI Automation Specialist",
+      "aliases": [
+        "Automation Specialist",
+        "Workflow Automation",
+        "AI Automation Specialist",
+        "Business Systems Analyst",
+        "Internal Tools"
+      ],
+      "summary": "Builds workflows that connect tools and AI to remove manual work: Zapier, Make, n8n, Power Automate, LLMs.",
+      "skills": [
+        {
+          "skill": "no-code-automation",
+          "weight": 5
+        },
+        {
+          "skill": "ai-agents",
+          "weight": 4
+        },
+        {
+          "skill": "apis",
+          "weight": 4
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 4
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 4
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "automation",
+        "zapier",
+        "make",
+        "n8n",
+        "power automate",
+        "workflows",
+        "integrations",
+        "api",
+        "ai",
+        "llm",
+        "internal tools",
+        "efficiency"
+      ],
+      "suggested_path": {
+        "core": [
+          "anthropic-claude-code-in-action",
+          "make-automation-foundation",
+          "zapier-ai-builder",
+          "postman-api-fundamentals",
+          "anthropic-ai-fluency",
+          "n8n-essentials"
+        ],
+        "optional": [
+          "power-automate-path",
+          "deeplearning-crewai",
+          "google-tech-writing",
+          "github-foundations"
+        ],
+        "practice": [
+          "practice-automation-build",
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "anthropic-claude-code-in-action",
+          "make-automation-foundation",
+          "zapier-ai-builder",
+          "postman-api-fundamentals",
+          "anthropic-ai-fluency",
+          "n8n-essentials"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    }
+  ]
+}

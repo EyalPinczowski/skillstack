@@ -1,0 +1,35 @@
+# dependencies and build output
+node_modules/
+dist/
+.next/
+.vercel/
+coverage/
+*.tsbuildinfo
+
+# environment and secrets – only .env.example is committed
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.age
+age-key*.txt
+
+# private data – lives in the private repo, never here
+seed/private/
+backups/
+*.dump
+*.sql.gz
+
+# tests and tooling output
+playwright-report/
+test-results/
+.cache/
+*.log
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

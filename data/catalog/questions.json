@@ -1,0 +1,658 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "generated": "2026-10-29",
+    "stages": [
+      "goal",
+      "discovery",
+      "background",
+      "skills",
+      "time",
+      "budget",
+      "style"
+    ],
+    "notes": "Questions are asked one stage at a time. show_if hides a question unless an earlier answer matches. maps_to names the Goal / UserProfile / WeekPattern field the answer fills (spec 3.0, section 4)."
+  },
+  "questions": [
+    {
+      "id": "goal_type",
+      "stage": "goal",
+      "text": "What brings you here?",
+      "why": "So the plan is built around the outcome you actually want.",
+      "type": "single",
+      "options": [
+        {
+          "value": "new_role",
+          "label": "Get a new job or change careers"
+        },
+        {
+          "value": "grow_in_role",
+          "label": "Grow in my current role"
+        },
+        {
+          "value": "specific_skill",
+          "label": "Learn a specific skill"
+        },
+        {
+          "value": "certificate",
+          "label": "Pass a specific certification or exam"
+        },
+        {
+          "value": "explore",
+          "label": "I'm not sure yet – help me figure it out"
+        }
+      ],
+      "maps_to": "goal.type",
+      "required": true
+    },
+    {
+      "id": "target_role",
+      "stage": "goal",
+      "text": "Which role are you aiming for?",
+      "why": "Each role needs a different mix of skills and certificates.",
+      "type": "multi_role",
+      "max": 2,
+      "options_source": "roles",
+      "allow_other": true,
+      "show_if": {
+        "goal_type": [
+          "new_role",
+          "grow_in_role"
+        ]
+      },
+      "maps_to": "goal.target_roles",
+      "required": true
+    },
+    {
+      "id": "target_skills",
+      "stage": "goal",
+      "text": "Which skills do you want to learn?",
+      "why": "Pick up to 5. You can type ones that aren't listed.",
+      "type": "multi_skill",
+      "max": 5,
+      "options_source": "skills",
+      "allow_other": true,
+      "show_if": {
+        "goal_type": [
+          "specific_skill"
+        ]
+      },
+      "maps_to": "goal.target_skills",
+      "required": true
+    },
+    {
+      "id": "target_certificate",
+      "stage": "goal",
+      "text": "Which certification or exam?",
+      "why": "The plan will be built backwards from the exam.",
+      "type": "catalog_search",
+      "filter": {
+        "type": "cert_exam"
+      },
+      "allow_other": true,
+      "show_if": {
+        "goal_type": [
+          "certificate"
+        ]
+      },
+      "maps_to": "goal.target_items",
+      "required": true
+    },
+    {
+      "id": "goal_why",
+      "stage": "goal",
+      "text": "In one sentence – why now? What will be different when you reach this goal?",
+      "why": "Helps prioritize: a job search in 2 months needs a different plan than long-term growth.",
+      "type": "text",
+      "max_chars": 280,
+      "maps_to": "goal.motivation",
+      "required": false
+    },
+    {
+      "id": "job_posting",
+      "stage": "goal",
+      "text": "Do you have a job posting you're aiming at? Paste the description or a link.",
+      "why": "The app matches its requirements against the catalog – the most precise way to target a plan.",
+      "type": "text_or_url",
+      "show_if": {
+        "goal_type": [
+          "new_role",
+          "grow_in_role"
+        ]
+      },
+      "maps_to": "goal.job_description",
+      "required": false
+    },
+    {
+      "id": "discover_enjoy",
+      "stage": "discovery",
+      "text": "Which kinds of work do you enjoy most?",
+      "why": "Pick up to 3. Used to suggest roles that fit you.",
+      "type": "multi",
+      "max": 3,
+      "options": [
+        {
+          "value": "organizing",
+          "label": "Organizing processes and making things run smoothly",
+          "roles": [
+            "operations-associate",
+            "project-coordinator",
+            "supply-chain-analyst"
+          ]
+        },
+        {
+          "value": "data",
+          "label": "Finding answers in data and numbers",
+          "roles": [
+            "data-analyst",
+            "finance-operations",
+            "business-analyst"
+          ]
+        },
+        {
+          "value": "people",
+          "label": "Working with people, helping and persuading them",
+          "roles": [
+            "customer-success",
+            "sales-development",
+            "people-operations"
+          ]
+        },
+        {
+          "value": "technical",
+          "label": "Solving technical problems",
+          "roles": [
+            "technical-operations",
+            "qa-tester",
+            "it-sysadmin",
+            "soc-analyst"
+          ]
+        },
+        {
+          "value": "building",
+          "label": "Building tools and automations",
+          "roles": [
+            "automation-specialist",
+            "ai-deployment-specialist"
+          ]
+        },
+        {
+          "value": "product",
+          "label": "Shaping a product and deciding what to build",
+          "roles": [
+            "product-operations",
+            "business-analyst"
+          ]
+        },
+        {
+          "value": "growth",
+          "label": "Marketing, content and growth",
+          "roles": [
+            "growth-marketing",
+            "revenue-operations"
+          ]
+        }
+      ],
+      "show_if": {
+        "goal_type": [
+          "explore"
+        ]
+      },
+      "maps_to": "profile.interests",
+      "required": true
+    },
+    {
+      "id": "discover_style",
+      "stage": "discovery",
+      "text": "Which work style fits you better?",
+      "why": "Some roles are mostly focused work, others mostly conversations.",
+      "type": "single",
+      "options": [
+        {
+          "value": "focus",
+          "label": "Mostly focused work on my own"
+        },
+        {
+          "value": "mixed",
+          "label": "A mix"
+        },
+        {
+          "value": "people",
+          "label": "Mostly talking with people"
+        }
+      ],
+      "show_if": {
+        "goal_type": [
+          "explore"
+        ]
+      },
+      "maps_to": "profile.work_style",
+      "required": false
+    },
+    {
+      "id": "discover_pick",
+      "stage": "discovery",
+      "text": "Based on your answers, these roles could fit. Pick one or two to aim for.",
+      "why": "Suggested from your interests and background – you can still choose anything.",
+      "type": "role_suggestions",
+      "max": 2,
+      "show_if": {
+        "goal_type": [
+          "explore"
+        ]
+      },
+      "maps_to": "goal.target_roles",
+      "required": true
+    },
+    {
+      "id": "current_status",
+      "stage": "background",
+      "text": "What's your current situation?",
+      "why": "Affects how many hours you realistically have and how urgent the plan is.",
+      "type": "single",
+      "options": [
+        {
+          "value": "job_searching",
+          "label": "Looking for a job"
+        },
+        {
+          "value": "employed",
+          "label": "Working full-time"
+        },
+        {
+          "value": "part_time",
+          "label": "Working part-time"
+        },
+        {
+          "value": "student",
+          "label": "Studying"
+        },
+        {
+          "value": "transition",
+          "label": "In transition (e.g. after military service or a career break)"
+        }
+      ],
+      "maps_to": "profile.status",
+      "required": true
+    },
+    {
+      "id": "background",
+      "stage": "background",
+      "text": "Briefly, what's your background? Roles, responsibilities, anything you're proud of.",
+      "why": "Experience you already have shortens the plan. Don't include your name or contact details.",
+      "type": "text",
+      "max_chars": 800,
+      "maps_to": "profile.background",
+      "required": false,
+      "privacy": "strip_pii"
+    },
+    {
+      "id": "education",
+      "stage": "background",
+      "text": "Highest education completed?",
+      "why": "Some certificates and roles have formal requirements.",
+      "type": "single",
+      "options": [
+        {
+          "value": "high_school",
+          "label": "High school"
+        },
+        {
+          "value": "some_college",
+          "label": "Some college / courses"
+        },
+        {
+          "value": "bachelor",
+          "label": "Bachelor's degree"
+        },
+        {
+          "value": "master",
+          "label": "Master's or higher"
+        }
+      ],
+      "maps_to": "profile.education",
+      "required": false
+    },
+    {
+      "id": "tools_known",
+      "stage": "background",
+      "text": "Which of these tools have you already used at work or in projects?",
+      "why": "Skips beginner material you don't need.",
+      "type": "multi",
+      "options_source": "tools",
+      "options": [
+        "Excel",
+        "Google Sheets",
+        "SQL",
+        "Jira",
+        "Notion",
+        "Salesforce",
+        "HubSpot",
+        "Power BI",
+        "Tableau",
+        "Python",
+        "Zapier / Make",
+        "ChatGPT / Claude",
+        "Figma",
+        "Git"
+      ],
+      "maps_to": "profile.tools",
+      "required": false
+    },
+    {
+      "id": "skill_levels",
+      "stage": "skills",
+      "text": "How comfortable are you with each of these skills?",
+      "why": "Generated from the skills your target role needs. Be honest – the plan only adds what's missing.",
+      "type": "skill_matrix",
+      "source": "target_roles.skills",
+      "scale": [
+        {
+          "value": 0,
+          "label": "Never used"
+        },
+        {
+          "value": 1,
+          "label": "Basic"
+        },
+        {
+          "value": 2,
+          "label": "Comfortable"
+        },
+        {
+          "value": 3,
+          "label": "Could teach it"
+        }
+      ],
+      "maps_to": "profile.skill_levels",
+      "required": true
+    },
+    {
+      "id": "quick_check",
+      "stage": "skills",
+      "text": "Want a 2-minute check on your top skills to make the plan more accurate?",
+      "why": "3 quick questions per skill (e.g. SQL, Excel). Optional – self-assessment is fine.",
+      "type": "yes_no",
+      "maps_to": "profile.quick_check_opt_in",
+      "required": false
+    },
+    {
+      "id": "timeframe",
+      "stage": "time",
+      "text": "When do you want to start, and by when do you want to finish?",
+      "why": "The plan is sized to this period.",
+      "type": "date_range_or_weeks",
+      "default_weeks": 4,
+      "maps_to": "goal.period",
+      "required": true
+    },
+    {
+      "id": "days_per_week",
+      "stage": "time",
+      "text": "Which days can you study?",
+      "why": "Pre-fills your weekly pattern. You can change it later.",
+      "type": "weekdays",
+      "default": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "maps_to": "week_pattern.study_weekdays",
+      "required": true
+    },
+    {
+      "id": "hours_per_day",
+      "stage": "time",
+      "text": "About how many hours per study day?",
+      "why": "Be realistic – a plan you can keep beats an ambitious one you drop.",
+      "type": "number",
+      "min": 0.5,
+      "max": 12,
+      "step": 0.5,
+      "default": 3,
+      "maps_to": "week_pattern.default_hours",
+      "required": true,
+      "hint_if": {
+        "current_status": {
+          "employed": "Most people working full-time manage 1–2 hours on weekdays."
+        }
+      }
+    },
+    {
+      "id": "time_of_day",
+      "stage": "time",
+      "text": "When do you usually study best?",
+      "why": "Used to place study blocks in your calendar.",
+      "type": "single",
+      "options": [
+        {
+          "value": "morning",
+          "label": "Morning"
+        },
+        {
+          "value": "afternoon",
+          "label": "Afternoon"
+        },
+        {
+          "value": "evening",
+          "label": "Evening"
+        },
+        {
+          "value": "flexible",
+          "label": "Flexible"
+        }
+      ],
+      "maps_to": "week_pattern.preferred_window",
+      "required": false
+    },
+    {
+      "id": "fixed_dates",
+      "stage": "time",
+      "text": "Any dates already fixed? Exams, interviews, vacations, reserve duty.",
+      "why": "The plan is built around them.",
+      "type": "date_list",
+      "maps_to": "goal.fixed_dates",
+      "required": false
+    },
+    {
+      "id": "budget",
+      "stage": "budget",
+      "text": "What's your budget for the whole plan?",
+      "why": "Free options are always shown next to paid ones.",
+      "type": "budget",
+      "options": [
+        {
+          "value": "free",
+          "label": "Free only"
+        },
+        {
+          "value": "limit",
+          "label": "Up to a set amount"
+        },
+        {
+          "value": "flexible",
+          "label": "Flexible – whatever gives the best result"
+        }
+      ],
+      "currency_options": [
+        "USD",
+        "ILS",
+        "EUR"
+      ],
+      "maps_to": "goal.budget",
+      "required": true
+    },
+    {
+      "id": "max_item_price",
+      "stage": "budget",
+      "text": "Any limit for a single course or exam?",
+      "why": "For example, 'nothing over $150'.",
+      "type": "money",
+      "show_if": {
+        "budget": [
+          "limit",
+          "flexible"
+        ]
+      },
+      "maps_to": "goal.max_item_price",
+      "required": false
+    },
+    {
+      "id": "certificates",
+      "stage": "budget",
+      "text": "How important are certificates for you?",
+      "why": "Official exams cost more but are what recruiters recognize.",
+      "type": "single",
+      "options": [
+        {
+          "value": "must",
+          "label": "Must have – I need them for my CV"
+        },
+        {
+          "value": "nice",
+          "label": "Nice to have"
+        },
+        {
+          "value": "none",
+          "label": "I only care about the skills"
+        }
+      ],
+      "maps_to": "goal.cert_preference",
+      "required": true
+    },
+    {
+      "id": "formats",
+      "stage": "style",
+      "text": "How do you prefer to learn?",
+      "why": "Pick all that apply.",
+      "type": "multi",
+      "options": [
+        {
+          "value": "video",
+          "label": "Video lessons"
+        },
+        {
+          "value": "reading",
+          "label": "Reading"
+        },
+        {
+          "value": "hands-on",
+          "label": "Hands-on exercises"
+        },
+        {
+          "value": "practice",
+          "label": "Practice and simulations"
+        }
+      ],
+      "maps_to": "goal.formats",
+      "required": false
+    },
+    {
+      "id": "language",
+      "stage": "style",
+      "text": "Which languages can you learn in?",
+      "why": "Most recognized courses are in English.",
+      "type": "multi",
+      "options": [
+        {
+          "value": "en",
+          "label": "English"
+        },
+        {
+          "value": "he",
+          "label": "Hebrew"
+        },
+        {
+          "value": "other",
+          "label": "Other"
+        }
+      ],
+      "default": [
+        "en"
+      ],
+      "maps_to": "goal.languages",
+      "required": false
+    },
+    {
+      "id": "interview_prep",
+      "stage": "style",
+      "text": "Should the plan include interview preparation?",
+      "why": "Mock interviews, home assignments and STAR stories, mixed in with the courses.",
+      "type": "single",
+      "options": [
+        {
+          "value": "yes",
+          "label": "Yes"
+        },
+        {
+          "value": "later",
+          "label": "Later in the plan"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ],
+      "show_if": {
+        "goal_type": [
+          "new_role",
+          "explore"
+        ]
+      },
+      "maps_to": "goal.include_interview_prep",
+      "required": false
+    },
+    {
+      "id": "own_courses",
+      "stage": "style",
+      "text": "Are there courses you already want to include?",
+      "why": "Add them now – the plan will be built around them.",
+      "type": "own_items",
+      "maps_to": "goal.must_include",
+      "required": false
+    },
+    {
+      "id": "concerns",
+      "stage": "style",
+      "text": "Anything that usually gets in the way when you study?",
+      "why": "Optional. For example: 'I lose motivation after a week', 'my schedule changes a lot'.",
+      "type": "text",
+      "max_chars": 280,
+      "maps_to": "profile.concerns",
+      "required": false
+    }
+  ],
+  "follow_ups": [
+    {
+      "if": "hours_per_day * study_days_per_week * weeks < required_core_hours",
+      "ask": "With this time, the core plan won't fit. What would you like to do?",
+      "options": [
+        "Extend the period",
+        "Add study time",
+        "Keep only the most important items"
+      ]
+    },
+    {
+      "if": "goal_type == 'certificate' and fixed_dates has no exam date",
+      "ask": "Do you have a date for the exam, or should the plan suggest one?"
+    },
+    {
+      "if": "budget == 'free' and cert_preference == 'must'",
+      "ask": "Most official certificates are paid. Should the plan use free certificates only, or allow a few paid exams?",
+      "options": [
+        "Free certificates only",
+        "Allow up to $X for exams"
+      ]
+    },
+    {
+      "if": "job_description provided and skills in posting not in target role",
+      "ask": "The job posting also mentions {skills}. Add them to the plan?"
+    },
+    {
+      "if": "background mentions skills rated 0 in skill_levels",
+      "ask": "Your background mentions {skill}, but you rated it 'Never used'. Want to update it?"
+    }
+  ]
+}

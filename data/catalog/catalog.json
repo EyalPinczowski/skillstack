@@ -1,0 +1,4203 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "generated": "2026-10-29",
+    "currency_default": "USD",
+    "verification_note": "url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
+  },
+  "items": [
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "grow.google certificates page; Coursera Plus pricing reviews",
+      "notes": "6 courses incl. capstone. Recognized for PMI CAPM education hours. Can be audited free (no certificate).",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "google-project-management-audit"
+      ],
+      "id": "google-project-management",
+      "title": "Google Project Management Professional Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/google-certificates/project-management-certificate",
+      "est_hours": 60,
+      "skills": [
+        "project-management",
+        "agile-scrum",
+        "communication"
+      ],
+      "roles": [
+        "project-coordinator",
+        "operations-associate",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free_audit",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": 59,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Coursera audit model",
+      "notes": "Audit availability varies by course; graded items and certificate require payment.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "google-project-management-audit",
+      "title": "Google Project Management (audit mode)",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/google-certificates/project-management-certificate",
+      "est_hours": 55,
+      "skills": [
+        "project-management",
+        "agile-scrum"
+      ],
+      "roles": [
+        "project-coordinator",
+        "operations-associate",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 200,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "open-exam-prep PSM I guide 2026",
+      "notes": "80 questions, 60 minutes, 85% to pass. Lifetime certification. Prep: Scrum Guide + Scrum Open.",
+      "prerequisites": [
+        "scrum-guide",
+        "scrum-open"
+      ],
+      "free_alternative_ids": [],
+      "id": "psm-1",
+      "title": "Professional Scrum Master I (PSM I) – exam",
+      "provider": "Scrum.org",
+      "url": "https://www.scrum.org/assessments/professional-scrum-master-i-certification",
+      "est_hours": 1,
+      "skills": [
+        "agile-scrum"
+      ],
+      "roles": [
+        "project-coordinator",
+        "product-operations",
+        "operations-associate",
+        "qa-tester",
+        "business-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "reading"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Official, short, free. Core prep for PSM I / PSPO I.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "scrum-guide",
+      "title": "The Scrum Guide (read twice)",
+      "provider": "Scrum.org / scrumguides.org",
+      "url": "https://scrumguides.org/scrum-guide.html",
+      "est_hours": 3,
+      "skills": [
+        "agile-scrum"
+      ],
+      "roles": [
+        "project-coordinator",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Free practice test; repeat until 100% before PSM I.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "scrum-open",
+      "title": "Scrum Open practice assessment",
+      "provider": "Scrum.org",
+      "url": "https://www.scrum.org/open-assessments/scrum-open",
+      "est_hours": 3,
+      "skills": [
+        "agile-scrum"
+      ],
+      "roles": [
+        "project-coordinator",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 200,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Price commonly $200; confirm on Scrum.org.",
+      "prerequisites": [
+        "scrum-guide"
+      ],
+      "free_alternative_ids": [],
+      "id": "pspo-1",
+      "title": "Professional Scrum Product Owner I (PSPO I) – exam",
+      "provider": "Scrum.org",
+      "url": "https://www.scrum.org/assessments/professional-scrum-product-owner-i-certification",
+      "est_hours": 1,
+      "skills": [
+        "agile-scrum",
+        "product-management"
+      ],
+      "roles": [
+        "product-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 300,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "intermediate",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "RoseMet CAPM cost breakdown",
+      "notes": "$300 non-member / $225 member (membership $139 + $10). Requires 23 contact hours of PM education (Google PM certificate counts). Valid 3 years.",
+      "prerequisites": [
+        "google-project-management"
+      ],
+      "free_alternative_ids": [],
+      "id": "capm",
+      "title": "Certified Associate in Project Management (CAPM) – exam",
+      "provider": "PMI",
+      "url": "https://www.pmi.org/certifications/certified-associate-capm",
+      "est_hours": 60,
+      "skills": [
+        "project-management"
+      ],
+      "roles": [
+        "project-coordinator"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Atlassian community announcement",
+      "notes": "~90 minutes, assessment-backed badge. Pair with a real Jira board in a free workspace.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "jira-fundamentals",
+      "title": "Jira Fundamentals learning path",
+      "provider": "Atlassian University",
+      "url": "https://university.atlassian.com/student/path/974180",
+      "est_hours": 1.5,
+      "skills": [
+        "jira",
+        "agile-scrum"
+      ],
+      "roles": [
+        "project-coordinator",
+        "product-operations",
+        "technical-operations",
+        "operations-associate",
+        "qa-tester",
+        "business-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "goleansixsigma.com",
+      "notes": "Free with certificate (recertify every 2 years).",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "lean-six-sigma-white-belt",
+      "title": "Lean Six Sigma White Belt",
+      "provider": "GoLeanSixSigma",
+      "url": "https://goleansixsigma.com/white-belt/",
+      "est_hours": 2,
+      "skills": [
+        "process-improvement"
+      ],
+      "roles": [
+        "operations-associate",
+        "supply-chain-analyst",
+        "business-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "one_time",
+      "price": 99,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "goleansixsigma.com White Belt page",
+      "notes": "Certification included in price.",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "lean-six-sigma-white-belt"
+      ],
+      "id": "lean-six-sigma-yellow-belt",
+      "title": "Lean Six Sigma Yellow Belt",
+      "provider": "GoLeanSixSigma",
+      "url": "https://goleansixsigma.com/yellow-belt/",
+      "est_hours": 2,
+      "skills": [
+        "process-improvement",
+        "operations-management"
+      ],
+      "roles": [
+        "operations-associate",
+        "supply-chain-analyst",
+        "business-analyst"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": null,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": "Readynez ITIL cost guide",
+      "notes": "Price varies by country and provider (often several hundred USD/GBP). Training not mandatory.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "itil-4-foundation",
+      "title": "ITIL 4 Foundation – exam",
+      "provider": "PeopleCert / Axelos",
+      "url": "https://www.peoplecert.org/browse-certifications/it-governance-and-service-management/ITIL-1/itil-4-foundation-2565",
+      "est_hours": 20,
+      "skills": [
+        "incident-management",
+        "process-improvement"
+      ],
+      "roles": [
+        "technical-operations",
+        "operations-associate",
+        "it-sysadmin"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "grow.google certificates page",
+      "notes": "8 courses (spreadsheets, SQL, Tableau, R). Long; pick modules if time is short.",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "kaggle-intro-sql",
+        "kaggle-data-visualization"
+      ],
+      "id": "google-data-analytics",
+      "title": "Google Data Analytics Professional Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/google-certificates/data-analytics-certificate",
+      "est_hours": 120,
+      "skills": [
+        "data-analysis",
+        "sql",
+        "excel",
+        "bi-visualization"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "KDnuggets Kaggle micro-courses",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "kaggle-python",
+      "title": "Python (Kaggle Learn)",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/python",
+      "est_hours": 5,
+      "skills": [
+        "python"
+      ],
+      "roles": [
+        "data-analyst",
+        "technical-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "KDnuggets Kaggle micro-courses",
+      "notes": "",
+      "prerequisites": [
+        "kaggle-python"
+      ],
+      "free_alternative_ids": [],
+      "id": "kaggle-pandas",
+      "title": "Pandas (Kaggle Learn)",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/pandas",
+      "est_hours": 4,
+      "skills": [
+        "python",
+        "data-analysis"
+      ],
+      "roles": [
+        "data-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "KDnuggets Kaggle micro-courses",
+      "notes": "",
+      "prerequisites": [
+        "kaggle-pandas"
+      ],
+      "free_alternative_ids": [],
+      "id": "kaggle-data-visualization",
+      "title": "Data Visualization (Kaggle Learn)",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/data-visualization",
+      "est_hours": 4,
+      "skills": [
+        "bi-visualization",
+        "python"
+      ],
+      "roles": [
+        "data-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "KDnuggets Kaggle micro-courses",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "kaggle-intro-sql",
+      "title": "Intro to SQL (Kaggle Learn)",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/intro-to-sql",
+      "est_hours": 3,
+      "skills": [
+        "sql"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate",
+        "technical-operations",
+        "product-operations",
+        "business-analyst",
+        "revenue-operations",
+        "qa-tester"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "intermediate",
+      "format": [
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "KDnuggets Kaggle micro-courses",
+      "notes": "",
+      "prerequisites": [
+        "kaggle-intro-sql"
+      ],
+      "free_alternative_ids": [],
+      "id": "kaggle-advanced-sql",
+      "title": "Advanced SQL (Kaggle Learn)",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/advanced-sql",
+      "est_hours": 4,
+      "skills": [
+        "sql"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "No certificate; fastest way to practice SQL basics in the browser.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "sqlbolt",
+      "title": "SQLBolt interactive lessons",
+      "provider": "SQLBolt",
+      "url": "https://sqlbolt.com/",
+      "est_hours": 4,
+      "skills": [
+        "sql"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate",
+        "technical-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "skills_test",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "HackerRank community knowledge base",
+      "notes": "Free timed assessment (2–4 questions). Basic, Intermediate and Advanced levels exist.",
+      "prerequisites": [
+        "kaggle-intro-sql"
+      ],
+      "free_alternative_ids": [],
+      "id": "hackerrank-sql-basic",
+      "title": "HackerRank SQL (Basic) – skills certification",
+      "provider": "HackerRank",
+      "url": "https://www.hackerrank.com/skills-verification/sql_basic",
+      "est_hours": 1,
+      "skills": [
+        "sql"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate",
+        "technical-operations",
+        "product-operations",
+        "business-analyst",
+        "qa-tester",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "skills_test",
+      "recognition": "medium",
+      "level": "intermediate",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "HackerRank community knowledge base",
+      "notes": "",
+      "prerequisites": [
+        "kaggle-advanced-sql",
+        "hackerrank-sql-basic"
+      ],
+      "free_alternative_ids": [],
+      "id": "hackerrank-sql-intermediate",
+      "title": "HackerRank SQL (Intermediate) – skills certification",
+      "provider": "HackerRank",
+      "url": "https://www.hackerrank.com/skills-verification/sql_intermediate",
+      "est_hours": 2,
+      "skills": [
+        "sql"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Coursera Plus pricing",
+      "notes": "4 courses, essentials to advanced.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "excel-skills-for-business",
+      "title": "Excel Skills for Business Specialization",
+      "provider": "Macquarie University / Coursera",
+      "url": "https://www.coursera.org/specializations/excel",
+      "est_hours": 40,
+      "skills": [
+        "excel",
+        "data-analysis"
+      ],
+      "roles": [
+        "operations-associate",
+        "data-analyst",
+        "project-coordinator",
+        "finance-operations",
+        "supply-chain-analyst",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 165,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "intermediate",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Open Exam Prep PL-300 guide 2026",
+      "notes": "40–60 questions, 100 min, 700/1000 to pass. Valid 1 year, free online renewal. 8–12 weeks prep for beginners. 2026 skills include Copilot.",
+      "prerequisites": [
+        "power-bi-learn-path"
+      ],
+      "free_alternative_ids": [],
+      "id": "pl-300",
+      "title": "Microsoft Power BI Data Analyst (PL-300) – exam",
+      "provider": "Microsoft",
+      "url": "https://learn.microsoft.com/credentials/certifications/data-analyst-associate/",
+      "est_hours": 80,
+      "skills": [
+        "bi-visualization",
+        "data-analysis"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate",
+        "finance-operations",
+        "supply-chain-analyst",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "reading",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Free, badges only. Official PL-300 prep.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "power-bi-learn-path",
+      "title": "Microsoft Learn – Power BI data analyst learning paths",
+      "provider": "Microsoft Learn",
+      "url": "https://learn.microsoft.com/training/browse/?products=power-bi",
+      "est_hours": 30,
+      "skills": [
+        "bi-visualization",
+        "data-analysis"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 75,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Ascendient Learning",
+      "notes": "40 questions, 70 minutes, free retakes.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "tableau-desktop-foundations",
+      "title": "Salesforce Certified Tableau Desktop Foundations – exam",
+      "provider": "Salesforce / Tableau",
+      "url": "https://trailhead.salesforce.com/credentials/tableaudesktopfoundations",
+      "est_hours": 25,
+      "skills": [
+        "bi-visualization"
+      ],
+      "roles": [
+        "data-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "dev.to learner write-up",
+      "notes": "Badge + certificate after a final test. Free per most sources; confirm.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "postman-api-fundamentals",
+      "title": "API Fundamentals Student Expert",
+      "provider": "Postman Academy",
+      "url": "https://academy.postman.com/",
+      "est_hours": 4,
+      "skills": [
+        "apis"
+      ],
+      "roles": [
+        "technical-operations",
+        "ai-deployment-specialist",
+        "product-operations",
+        "qa-tester",
+        "solutions-engineer",
+        "automation-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "grow.google certificates page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "google-it-support",
+      "title": "Google IT Support Professional Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/google-certificates/it-support-certificate",
+      "est_hours": 100,
+      "skills": [
+        "it-support",
+        "incident-management",
+        "cloud"
+      ],
+      "roles": [
+        "technical-operations",
+        "it-sysadmin"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "AWS Skill Builder / course listings",
+      "notes": "Free official course. Search the catalog for 'Cloud Practitioner Essentials'.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "aws-cloud-practitioner-essentials",
+      "title": "AWS Cloud Practitioner Essentials",
+      "provider": "AWS Skill Builder",
+      "url": "https://explore.skillbuilder.aws/",
+      "est_hours": 6,
+      "skills": [
+        "cloud"
+      ],
+      "roles": [
+        "technical-operations",
+        "ai-deployment-specialist",
+        "operations-associate",
+        "solutions-engineer",
+        "it-sysadmin"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 100,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "AWS certification guides 2026",
+      "notes": "Conceptual exam. Completing the official Essentials course may earn a 50% exam voucher (reported).",
+      "prerequisites": [
+        "aws-cloud-practitioner-essentials"
+      ],
+      "free_alternative_ids": [],
+      "id": "aws-cloud-practitioner",
+      "title": "AWS Certified Cloud Practitioner (CLF-C02) – exam",
+      "provider": "AWS",
+      "url": "https://aws.amazon.com/certification/certified-cloud-practitioner/",
+      "est_hours": 15,
+      "skills": [
+        "cloud"
+      ],
+      "roles": [
+        "technical-operations",
+        "ai-deployment-specialist",
+        "solutions-engineer",
+        "it-sysadmin"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 100,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "A Guide to Cloud – AIF-C01",
+      "notes": "20–40 hours prep. Valid 3 years.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "aws-ai-practitioner",
+      "title": "AWS Certified AI Practitioner (AIF-C01) – exam",
+      "provider": "AWS",
+      "url": "https://aws.amazon.com/certification/certified-ai-practitioner/",
+      "est_hours": 30,
+      "skills": [
+        "ai-literacy",
+        "cloud"
+      ],
+      "roles": [
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 75,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Telecom Trainer CDL page",
+      "notes": "50 questions, 1 hour.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "gcp-cloud-digital-leader",
+      "title": "Google Cloud Digital Leader – exam",
+      "provider": "Google Cloud",
+      "url": "https://cloud.google.com/learn/certification/cloud-digital-leader",
+      "est_hours": 20,
+      "skills": [
+        "cloud"
+      ],
+      "roles": [
+        "ai-deployment-specialist",
+        "operations-associate",
+        "solutions-engineer"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": null,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Price varies by country; check the Microsoft exam page.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "az-900",
+      "title": "Microsoft Azure Fundamentals (AZ-900) – exam",
+      "provider": "Microsoft",
+      "url": "https://learn.microsoft.com/credentials/certifications/azure-fundamentals/",
+      "est_hours": 15,
+      "skills": [
+        "cloud"
+      ],
+      "roles": [
+        "technical-operations",
+        "it-sysadmin",
+        "solutions-engineer"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": null,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Price varies by country.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "ai-900",
+      "title": "Microsoft Azure AI Fundamentals (AI-900) – exam",
+      "provider": "Microsoft",
+      "url": "https://learn.microsoft.com/credentials/certifications/azure-ai-fundamentals/",
+      "est_hours": 15,
+      "skills": [
+        "ai-literacy",
+        "cloud"
+      ],
+      "roles": [
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Anthropic Academy coverage (DEV, NewsBytes)",
+      "notes": "Free with certificate. Catalog URL – open the course from there.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "anthropic-claude-code-in-action",
+      "title": "Claude Code in Action",
+      "provider": "Anthropic Academy",
+      "url": "https://anthropic.skilljar.com/",
+      "est_hours": 3,
+      "skills": [
+        "ai-agents",
+        "ai-literacy"
+      ],
+      "roles": [
+        "ai-deployment-specialist",
+        "product-operations",
+        "technical-operations",
+        "automation-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "intermediate",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Anthropic Academy coverage",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "anthropic-building-with-api",
+      "title": "Building with the Claude API",
+      "provider": "Anthropic Academy",
+      "url": "https://anthropic.skilljar.com/",
+      "est_hours": 5,
+      "skills": [
+        "ai-agents",
+        "apis"
+      ],
+      "roles": [
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "intermediate",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Anthropic Academy coverage",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "anthropic-intro-mcp",
+      "title": "Introduction to Model Context Protocol (MCP)",
+      "provider": "Anthropic Academy",
+      "url": "https://anthropic.skilljar.com/",
+      "est_hours": 2,
+      "skills": [
+        "ai-agents",
+        "apis"
+      ],
+      "roles": [
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Anthropic Academy coverage",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "anthropic-ai-fluency",
+      "title": "AI Fluency: Framework & Foundations",
+      "provider": "Anthropic Academy",
+      "url": "https://anthropic.skilljar.com/",
+      "est_hours": 3,
+      "skills": [
+        "ai-literacy"
+      ],
+      "roles": [
+        "ai-deployment-specialist",
+        "operations-associate",
+        "product-operations",
+        "customer-success",
+        "growth-marketing",
+        "people-operations",
+        "automation-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "grow.google certificates page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "anthropic-ai-fluency"
+      ],
+      "id": "google-ai-essentials",
+      "title": "Google AI Essentials",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/learn/google-ai-essentials",
+      "est_hours": 10,
+      "skills": [
+        "ai-literacy"
+      ],
+      "roles": [
+        "operations-associate",
+        "customer-success",
+        "growth-marketing",
+        "sales-development",
+        "people-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "grow.google certificates page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "anthropic-ai-fluency"
+      ],
+      "id": "google-ai-professional",
+      "title": "Google AI Professional Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://coursera.org/google-certificates/google-ai",
+      "est_hours": 30,
+      "skills": [
+        "ai-literacy",
+        "ai-agents"
+      ],
+      "roles": [
+        "ai-deployment-specialist",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Product Compass list",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "google-genai-path",
+      "title": "Generative AI learning path",
+      "provider": "Google Cloud Skills Boost",
+      "url": "https://www.cloudskillsboost.google/paths/118",
+      "est_hours": 8,
+      "skills": [
+        "ai-literacy"
+      ],
+      "roles": [
+        "ai-deployment-specialist",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Product Compass free PM courses",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "pendo-pm-basics",
+      "title": "Product Management Basics Certification",
+      "provider": "Pendo",
+      "url": "https://www.pendo.io/product-management-basics-certification/",
+      "est_hours": 4,
+      "skills": [
+        "product-management"
+      ],
+      "roles": [
+        "product-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Product Compass free PM courses",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "pendo-ai-for-pm",
+      "title": "AI for Product Management",
+      "provider": "Pendo",
+      "url": "https://www.productledcertified.com/ai-for-product-management",
+      "est_hours": 4,
+      "skills": [
+        "product-management",
+        "ai-literacy"
+      ],
+      "roles": [
+        "product-operations",
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "one_time",
+      "price": 149,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Product Compass",
+      "notes": "Free with community discount codes listed by Product Compass; otherwise $149.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "pendo-product-analytics",
+      "title": "Product Analytics Certification",
+      "provider": "Pendo",
+      "url": "https://www.productledcertified.com/product-analytics",
+      "est_hours": 6,
+      "skills": [
+        "product-analytics"
+      ],
+      "roles": [
+        "product-operations",
+        "data-analyst",
+        "growth-marketing"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Product Compass",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "productled-plg-fundamentals",
+      "title": "Product-Led Growth Fundamentals",
+      "provider": "ProductLed",
+      "url": "https://productled.com/plg-fundamentals",
+      "est_hours": 3,
+      "skills": [
+        "product-management",
+        "product-analytics"
+      ],
+      "roles": [
+        "product-operations",
+        "growth-marketing",
+        "customer-success"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "grow.google certificates page",
+      "notes": "Long – for UX-leaning product roles.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "google-ux-design",
+      "title": "Google UX Design Professional Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/google-certificates/ux-design-certificate",
+      "est_hours": 150,
+      "skills": [
+        "ux-basics"
+      ],
+      "roles": [
+        "product-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Supademo CS certifications",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "hubspot-customer-success",
+      "title": "Customer Success & Account Health Checks",
+      "provider": "HubSpot Academy",
+      "url": "https://academy.hubspot.com/lessons/customer-success-and-account-health-checks",
+      "est_hours": 2,
+      "skills": [
+        "customer-success"
+      ],
+      "roles": [
+        "customer-success"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Coursera article on HubSpot certifications",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "hubspot-inbound-sales",
+      "title": "Inbound Sales Certification",
+      "provider": "HubSpot Academy",
+      "url": "https://academy.hubspot.com/",
+      "est_hours": 3,
+      "skills": [
+        "sales",
+        "crm"
+      ],
+      "roles": [
+        "sales-development",
+        "customer-success"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Coursera article",
+      "notes": "Valid 1 year.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "hubspot-sales-software",
+      "title": "HubSpot Sales Software Certification",
+      "provider": "HubSpot Academy",
+      "url": "https://academy.hubspot.com/",
+      "est_hours": 3,
+      "skills": [
+        "crm",
+        "sales"
+      ],
+      "roles": [
+        "sales-development",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "reading",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Supademo",
+      "notes": "Free badges.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "trailhead-customer-success",
+      "title": "Customer Success learning path",
+      "provider": "Salesforce Trailhead",
+      "url": "https://trailhead.salesforce.com/",
+      "est_hours": 4,
+      "skills": [
+        "customer-success",
+        "crm"
+      ],
+      "roles": [
+        "customer-success"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 200,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "intermediate",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Open Exam Prep Salesforce Admin guide 2026",
+      "notes": "60 questions, 105 min, 68% to pass; retake $100.",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "trailhead-customer-success"
+      ],
+      "id": "salesforce-admin",
+      "title": "Salesforce Certified Platform Administrator – exam",
+      "provider": "Salesforce",
+      "url": "https://trailhead.salesforce.com/en/credentials/administrator",
+      "est_hours": 60,
+      "skills": [
+        "crm"
+      ],
+      "roles": [
+        "sales-development",
+        "customer-success",
+        "operations-associate",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "one_time",
+      "price": 20,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Supademo",
+      "notes": "Udemy price fluctuates ($15–30).",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "hubspot-customer-success"
+      ],
+      "id": "successhacker-csm-101",
+      "title": "Customer Success Management 101: Fundamentals",
+      "provider": "Udemy (SuccessHACKER)",
+      "url": "https://www.udemy.com/course/customer-success-manager/",
+      "est_hours": 2.5,
+      "skills": [
+        "customer-success"
+      ],
+      "roles": [
+        "customer-success"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "grow.google certificates page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "hubspot-inbound-marketing"
+      ],
+      "id": "google-digital-marketing",
+      "title": "Google Digital Marketing & E-commerce Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/google-certificates/digital-marketing-certificate",
+      "est_hours": 120,
+      "skills": [
+        "digital-marketing",
+        "web-analytics"
+      ],
+      "roles": [
+        "growth-marketing"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Coursera article",
+      "notes": "Valid 2 years.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "hubspot-inbound-marketing",
+      "title": "Inbound Marketing Certification",
+      "provider": "HubSpot Academy",
+      "url": "https://academy.hubspot.com/",
+      "est_hours": 5,
+      "skills": [
+        "digital-marketing"
+      ],
+      "roles": [
+        "growth-marketing"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Coursera article",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "hubspot-email-marketing",
+      "title": "Email Marketing Certification",
+      "provider": "HubSpot Academy",
+      "url": "https://academy.hubspot.com/",
+      "est_hours": 4,
+      "skills": [
+        "digital-marketing"
+      ],
+      "roles": [
+        "growth-marketing"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video",
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "CertPath Google Ads Search",
+      "notes": "Free; valid 1 year.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "google-ads-search",
+      "title": "Google Ads Search Certification",
+      "provider": "Google Skillshop",
+      "url": "https://skillshop.google.com/course/228",
+      "est_hours": 5,
+      "skills": [
+        "digital-marketing",
+        "web-analytics"
+      ],
+      "roles": [
+        "growth-marketing"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video",
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Skillshop coverage",
+      "notes": "Free; search Skillshop for 'Google Analytics Certification'.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "google-analytics-cert",
+      "title": "Google Analytics Certification (GA4)",
+      "provider": "Google Skillshop",
+      "url": "https://skillshop.google.com/",
+      "est_hours": 5,
+      "skills": [
+        "web-analytics"
+      ],
+      "roles": [
+        "growth-marketing",
+        "product-operations",
+        "data-analyst"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Leadership, crisis, process improvement, conflict, failure, influence, pressure, fast learning.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-star-bank",
+      "title": "STAR story bank (8 stories)",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "interviewing",
+        "communication"
+      ],
+      "roles": [
+        "*"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-mock-behavioral",
+      "title": "Mock behavioral interview",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 1.5,
+      "skills": [
+        "interviewing"
+      ],
+      "roles": [
+        "*"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-mock-english",
+      "title": "Mock interview in English",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 1.5,
+      "skills": [
+        "interviewing",
+        "communication"
+      ],
+      "roles": [
+        "*"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-case-interview",
+      "title": "Case interview (Ops / Product)",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "interviewing",
+        "product-management",
+        "operations-management"
+      ],
+      "roles": [
+        "operations-associate",
+        "product-operations",
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-ops-assignment",
+      "title": "Home assignment – Operations process improvement",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 3,
+      "skills": [
+        "process-improvement",
+        "excel",
+        "communication"
+      ],
+      "roles": [
+        "operations-associate",
+        "project-coordinator"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-data-assignment",
+      "title": "Home assignment – data analysis (SQL + Excel)",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 3,
+      "skills": [
+        "sql",
+        "excel",
+        "data-analysis"
+      ],
+      "roles": [
+        "data-analyst",
+        "operations-associate",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-techops-assignment",
+      "title": "Home assignment – Technical Ops incident",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2.5,
+      "skills": [
+        "incident-management",
+        "apis"
+      ],
+      "roles": [
+        "technical-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-product-prd",
+      "title": "Home assignment – PRD and management presentation",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 3,
+      "skills": [
+        "product-management",
+        "communication"
+      ],
+      "roles": [
+        "product-operations",
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-excel-test",
+      "title": "Timed Excel test (45 min)",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 1,
+      "skills": [
+        "excel"
+      ],
+      "roles": [
+        "operations-associate",
+        "data-analyst",
+        "project-coordinator",
+        "finance-operations",
+        "supply-chain-analyst"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-sales-roleplay",
+      "title": "Cold call / discovery call role-play",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 1.5,
+      "skills": [
+        "sales",
+        "communication"
+      ],
+      "roles": [
+        "sales-development",
+        "customer-success"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [
+        "jira-fundamentals"
+      ],
+      "free_alternative_ids": [],
+      "id": "practice-jira-board",
+      "title": "Build a Jira Scrum board for a project of your choice",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 3,
+      "skills": [
+        "jira",
+        "agile-scrum"
+      ],
+      "roles": [
+        "project-coordinator",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 229,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "ASTQB FAQ – price of an ISTQB exam",
+      "notes": "$229 USD worldwide via ASTQB (local boards may differ). Self-study with the free official syllabus is common.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "istqb-ctfl",
+      "title": "ISTQB Certified Tester Foundation Level (CTFL v4) – exam",
+      "provider": "ISTQB / ASTQB",
+      "url": "https://astqb.org/certifications/foundation-level-certification/",
+      "est_hours": 30,
+      "skills": [
+        "software-testing"
+      ],
+      "roles": [
+        "qa-tester"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "skills_test",
+      "recognition": "medium",
+      "level": "intermediate",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "HackerRank community knowledge base",
+      "notes": "",
+      "prerequisites": [
+        "postman-api-fundamentals"
+      ],
+      "free_alternative_ids": [],
+      "id": "hackerrank-rest-api",
+      "title": "HackerRank REST API (Intermediate) – skills certification",
+      "provider": "HackerRank",
+      "url": "https://www.hackerrank.com/skills-verification",
+      "est_hours": 1,
+      "skills": [
+        "apis"
+      ],
+      "roles": [
+        "qa-tester",
+        "technical-operations",
+        "solutions-engineer"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "grow.google certificates page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "cisco-intro-cybersecurity"
+      ],
+      "id": "google-cybersecurity",
+      "title": "Google Cybersecurity Professional Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/google-certificates/cybersecurity-certificate",
+      "est_hours": 120,
+      "skills": [
+        "cybersecurity",
+        "linux",
+        "networking",
+        "incident-management"
+      ],
+      "roles": [
+        "soc-analyst",
+        "it-sysadmin"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Credly – Cisco Introduction to Cybersecurity badge",
+      "notes": "Free, earns a Credly badge.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "cisco-intro-cybersecurity",
+      "title": "Introduction to Cybersecurity",
+      "provider": "Cisco Networking Academy",
+      "url": "https://www.netacad.com/courses/introduction-to-cybersecurity",
+      "est_hours": 6,
+      "skills": [
+        "cybersecurity"
+      ],
+      "roles": [
+        "soc-analyst",
+        "it-sysadmin",
+        "technical-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": "NetAcad course listings",
+      "notes": "Free; badge on completion (confirm).",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "cisco-networking-basics",
+      "title": "Networking Basics",
+      "provider": "Cisco Networking Academy",
+      "url": "https://www.netacad.com/courses/networking-basics",
+      "est_hours": 20,
+      "skills": [
+        "networking"
+      ],
+      "roles": [
+        "it-sysadmin",
+        "soc-analyst",
+        "technical-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 439,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "intermediate",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "HackerDNA Security+ cost 2026",
+      "notes": "$439 US voucher after the June 2026 increase; resellers ~$365–395.",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "cisco-intro-cybersecurity"
+      ],
+      "id": "comptia-security-plus",
+      "title": "CompTIA Security+ – exam",
+      "provider": "CompTIA",
+      "url": "https://www.comptia.org/certifications/security",
+      "est_hours": 80,
+      "skills": [
+        "cybersecurity",
+        "networking"
+      ],
+      "roles": [
+        "soc-analyst",
+        "it-sysadmin"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": null,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": "ISC2 press release, April 2026",
+      "notes": "The free 'One Million Certified' program concluded in 2026 – check current exam price and annual maintenance fee.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "isc2-cc",
+      "title": "ISC2 Certified in Cybersecurity (CC) – exam",
+      "provider": "ISC2",
+      "url": "https://www.isc2.org/certifications/cc",
+      "est_hours": 25,
+      "skills": [
+        "cybersecurity"
+      ],
+      "roles": [
+        "soc-analyst",
+        "it-sysadmin"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free_audit",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Careers360 Linux Foundation free courses",
+      "notes": "Free to audit (~14 weeks self-paced); verified certificate is paid.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "linux-foundation-intro-linux",
+      "title": "Introduction to Linux (LFS101)",
+      "provider": "The Linux Foundation / edX",
+      "url": "https://www.edx.org/learn/linux/the-linux-foundation-introduction-to-linux",
+      "est_hours": 40,
+      "skills": [
+        "linux"
+      ],
+      "roles": [
+        "it-sysadmin",
+        "soc-analyst",
+        "technical-operations",
+        "qa-tester"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 99,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "DEV – GitHub Foundations",
+      "notes": "Reported $99; free for verified students via GitHub Education. Confirm current price.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "github-foundations",
+      "title": "GitHub Foundations – exam",
+      "provider": "GitHub",
+      "url": "https://education.github.com/experiences/foundations_certificate",
+      "est_hours": 10,
+      "skills": [
+        "git"
+      ],
+      "roles": [
+        "qa-tester",
+        "technical-operations",
+        "automation-specialist",
+        "solutions-engineer"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Analytics Vidhya free automation courses 2026",
+      "notes": "Shareable 'AI Automation Explorer' badge.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "make-automation-foundation",
+      "title": "Automation to AI Agents: Foundation",
+      "provider": "Make Academy",
+      "url": "https://academy.make.com/bundles/automation-to-ai-agents-foundation",
+      "est_hours": 3,
+      "skills": [
+        "no-code-automation",
+        "ai-agents"
+      ],
+      "roles": [
+        "automation-specialist",
+        "revenue-operations",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Analytics Vidhya free automation courses 2026",
+      "notes": "Course run ID in URL changes per term; link checker should follow the course catalog.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "n8n-essentials",
+      "title": "Essentials: Your First Workflows",
+      "provider": "n8n",
+      "url": "https://learn.n8n.io/courses/course-v1%3An8n%2BN8N101%2B2026H2/about",
+      "est_hours": 3,
+      "skills": [
+        "no-code-automation"
+      ],
+      "roles": [
+        "automation-specialist",
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Analytics Vidhya free automation courses 2026",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "zapier-ai-builder",
+      "title": "AI Builder Path",
+      "provider": "Zapier Learn",
+      "url": "https://learn.zapier.com/",
+      "est_hours": 2,
+      "skills": [
+        "no-code-automation",
+        "ai-literacy"
+      ],
+      "roles": [
+        "automation-specialist",
+        "revenue-operations",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "reading",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Analytics Vidhya free automation courses 2026",
+      "notes": "Free; badges only.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "power-automate-path",
+      "title": "Automate business processes with Power Automate (learning path)",
+      "provider": "Microsoft Learn",
+      "url": "https://learn.microsoft.com/en-us/training/paths/automate-business-processes-power-automate/",
+      "est_hours": 3.5,
+      "skills": [
+        "no-code-automation"
+      ],
+      "roles": [
+        "automation-specialist",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "intermediate",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Analytics Vidhya free automation courses 2026",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "deeplearning-crewai",
+      "title": "Multi AI Agent Systems with crewAI",
+      "provider": "DeepLearning.AI",
+      "url": "https://www.deeplearning.ai/courses/multi-ai-agent-systems-with-crewai",
+      "est_hours": 3,
+      "skills": [
+        "ai-agents",
+        "python"
+      ],
+      "roles": [
+        "automation-specialist",
+        "ai-deployment-specialist"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 395,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Adaptive US – ECBA cost 2026",
+      "notes": "US fee ~$395 (first year of membership included from 2026). Requires 21 hours of BA professional development.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "iiba-ecba",
+      "title": "IIBA Entry Certificate in Business Analysis (ECBA) – exam",
+      "provider": "IIBA",
+      "url": "https://www.iiba.org/business-analysis-certifications/ecba/",
+      "est_hours": 40,
+      "skills": [
+        "business-analysis"
+      ],
+      "roles": [
+        "business-analyst",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 400,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "ExamCert aPHR requirements 2026",
+      "notes": "$300 exam + $100 application. Entry-level HR credential; 105-minute exam.",
+      "prerequisites": [
+        "hrci-aphr-prep-free"
+      ],
+      "free_alternative_ids": [],
+      "id": "hrci-aphr",
+      "title": "HRCI Associate Professional in Human Resources (aPHR) – exam",
+      "provider": "HRCI",
+      "url": "https://www.hrci.org/our-programs/our-hr-certifications/aphr",
+      "est_hours": 40,
+      "skills": [
+        "recruiting-hr"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "CFI site",
+      "notes": "Free CFI program; confirm certificate terms.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "cfi-fundamentals-challenge",
+      "title": "14-Day Fundamentals Challenge (accounting, Excel, finance)",
+      "provider": "Corporate Finance Institute",
+      "url": "https://corporatefinanceinstitute.com/14-day-fundamentals-challenge/",
+      "est_hours": 14,
+      "skills": [
+        "finance-basics",
+        "excel"
+      ],
+      "roles": [
+        "finance-operations",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free_audit",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "intermediate",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": "Free MOOC listings (TUN, findcourses)",
+      "notes": "Free to audit; verified certificate paid. Part of the MITx MicroMasters in SCM.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "mitx-supply-chain-fundamentals",
+      "title": "Supply Chain Fundamentals (MITx SC0x)",
+      "provider": "MITx / edX",
+      "url": "https://www.edx.org/learn/supply-chain-management/massachusetts-institute-of-technology-supply-chain-fundamentals",
+      "est_hours": 60,
+      "skills": [
+        "supply-chain",
+        "statistics"
+      ],
+      "roles": [
+        "supply-chain-analyst",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "intermediate",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Coursera listing",
+      "notes": "",
+      "prerequisites": [
+        "google-data-analytics"
+      ],
+      "free_alternative_ids": [
+        "khan-statistics"
+      ],
+      "id": "google-advanced-data-analytics",
+      "title": "Google Advanced Data Analytics Professional Certificate",
+      "provider": "Google / Coursera",
+      "url": "https://www.coursera.org/specializations/google-advanced-data-analytics",
+      "est_hours": 150,
+      "skills": [
+        "statistics",
+        "python",
+        "data-analysis"
+      ],
+      "roles": [
+        "data-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Free, no certificate.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "khan-statistics",
+      "title": "Statistics and Probability",
+      "provider": "Khan Academy",
+      "url": "https://www.khanacademy.org/math/statistics-probability",
+      "est_hours": 30,
+      "skills": [
+        "statistics"
+      ],
+      "roles": [
+        "data-analyst",
+        "growth-marketing",
+        "supply-chain-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "reading"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Google developers tech-writing announcements",
+      "notes": "Free, no certificate.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "google-tech-writing",
+      "title": "Technical Writing One & Two",
+      "provider": "Google for Developers",
+      "url": "https://developers.google.com/tech-writing",
+      "est_hours": 6,
+      "skills": [
+        "technical-writing"
+      ],
+      "roles": [
+        "business-analyst",
+        "qa-tester",
+        "technical-operations",
+        "product-operations",
+        "automation-specialist"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-qa-test-plan",
+      "title": "Write a test plan and bug reports for a real app",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 3,
+      "skills": [
+        "software-testing",
+        "technical-writing"
+      ],
+      "roles": [
+        "qa-tester"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-soc-alert-triage",
+      "title": "SOC alert triage simulation",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "cybersecurity",
+        "incident-management"
+      ],
+      "roles": [
+        "soc-analyst"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-requirements-doc",
+      "title": "Requirements document from a stakeholder interview",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2.5,
+      "skills": [
+        "business-analysis",
+        "technical-writing"
+      ],
+      "roles": [
+        "business-analyst",
+        "product-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-automation-build",
+      "title": "Build an automation that removes a manual task",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 3,
+      "skills": [
+        "no-code-automation",
+        "process-improvement"
+      ],
+      "roles": [
+        "automation-specialist",
+        "revenue-operations",
+        "operations-associate"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-solution-demo",
+      "title": "Technical discovery call and product demo",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "presales-demos",
+        "communication"
+      ],
+      "roles": [
+        "solutions-engineer",
+        "ai-deployment-specialist",
+        "customer-success"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-budget-model",
+      "title": "Budget vs. actual model in Excel",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2.5,
+      "skills": [
+        "finance-basics",
+        "excel"
+      ],
+      "roles": [
+        "finance-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-inventory-case",
+      "title": "Inventory and demand-planning case",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2.5,
+      "skills": [
+        "supply-chain",
+        "excel"
+      ],
+      "roles": [
+        "supply-chain-analyst"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-recruiting-pipeline",
+      "title": "Design a hiring pipeline and screening plan",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "recruiting-hr",
+        "process-improvement"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-crm-cleanup",
+      "title": "CRM pipeline report and data-hygiene plan",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2.5,
+      "skills": [
+        "revops",
+        "crm",
+        "data-analysis"
+      ],
+      "roles": [
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Hyperbound – sales certifications for SDRs",
+      "notes": "Free to enroll/audit; certificate requires payment (Coursera).",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "hubspot-inbound-sales"
+      ],
+      "id": "salesforce-sdr-certificate",
+      "title": "Sales Development Representative Professional Certificate",
+      "provider": "Salesforce & SV Academy / Coursera",
+      "url": "https://www.coursera.org/professional-certificates/sales-development-representative",
+      "est_hours": 40,
+      "skills": [
+        "sales",
+        "crm"
+      ],
+      "roles": [
+        "sales-development",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free_audit",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": 95,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "Hyperbound – sales certifications",
+      "notes": "Free to access; certificate about $95.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "northwestern-art-of-sales",
+      "title": "The Art of Sales: Mastering the Selling Process (Specialization)",
+      "provider": "Northwestern University / Coursera",
+      "url": "https://www.coursera.org/specializations/art-of-sales",
+      "est_hours": 30,
+      "skills": [
+        "sales",
+        "communication"
+      ],
+      "roles": [
+        "sales-development",
+        "customer-success",
+        "solutions-engineer"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "one_time",
+      "price": 70,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Hyperbound",
+      "notes": "List price ~$70, frequently discounted.",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "hubspot-inbound-sales"
+      ],
+      "id": "udemy-sales-prospecting",
+      "title": "The Complete Sales Prospecting Bootcamp",
+      "provider": "Udemy",
+      "url": "https://www.udemy.com/course/complete-sales-prospecting-bootcamp/",
+      "est_hours": 2,
+      "skills": [
+        "sales"
+      ],
+      "roles": [
+        "sales-development"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free_audit",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "RiseUpp course page; Coursera listing",
+      "notes": "Free to audit; certificate via the paid specialization.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "wharton-financial-accounting",
+      "title": "Introduction to Financial Accounting",
+      "provider": "Wharton (UPenn) / Coursera",
+      "url": "https://www.coursera.org/learn/wharton-accounting",
+      "est_hours": 13,
+      "skills": [
+        "finance-basics"
+      ],
+      "roles": [
+        "finance-operations",
+        "operations-associate",
+        "business-analyst"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Recruiterflow – recruiting certifications 2026",
+      "notes": "Free certificate; page showed a waitlist at research time.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "hireez-recruiting-academy",
+      "title": "Recruiting Academy (AI recruiting)",
+      "provider": "hireEZ",
+      "url": "https://explore.hireez.com/free-ai-recruiting-certification/",
+      "est_hours": 4,
+      "skills": [
+        "recruiting-hr",
+        "ai-literacy"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": 499,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "high",
+      "level": "intermediate",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "AIHR – SHRM certification cost",
+      "notes": "$450 early / $499 standard for non-members ($350/$399 members). No degree or HR experience required. Recertify every 3 years (60 PDCs).",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "umn-hr-management"
+      ],
+      "id": "shrm-cp",
+      "title": "SHRM Certified Professional (SHRM-CP) – exam",
+      "provider": "SHRM",
+      "url": "https://www.shrm.org/credentials/certification/shrm-cp",
+      "est_hours": 80,
+      "skills": [
+        "recruiting-hr"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 59,
+      "currency": "USD",
+      "subscription_period": "month",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Coursera listing",
+      "notes": "Courses can usually be audited free; certificate via subscription.",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "umn-recruiting-onboarding-audit"
+      ],
+      "id": "umn-hr-management",
+      "title": "Human Resource Management: HR for People Managers (Specialization)",
+      "provider": "University of Minnesota / Coursera",
+      "url": "https://www.coursera.org/specializations/human-resource-management",
+      "est_hours": 60,
+      "skills": [
+        "recruiting-hr",
+        "people-leadership"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free_audit",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Coursera lecture listing",
+      "notes": "Part of the HR Management specialization; free to audit.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "umn-recruiting-onboarding-audit",
+      "title": "Recruiting, Hiring, and Onboarding Employees (audit)",
+      "provider": "University of Minnesota / Coursera",
+      "url": "https://www.coursera.org/learn/recruiting-hiring-onboarding-employees",
+      "est_hours": 15,
+      "skills": [
+        "recruiting-hr"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "reading",
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Search result listing",
+      "notes": "Free third-party prep for the aPHR exam.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "hrci-aphr-prep-free",
+      "title": "aPHR free study guide and practice questions",
+      "provider": "Open Exam Prep",
+      "url": "https://open-exam-prep.com/study-guides/aphr",
+      "est_hours": 10,
+      "skills": [
+        "recruiting-hr"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "subscription",
+      "price": 323,
+      "currency": "USD",
+      "subscription_period": "year",
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "high",
+      "level": "intermediate",
+      "format": [
+        "video",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": true,
+      "source": "OnlineCourseing – CFI FMVA cost (Oct 2026)",
+      "notes": "Self-Study ~$323/yr (list $497); students ~$249/yr. 100–120 hours. Auto-renews.",
+      "prerequisites": [],
+      "free_alternative_ids": [
+        "cfi-fundamentals-challenge",
+        "wharton-financial-accounting"
+      ],
+      "id": "cfi-fmva",
+      "title": "Financial Modeling & Valuation Analyst (FMVA)",
+      "provider": "Corporate Finance Institute",
+      "url": "https://corporatefinanceinstitute.com/certifications/financial-modeling-valuation-analyst-fmva-program/",
+      "est_hours": 110,
+      "skills": [
+        "finance-basics",
+        "excel"
+      ],
+      "roles": [
+        "finance-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video",
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Capterra – Xero/QuickBooks certification (2017; verify)",
+      "notes": "Free for ProAdvisors (free to join). Bookkeeping-focused.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "quickbooks-proadvisor",
+      "title": "QuickBooks Online ProAdvisor Certification",
+      "provider": "Intuit",
+      "url": "https://quickbooks.intuit.com/accountants/resources/training-certification/",
+      "est_hours": 15,
+      "skills": [
+        "finance-basics"
+      ],
+      "roles": [
+        "finance-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "video",
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Capterra (2017; verify)",
+      "notes": "Requires joining the free Xero Partner program.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "xero-advisor",
+      "title": "Xero Advisor Certification",
+      "provider": "Xero",
+      "url": "https://www.xero.com/us/partners/partner-program/",
+      "est_hours": 15,
+      "skills": [
+        "finance-basics"
+      ],
+      "roles": [
+        "finance-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free_audit",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Free to audit; certificate via the paid specialization.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "wharton-corporate-finance-audit",
+      "title": "Introduction to Corporate Finance (audit)",
+      "provider": "Wharton (UPenn) / Coursera",
+      "url": "https://www.coursera.org/learn/wharton-finance",
+      "est_hours": 12,
+      "skills": [
+        "finance-basics"
+      ],
+      "roles": [
+        "finance-operations",
+        "business-analyst"
+      ]
+    },
+    {
+      "type": "cert_exam",
+      "cost_type": "one_time",
+      "price": null,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "official_exam",
+      "recognition": "medium",
+      "level": "beginner",
+      "format": [
+        "exam"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "Widely recognized proof of Excel skill; price varies by country and test center.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "mos-excel",
+      "title": "Microsoft Office Specialist: Excel Associate – exam",
+      "provider": "Microsoft / Certiport",
+      "url": "https://certiport.pearsonvue.com/Certifications/Microsoft/MOS/Overview",
+      "est_hours": 20,
+      "skills": [
+        "excel"
+      ],
+      "roles": [
+        "finance-operations",
+        "operations-associate",
+        "supply-chain-analyst",
+        "people-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "completion",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Apollo Academy guides page; Apollo credentials (Cold Emailing badge)",
+      "notes": "Free; Apollo issues digital badges for some courses.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "apollo-cold-email",
+      "title": "Cold Emails That Get More Replies (master class)",
+      "provider": "Apollo Academy",
+      "url": "https://www.apollo.io/academy/master-classes/how-to-write-cold-emails-anyone-will-respond-to",
+      "est_hours": 1.5,
+      "skills": [
+        "sales"
+      ],
+      "roles": [
+        "sales-development"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Apollo Academy guides page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "apollo-outbound-program",
+      "title": "Building a World-Class Outbound Program (master class)",
+      "provider": "Apollo Academy",
+      "url": "https://www.apollo.io/academy/master-classes/building-a-world-class-outbound-program",
+      "est_hours": 1.5,
+      "skills": [
+        "sales",
+        "revops"
+      ],
+      "roles": [
+        "sales-development",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Apollo Academy guides page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "apollo-ai-prospecting",
+      "title": "How to Use AI Research to Accelerate Prospecting",
+      "provider": "Apollo Academy",
+      "url": "https://www.apollo.io/academy/learn/how-to-use-ai-research-for-prospecting",
+      "est_hours": 1,
+      "skills": [
+        "sales",
+        "ai-literacy"
+      ],
+      "roles": [
+        "sales-development"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "video"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": false,
+      "source": "Apollo Academy guides page",
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "apollo-social-selling",
+      "title": "Mastering Social Selling on LinkedIn (webinar)",
+      "provider": "Apollo Academy",
+      "url": "https://www.apollo.io/academy/webinars/social-selling-on-linkedin",
+      "est_hours": 1,
+      "skills": [
+        "sales"
+      ],
+      "roles": [
+        "sales-development",
+        "customer-success"
+      ]
+    },
+    {
+      "type": "course",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "reading",
+        "hands-on"
+      ],
+      "language": "en",
+      "url_verified": true,
+      "price_verified": true,
+      "source": "Trailhead (free)",
+      "notes": "Free badges; search Trailhead for 'Sales Cloud Basics'.",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "trailhead-sales-fundamentals",
+      "title": "Sales fundamentals & Sales Cloud basics (Trailhead)",
+      "provider": "Salesforce Trailhead",
+      "url": "https://trailhead.salesforce.com/",
+      "est_hours": 5,
+      "skills": [
+        "sales",
+        "crm"
+      ],
+      "roles": [
+        "sales-development",
+        "revenue-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-cold-sequence",
+      "title": "Write a 4-step cold outreach sequence for a real product",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "sales",
+        "communication"
+      ],
+      "roles": [
+        "sales-development"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-objection-handling",
+      "title": "Objection-handling role-play (10 common objections)",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 1.5,
+      "skills": [
+        "sales",
+        "communication"
+      ],
+      "roles": [
+        "sales-development",
+        "customer-success",
+        "solutions-engineer"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-variance-analysis",
+      "title": "Monthly variance analysis and management summary",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2.5,
+      "skills": [
+        "finance-basics",
+        "excel",
+        "communication"
+      ],
+      "roles": [
+        "finance-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-reconciliation",
+      "title": "Account reconciliation exercise",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "finance-basics",
+        "excel"
+      ],
+      "roles": [
+        "finance-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-onboarding-plan",
+      "title": "Design a 30-day new-hire onboarding plan",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 2,
+      "skills": [
+        "recruiting-hr",
+        "process-improvement"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    },
+    {
+      "type": "practice",
+      "cost_type": "free",
+      "price": 0,
+      "currency": "USD",
+      "subscription_period": null,
+      "certificate_price": null,
+      "certificate_type": "none",
+      "recognition": "low",
+      "level": "beginner",
+      "format": [
+        "practice"
+      ],
+      "language": "en",
+      "url_verified": false,
+      "price_verified": false,
+      "source": null,
+      "notes": "",
+      "prerequisites": [],
+      "free_alternative_ids": [],
+      "id": "practice-candidate-screen",
+      "title": "Run a structured phone screen (as the interviewer)",
+      "provider": "Skillstack practice",
+      "url": null,
+      "est_hours": 1.5,
+      "skills": [
+        "recruiting-hr",
+        "communication"
+      ],
+      "roles": [
+        "people-operations"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,618 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "generated": "2026-10-29",
+    "currency_default": "USD",
+    "verification_note": "url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
+  },
+  "skills": [
+    {
+      "id": "project-management",
+      "name": "Project management",
+      "category": "management",
+      "keywords": [
+        "project management",
+        "project planning",
+        "scheduling",
+        "gantt",
+        "risk management",
+        "stakeholder management",
+        "project charter",
+        "scope",
+        "milestones",
+        "PMBOK"
+      ]
+    },
+    {
+      "id": "agile-scrum",
+      "name": "Agile & Scrum",
+      "category": "management",
+      "keywords": [
+        "agile",
+        "scrum",
+        "sprint",
+        "backlog",
+        "user stories",
+        "kanban",
+        "scrum master",
+        "product owner",
+        "retrospective",
+        "standup"
+      ]
+    },
+    {
+      "id": "jira",
+      "name": "Jira & Confluence",
+      "category": "tools",
+      "keywords": [
+        "jira",
+        "confluence",
+        "atlassian",
+        "tickets",
+        "epics",
+        "boards",
+        "jira service management"
+      ]
+    },
+    {
+      "id": "process-improvement",
+      "name": "Process improvement",
+      "category": "operations",
+      "keywords": [
+        "process improvement",
+        "lean",
+        "six sigma",
+        "bottleneck",
+        "root cause",
+        "kpi",
+        "sop",
+        "workflow",
+        "efficiency",
+        "continuous improvement"
+      ]
+    },
+    {
+      "id": "operations-management",
+      "name": "Operations management",
+      "category": "operations",
+      "keywords": [
+        "operations",
+        "business operations",
+        "ops",
+        "capacity planning",
+        "vendor management",
+        "supply chain",
+        "logistics",
+        "resource allocation"
+      ]
+    },
+    {
+      "id": "excel",
+      "name": "Excel & spreadsheets",
+      "category": "data",
+      "keywords": [
+        "excel",
+        "google sheets",
+        "pivot tables",
+        "xlookup",
+        "vlookup",
+        "formulas",
+        "spreadsheets",
+        "dashboards in excel"
+      ]
+    },
+    {
+      "id": "sql",
+      "name": "SQL",
+      "category": "data",
+      "keywords": [
+        "sql",
+        "queries",
+        "joins",
+        "group by",
+        "window functions",
+        "subqueries",
+        "postgres",
+        "mysql",
+        "bigquery"
+      ]
+    },
+    {
+      "id": "data-analysis",
+      "name": "Data analysis",
+      "category": "data",
+      "keywords": [
+        "data analysis",
+        "analytics",
+        "data cleaning",
+        "insights",
+        "reporting",
+        "metrics",
+        "a/b testing",
+        "statistics"
+      ]
+    },
+    {
+      "id": "bi-visualization",
+      "name": "BI & data visualization",
+      "category": "data",
+      "keywords": [
+        "power bi",
+        "tableau",
+        "looker",
+        "dashboards",
+        "data visualization",
+        "dax",
+        "reporting"
+      ]
+    },
+    {
+      "id": "python",
+      "name": "Python basics",
+      "category": "technical",
+      "keywords": [
+        "python",
+        "scripting",
+        "pandas",
+        "automation",
+        "jupyter"
+      ]
+    },
+    {
+      "id": "apis",
+      "name": "APIs & integrations",
+      "category": "technical",
+      "keywords": [
+        "api",
+        "rest",
+        "json",
+        "postman",
+        "http",
+        "webhooks",
+        "integrations",
+        "endpoints"
+      ]
+    },
+    {
+      "id": "cloud",
+      "name": "Cloud fundamentals",
+      "category": "technical",
+      "keywords": [
+        "cloud",
+        "aws",
+        "azure",
+        "google cloud",
+        "saas",
+        "iaas",
+        "cloud computing",
+        "security basics"
+      ]
+    },
+    {
+      "id": "it-support",
+      "name": "IT support & troubleshooting",
+      "category": "technical",
+      "keywords": [
+        "troubleshooting",
+        "it support",
+        "networking basics",
+        "linux",
+        "ticketing",
+        "help desk",
+        "incident"
+      ]
+    },
+    {
+      "id": "incident-management",
+      "name": "Incident & service management",
+      "category": "operations",
+      "keywords": [
+        "incident management",
+        "sla",
+        "escalation",
+        "postmortem",
+        "rca",
+        "itil",
+        "service management",
+        "on-call"
+      ]
+    },
+    {
+      "id": "ai-literacy",
+      "name": "AI literacy & prompting",
+      "category": "ai",
+      "keywords": [
+        "ai",
+        "generative ai",
+        "llm",
+        "prompt engineering",
+        "chatgpt",
+        "claude",
+        "ai tools",
+        "responsible ai"
+      ]
+    },
+    {
+      "id": "ai-agents",
+      "name": "AI agents & automation",
+      "category": "ai",
+      "keywords": [
+        "ai agents",
+        "agentic",
+        "mcp",
+        "automation",
+        "claude code",
+        "workflow automation",
+        "llm apps",
+        "rag"
+      ]
+    },
+    {
+      "id": "product-management",
+      "name": "Product management",
+      "category": "product",
+      "keywords": [
+        "product management",
+        "roadmap",
+        "prioritization",
+        "prd",
+        "discovery",
+        "user research",
+        "mvp",
+        "product strategy"
+      ]
+    },
+    {
+      "id": "product-analytics",
+      "name": "Product analytics",
+      "category": "product",
+      "keywords": [
+        "product analytics",
+        "funnels",
+        "retention",
+        "cohorts",
+        "activation",
+        "experiments",
+        "kpis"
+      ]
+    },
+    {
+      "id": "ux-basics",
+      "name": "UX basics",
+      "category": "product",
+      "keywords": [
+        "ux",
+        "user experience",
+        "wireframes",
+        "figma",
+        "usability",
+        "design thinking",
+        "prototyping"
+      ]
+    },
+    {
+      "id": "customer-success",
+      "name": "Customer success",
+      "category": "customer",
+      "keywords": [
+        "customer success",
+        "onboarding",
+        "churn",
+        "renewals",
+        "account management",
+        "health score",
+        "nps",
+        "customer experience"
+      ]
+    },
+    {
+      "id": "sales",
+      "name": "Sales & business development",
+      "category": "customer",
+      "keywords": [
+        "sales",
+        "sdr",
+        "bdr",
+        "prospecting",
+        "cold outreach",
+        "crm",
+        "pipeline",
+        "lead qualification",
+        "negotiation"
+      ]
+    },
+    {
+      "id": "crm",
+      "name": "CRM tools",
+      "category": "tools",
+      "keywords": [
+        "crm",
+        "salesforce",
+        "hubspot",
+        "pipeline management",
+        "customer data"
+      ]
+    },
+    {
+      "id": "digital-marketing",
+      "name": "Digital marketing",
+      "category": "marketing",
+      "keywords": [
+        "digital marketing",
+        "seo",
+        "sem",
+        "google ads",
+        "content marketing",
+        "email marketing",
+        "social media",
+        "growth",
+        "performance marketing"
+      ]
+    },
+    {
+      "id": "web-analytics",
+      "name": "Web analytics",
+      "category": "marketing",
+      "keywords": [
+        "google analytics",
+        "ga4",
+        "tracking",
+        "attribution",
+        "utm",
+        "conversion"
+      ]
+    },
+    {
+      "id": "communication",
+      "name": "Business communication",
+      "category": "soft",
+      "keywords": [
+        "presentation",
+        "stakeholder communication",
+        "writing",
+        "english",
+        "storytelling",
+        "reporting to management"
+      ]
+    },
+    {
+      "id": "interviewing",
+      "name": "Interview readiness",
+      "category": "career",
+      "keywords": [
+        "interview",
+        "star method",
+        "behavioral interview",
+        "case interview",
+        "home assignment",
+        "mock interview",
+        "cv",
+        "linkedin"
+      ]
+    },
+    {
+      "id": "software-testing",
+      "name": "Software testing & QA",
+      "category": "technical",
+      "keywords": [
+        "qa",
+        "quality assurance",
+        "test cases",
+        "test plan",
+        "manual testing",
+        "regression",
+        "bug reports",
+        "istqb",
+        "automation testing",
+        "selenium"
+      ]
+    },
+    {
+      "id": "cybersecurity",
+      "name": "Cybersecurity fundamentals",
+      "category": "technical",
+      "keywords": [
+        "cybersecurity",
+        "security",
+        "soc",
+        "threats",
+        "siem",
+        "phishing",
+        "vulnerabilities",
+        "incident response",
+        "security+",
+        "network security"
+      ]
+    },
+    {
+      "id": "linux",
+      "name": "Linux & command line",
+      "category": "technical",
+      "keywords": [
+        "linux",
+        "bash",
+        "command line",
+        "shell",
+        "terminal",
+        "permissions",
+        "processes"
+      ]
+    },
+    {
+      "id": "networking",
+      "name": "Networking basics",
+      "category": "technical",
+      "keywords": [
+        "networking",
+        "tcp/ip",
+        "dns",
+        "http",
+        "routing",
+        "vpn",
+        "firewall",
+        "ccna"
+      ]
+    },
+    {
+      "id": "git",
+      "name": "Git & GitHub",
+      "category": "technical",
+      "keywords": [
+        "git",
+        "github",
+        "version control",
+        "pull requests",
+        "branches",
+        "commits"
+      ]
+    },
+    {
+      "id": "no-code-automation",
+      "name": "No-code & AI automation",
+      "category": "ai",
+      "keywords": [
+        "zapier",
+        "make",
+        "n8n",
+        "power automate",
+        "workflow automation",
+        "integrations",
+        "no-code",
+        "low-code",
+        "automation"
+      ]
+    },
+    {
+      "id": "supply-chain",
+      "name": "Supply chain & logistics",
+      "category": "operations",
+      "keywords": [
+        "supply chain",
+        "logistics",
+        "inventory",
+        "procurement",
+        "demand planning",
+        "warehouse",
+        "sourcing",
+        "s&op"
+      ]
+    },
+    {
+      "id": "finance-basics",
+      "name": "Finance & accounting basics",
+      "category": "business",
+      "keywords": [
+        "accounting",
+        "financial statements",
+        "budgeting",
+        "fp&a",
+        "p&l",
+        "forecasting",
+        "financial modeling",
+        "cash flow"
+      ]
+    },
+    {
+      "id": "recruiting-hr",
+      "name": "Recruiting & HR",
+      "category": "people",
+      "keywords": [
+        "recruiting",
+        "talent acquisition",
+        "hr",
+        "onboarding",
+        "sourcing candidates",
+        "interviews",
+        "people operations",
+        "employee experience",
+        "hris"
+      ]
+    },
+    {
+      "id": "business-analysis",
+      "name": "Business analysis",
+      "category": "business",
+      "keywords": [
+        "business analysis",
+        "requirements",
+        "use cases",
+        "process mapping",
+        "bpmn",
+        "stakeholder interviews",
+        "gap analysis",
+        "user stories"
+      ]
+    },
+    {
+      "id": "statistics",
+      "name": "Statistics",
+      "category": "data",
+      "keywords": [
+        "statistics",
+        "probability",
+        "regression",
+        "hypothesis testing",
+        "sampling",
+        "significance"
+      ]
+    },
+    {
+      "id": "technical-writing",
+      "name": "Technical writing & documentation",
+      "category": "soft",
+      "keywords": [
+        "documentation",
+        "technical writing",
+        "knowledge base",
+        "sop",
+        "runbooks",
+        "release notes",
+        "specs"
+      ]
+    },
+    {
+      "id": "people-leadership",
+      "name": "People leadership",
+      "category": "soft",
+      "keywords": [
+        "leadership",
+        "team management",
+        "mentoring",
+        "feedback",
+        "delegation",
+        "1:1s",
+        "hiring",
+        "coaching"
+      ]
+    },
+    {
+      "id": "revops",
+      "name": "Revenue operations",
+      "category": "business",
+      "keywords": [
+        "revops",
+        "sales operations",
+        "marketing operations",
+        "crm admin",
+        "forecasting",
+        "lead routing",
+        "pipeline reporting",
+        "attribution"
+      ]
+    },
+    {
+      "id": "presales-demos",
+      "name": "Pre-sales & solution demos",
+      "category": "customer",
+      "keywords": [
+        "pre-sales",
+        "solutions engineering",
+        "demos",
+        "poc",
+        "rfp",
+        "technical discovery",
+        "solution design"
+      ]
+    }
+  ]
+}
