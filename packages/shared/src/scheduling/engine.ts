@@ -219,14 +219,18 @@ export function schedule(input: ScheduleInput): ScheduleResult {
     const len = Math.min(minutes, left);
     if (len <= 0) return;
     const end = Math.min(start + len, LAST_MINUTE);
-    const dropped = start + len - end;
-    if (end > start) {
+    const placed = Math.max(0, end - start);
+    // An exam or a task that can't be split loses what runs past midnight; a splittable task
+    // only had this block cut short, so the rest is scheduled like any other remaining time.
+    const whole = kind === 'anchor' || !task.splittable;
+    const dropped = whole ? len - placed : 0;
+    if (placed > 0) {
       const b = block(task.id, date, start, end, kind);
       fixed.push(b);
       pushByDate(fixedByDate, b);
+      lastFixedEnd.set(task.id, Math.max(lastFixedEnd.get(task.id) ?? DONE, abs(date, end)));
     }
-    remaining.set(task.id, dropped > 0 ? 0 : left - len);
-    lastFixedEnd.set(task.id, Math.max(lastFixedEnd.get(task.id) ?? DONE, abs(date, end)));
+    remaining.set(task.id, dropped > 0 ? 0 : left - placed);
     if (dropped > 0) {
       warnings.push({
         kind: 'fixed_block_truncated',

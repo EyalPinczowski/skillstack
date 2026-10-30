@@ -305,6 +305,29 @@ const longWindow = WeekPatternSchema.parse({
 });
 
 describe('midnight overflow', () => {
+  it('keeps the rest of a splittable task when a locked block is cut at midnight', () => {
+    const course = task({ estHours: 10 });
+    const locked = {
+      taskId: course.id,
+      date: SUN,
+      start: '23:00',
+      end: '23:59',
+      minutes: 90,
+      kind: 'locked' as const,
+    };
+    const result = schedule({
+      tasks: [course],
+      pattern: basePattern,
+      today: SUN,
+      lockedBlocks: [locked],
+    });
+    const total = result.blocks
+      .filter((b) => b.taskId === course.id)
+      .reduce((s, b) => s + b.minutes, 0);
+    expect(total).toBe(600);
+    expect(result.warnings.some((w) => w.kind === 'fixed_block_truncated')).toBe(false);
+  });
+
   it('clamps a fixed block at 23:59, warns, and does not block dependents', () => {
     // Built without the schema check, as stored data might be.
     const exam = {
