@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -16,6 +17,10 @@ import {
 
 const MIGRATIONS = fileURLToPath(new URL('../migrations/', import.meta.url));
 const FIRST = '0001_environment_info.sql';
+/** Every real migration file, in order. */
+const REAL = readdirSync(MIGRATIONS)
+  .filter((f) => f.endsWith('.sql'))
+  .sort();
 
 interface RoleRow {
   rolname: string;
@@ -67,7 +72,7 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
 
     for (const schema of ENVS) {
       const result = await migrate({ schema, connectionString: TEST_DATABASE_URL! });
-      expect(result).toEqual({ applied: [FIRST], skipped: [] });
+      expect(result).toEqual({ applied: REAL, skipped: [] });
     }
 
     for (const schema of ENVS) {
@@ -140,7 +145,7 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
     // Tamper with a role as superuser, as someone might by hand.
     await withClient(TEST_SUPERUSER_URL!, (client) => client.query('alter role app_rnd inherit'));
     const again = await migrate({ schema: 'rnd', connectionString: TEST_DATABASE_URL! });
-    expect(again).toEqual({ applied: [], skipped: [FIRST] });
+    expect(again).toEqual({ applied: [], skipped: REAL });
     expect((await roles(['app_rnd'])).get('app_rnd')?.rolinherit).toBe(false);
   });
 
@@ -157,17 +162,17 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
   it('rolls a failing migration back and does not record it', async () => {
     const dir = await copyOfMigrations();
     await writeFile(
-      join(dir, '0002_broken.sql'),
+      join(dir, '9001_broken.sql'),
       'set local role {{owner}};\ncreate table {{schema}}.half_done (id int);\nselect 1 / 0;\n',
     );
     await expect(
       migrate({ schema: 'rnd', connectionString: TEST_DATABASE_URL!, migrationsDir: dir }),
-    ).rejects.toThrow(/0002_broken\.sql failed/);
+    ).rejects.toThrow(/9001_broken\.sql failed/);
     await withClient(TEST_SUPERUSER_URL!, async (client) => {
       const { rows: table } = await client.query(`select to_regclass('rnd.half_done') as t`);
       expect(table[0].t).toBeNull();
       const { rows: ledger } = await client.query('select version from rnd.schema_migrations');
-      expect(ledger).toEqual([{ version: '0001' }]);
+      expect(ledger).toEqual(REAL.map((f) => ({ version: f.slice(0, 4) })));
     });
   });
 
@@ -181,7 +186,7 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
       migrationsDir: dir,
       dryRun: true,
     });
-    expect(fresh).toEqual({ applied: [FIRST], skipped: [] });
+    expect(fresh).toEqual({ applied: REAL, skipped: [] });
     await withClient(TEST_SUPERUSER_URL!, async (client) => {
       const { rows } = await client.query(
         `select (select count(*) from pg_namespace where nspname = 'rnd') as schemas,
@@ -193,7 +198,7 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
     // After a real run, a new pending migration is listed but not applied.
     await migrate({ schema: 'rnd', connectionString: TEST_DATABASE_URL!, migrationsDir: dir });
     await writeFile(
-      join(dir, '0002_more.sql'),
+      join(dir, '9002_more.sql'),
       'set local role {{owner}};\ncreate table {{schema}}.more (id int);\n',
     );
     const pending = await migrate({
@@ -202,7 +207,7 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
       migrationsDir: dir,
       dryRun: true,
     });
-    expect(pending).toEqual({ applied: ['0002_more.sql'], skipped: [FIRST] });
+    expect(pending).toEqual({ applied: ['9002_more.sql'], skipped: REAL });
     await withClient(TEST_SUPERUSER_URL!, async (client) => {
       const { rows } = await client.query(`select to_regclass('rnd.more') as t`);
       expect(rows[0].t).toBeNull();
@@ -215,13 +220,13 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
       migrate({ schema, connectionString: TEST_DATABASE_URL! }),
     ]);
     // Exactly one run applied the migration; the other waited for the lock and skipped it.
-    expect(results.flatMap((r) => r.applied)).toEqual([FIRST]);
-    expect(results.flatMap((r) => r.skipped)).toEqual([FIRST]);
+    expect(results.flatMap((r) => r.applied)).toEqual(REAL);
+    expect(results.flatMap((r) => r.skipped)).toEqual(REAL);
     await withClient(TEST_SUPERUSER_URL!, async (client) => {
       const { rows } = await client.query(
         `select count(*)::int as n from ${schema}.schema_migrations`,
       );
-      expect(rows[0].n).toBe(1);
+      expect(rows[0].n).toBe(REAL.length);
     });
   });
 
@@ -236,7 +241,7 @@ describe.skipIf(!dbAvailable)('migrate (real Postgres, non-superuser admin)', ()
   it('lets the backup role read sequences of later tables (pg_dump needs SELECT on them)', async () => {
     const dir = await copyOfMigrations();
     await writeFile(
-      join(dir, '0002_counted.sql'),
+      join(dir, '9003_counted.sql'),
       [
         'set local role {{owner}};',
         'create table {{schema}}.counted (id bigint generated always as identity primary key);',

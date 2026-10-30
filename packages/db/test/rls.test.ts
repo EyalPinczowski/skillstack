@@ -29,7 +29,7 @@ describe.skipIf(!dbAvailable)('row-level security model (rnd)', () => {
         alter table rnd.notes enable row level security;
         create policy notes_own on rnd.notes
           for all to app_rnd_user
-          using (user_id = auth.uid()) with check (user_id = auth.uid());
+          using (user_id = rnd.current_user_id()) with check (user_id = rnd.current_user_id());
         create policy backup_select on rnd.notes for select to backup_rnd using (true);
         insert into rnd.notes (user_id, body) values
           ('${USER_A}', 'a1'), ('${USER_A}', 'a2'), ('${USER_B}', 'b1');

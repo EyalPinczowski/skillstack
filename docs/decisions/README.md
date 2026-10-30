@@ -13,5 +13,6 @@ One short record per significant choice: the context, the options considered, th
 | [007](007-catalog-grounded-plan-generation.md) | The AI picks from a verified catalog | Planned |
 | [008](008-visual-design.md) | Visual design: Blocks direction, logo A | Accepted |
 | [009](009-hosting-on-free-tiers.md) | Hosting on free tiers: Vercel, Render, Supabase | Planned |
+| [010](010-current-user-id.md) | Row-level security reads the user from `current_user_id()`, not `auth.uid()` | Accepted |
 
 Facts about third-party free plans change often. Anything in these records that has not been confirmed on the provider's own documentation is marked **needs check**.

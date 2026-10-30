@@ -11,7 +11,7 @@ There are two environments: Operational (`main`) and R&D (`rnd`). The free Supab
 3. One project with two schemas (`prod`, `rnd`) and a separate database role per environment.
 
 ## Decision
-Option 3. `app_prod` and `app_rnd` can only touch their own schema; they do not own tables and have no `BYPASSRLS`. The shared Supabase `authenticated` role would need access to both schemas, so instead each backend sets a per-environment role (`app_prod_user`, `app_rnd_user`) inside its request transaction, with the verified user's claims, so `auth.uid()` resolves and row-level security applies. Migrations take the target schema as an explicit argument and refuse to run without it.
+Option 3. `app_prod` and `app_rnd` can only touch their own schema; they do not own tables and have no `BYPASSRLS`. The shared Supabase `authenticated` role would need access to both schemas, so instead each backend sets a per-environment role (`app_prod_user`, `app_rnd_user`) inside its request transaction, with the verified user's claims, so the user's id resolves and row-level security applies (policies use `current_user_id()` instead of `auth.uid()`: see ADR 010). Migrations take the target schema as an explicit argument and refuse to run without it.
 
 ## Consequences
 - Row-level security is tested directly against the database, not just through the API: a second user cannot read the first user's rows, and a query with no user context returns nothing.
