@@ -59,6 +59,41 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
     },
   );
 
+  it.each(ENVS)(
+    'has no views (they would read as their owner and skip RLS) and pins search_path on every SECURITY DEFINER function in %s',
+    async (schema) => {
+      await withClient(TEST_SUPERUSER_URL!, async (client) => {
+        const views = await client.query<{ relname: string }>(
+          `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+            where n.nspname = $1 and c.relkind in ('v', 'm', 'f')`,
+          [schema],
+        );
+        expect(views.rows).toEqual([]);
+
+        const { rows } = await client.query<{
+          name: string;
+          config: string[] | null;
+          public_execute: boolean;
+        }>(
+          `select p.proname as name, p.proconfig as config,
+                  has_function_privilege('public', p.oid, 'execute') as public_execute
+             from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = $1 and p.prosecdef
+            order by p.proname`,
+          [schema],
+        );
+        // A new SECURITY DEFINER function must be reviewed and added here on purpose.
+        expect(rows.map((r) => r.name)).toEqual(['delete_account', 'provision_user']);
+        for (const row of rows) {
+          expect(row.config ?? [], `${row.name} search_path`).toContain(
+            `search_path=${schema}, pg_temp`,
+          );
+          expect(row.public_execute, `${row.name} PUBLIC execute`).toBe(false);
+        }
+      });
+    },
+  );
+
   it('the helper reports tables that break the convention', async () => {
     await withClient(TEST_DATABASE_URL!, async (client) => {
       await client.query('begin');

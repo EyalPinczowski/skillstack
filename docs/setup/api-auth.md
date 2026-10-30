@@ -7,7 +7,7 @@ How the API knows who is calling, and what the owner must configure in Supabase 
 1. The web app signs the user in with Supabase Auth (email code, magic link or Google) and sends the access token as `Authorization: Bearer <token>`.
 2. The API verifies the token with the `jose` library: signature against the project's public keys (JWKS), issuer, audience `authenticated`, expiry. Only ES256 and RS256 are accepted; `alg: none` and shared-secret (HS256) tokens are refused.
 3. The user id is the token's `sub`. It is the only identity the API uses; no route reads a user id from the query, a header or the body.
-4. The first call to any `/api/v1/me` route creates the account through the database function `provision_user`, which fails unless the token's email is on the allowlist (`allowed_emails`) and the number of active users is below `user_cap`. This applies to every sign-in method, Google included.
+4. The first signed-in call to any route (`/api/v1/me`, plans, tasks) creates the account through the database function `provision_user`, which fails unless the token's email is on the allowlist (`allowed_emails`) and the number of active users is below `user_cap`. This applies to every sign-in method, Google included.
 5. Each request then runs in one transaction as `app_<schema>_user` with the user's claims set, so row-level security shows only that user's rows.
 
 An unapproved email, a full beta and a disabled account all get the same `403` answer, so the API never tells anyone whether an email is on the list.
@@ -68,4 +68,4 @@ This adds the email to the allowlist and, if the account already exists, sets it
 
 ## Not built here
 
-Request access, invites, the admin console, Turnstile wiring and any web UI (v0.4). Until the admin console exists, approve an email by inserting it into `allowed_emails` as the owner role (or with `promote-admin` for admins).
+Request access, invites, the admin console and Turnstile wiring (v0.4). The web app's sign-in, Settings and plan screens are built (v0.1, `apps/web`). Until the admin console exists, approve an email by inserting it into `allowed_emails` as the owner role (or with `promote-admin` for admins).

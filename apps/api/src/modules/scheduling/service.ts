@@ -47,8 +47,11 @@ function requirePattern(plan: PlanDetail): WeekPattern {
  * engine in @skillstack/shared. No scheduling rule lives here, and nothing here writes.
  */
 export function createSchedulingService(plans: PlanService) {
+  /** Nothing is scheduled before the plan starts: a plan that starts later begins on its start date. */
+  const firstDay = (plan: PlanDetail, today: string) =>
+    today < plan.startDate ? plan.startDate : today;
   const run = (plan: PlanDetail, pattern: WeekPattern, overrides: DayOverride[], today: string) =>
-    schedule({ tasks: plan.tasks, pattern, overrides, today });
+    schedule({ tasks: plan.tasks, pattern, overrides, today: firstDay(plan, today) });
 
   return {
     async getSchedule(userId: string, planId: string, today?: string): Promise<ScheduleView> {
@@ -84,7 +87,7 @@ export function createSchedulingService(plans: PlanService) {
       return {
         today: day,
         summary: summarizeChanges(before, after, {
-          today: day,
+          today: firstDay(plan, day),
           pattern,
           overrides,
           tasks: plan.tasks,
