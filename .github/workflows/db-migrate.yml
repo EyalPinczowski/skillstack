@@ -1,0 +1,62 @@
+name: DB migrate
+
+# Manual only. Runs the migration runner against one environment (rnd or prod).
+# The credentials live in the GitHub Environments named `rnd` and `prod` (secrets DATABASE_URL,
+# APP_PASSWORD, BACKUP_PASSWORD), never in the repo. Enable "required reviewers" on `prod`.
+on:
+  workflow_dispatch:
+    inputs:
+      schema:
+        description: Target environment (also the name of the GitHub Environment holding the secrets)
+        type: choice
+        options: [rnd, prod]
+        required: true
+      action:
+        description: What to run
+        type: choice
+        options: [migrate, status, set-passwords]
+        required: true
+        default: migrate
+      dry_run:
+        description: migrate only - list what would run and change nothing
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-migrate-${{ inputs.schema }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    name: ${{ inputs.action }} ${{ inputs.schema }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.schema }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Inputs reach the shell only through env variables, never by string interpolation, and
+      # the CLI validates --schema itself. Secrets are never echoed; the CLI prints none.
+      - name: Run
+        working-directory: packages/db
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          BACKUP_PASSWORD: ${{ secrets.BACKUP_PASSWORD }}
+          SCHEMA: ${{ inputs.schema }}
+          ACTION: ${{ inputs.action }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set +x
+          args=("$ACTION" --schema "$SCHEMA")
+          if [ "$ACTION" = "migrate" ] && [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          pnpm run migrate "${args[@]}"
