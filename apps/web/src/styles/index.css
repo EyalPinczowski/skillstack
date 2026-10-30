@@ -47,3 +47,56 @@
     }
   }
 }
+
+/* Rendered legal documents (docs/legal/*.md). Plain reading text: no cards, no decoration. */
+@layer components {
+  .legal-text {
+    max-width: 65ch;
+    line-height: 1.6;
+  }
+  .legal-text > * + * {
+    margin-top: 0.9rem;
+  }
+  .legal-text h2,
+  .legal-text h3 {
+    margin-top: 1.75rem;
+    font-weight: 700;
+  }
+  .legal-text h3 {
+    font-size: 18px;
+  }
+  .legal-text ul,
+  .legal-text ol {
+    padding-left: 1.5rem;
+  }
+  .legal-text ul {
+    list-style: disc;
+  }
+  .legal-text ol {
+    list-style: decimal;
+  }
+  .legal-text li + li {
+    margin-top: 0.35rem;
+  }
+  .legal-text a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 700;
+  }
+  .legal-text blockquote {
+    border-left: 4px solid var(--accent-2);
+    padding-left: 1rem;
+    color: var(--muted);
+  }
+  .legal-text table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .legal-text th,
+  .legal-text td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+}

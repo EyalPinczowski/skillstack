@@ -42,3 +42,18 @@ export const ClockIcon = () => (
     <path d="M12 7v5l3 2" />
   </Icon>
 );
+
+export const TodayIcon = () => (
+  <Icon>
+    <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
+    <path d="M3.5 10h17M8 3v4M16 3v4" />
+  </Icon>
+);
+
+export const SettingsIcon = () => (
+  <Icon>
+    <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+    <circle cx="16" cy="7" r="2" />
+    <circle cx="8" cy="17" r="2" />
+  </Icon>
+);
