@@ -37,6 +37,9 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 4. Set environment variables (Settings > Environment Variables), names only here:
    - `VITE_APP_ENV`: `operational` for Production, `rnd` for Preview. A separate demo project uses `demo`.
    - `VITE_API_URL`: the Render API base URL without trailing slash (Production: `skillstack-api`; Preview: `skillstack-api-rnd`).
+   - `VITE_SUPABASE_URL`: the Supabase project URL, `https://<project-ref>.supabase.co`. One project serves both environments (ADR 003), so Production and Preview use the same value.
+   - `VITE_SUPABASE_ANON_KEY`: the project's anon / publishable key (Supabase dashboard, Project Settings, API; exact menu name needs check). It is public by design because it ships in the browser bundle, but it still goes only into the Vercel settings and your own untracked `.env.local`, never into the repository. Vercel exposes only variables that start with `VITE_` to the build; tick Production and Preview (needs check: the exact checkboxes).
+   - The build fails to start in the browser with a readable message ("Skillstack could not start") if either Supabase variable is missing or the URL is not http(s).
 5. Production Branch is `main`. Deployments from the `rnd` branch are Preview deployments; assign them a stable alias if possible (needs check which stable preview URL Hobby offers for a branch).
 6. Deploy. Copy the resulting `*.vercel.app` URLs for the next section.
 
@@ -65,7 +68,7 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 
 | Where  | Names                                                                                                       |
 | ------ | ----------------------------------------------------------------------------------------------------------- |
-| Vercel | `VITE_APP_ENV`, `VITE_API_URL`                                                                              |
+| Vercel | `VITE_APP_ENV`, `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`                              |
 | Render | `NODE_VERSION`, `APP_ENV`, `HOST`, `CORS_ORIGINS`, `RATE_LIMIT_PER_MINUTE`, `TRUST_PROXY`, `NODE_ENV`, `SUPABASE_JWKS_URL`, `SUPABASE_JWT_ISSUER`, `DATABASE_URL` (see `docs/setup/api-auth.md`) (`PORT`: needs check whether Render injects it) |
 | GitHub | `API_HEALTH_URL` (repository variable or secret)                                                            |
 

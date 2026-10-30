@@ -9,6 +9,7 @@
     "build": "tsup",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "openapi:dump": "tsx scripts/openapi-dump.ts",
     "test": "vitest run"
   },
   "dependencies": {

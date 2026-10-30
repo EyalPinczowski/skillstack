@@ -1,8 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router';
 import { App } from './App';
+import { createBrowserAuthService } from './auth/auth-service';
 import { parseEnv } from './env';
 import { createQueryClient } from './lib/query-client';
+import { applyTheme, readTheme } from './lib/theme';
 
 /** Plain DOM on purpose: this runs when the app itself cannot start. */
 function showConfigError(root: HTMLElement, error: unknown) {
@@ -27,9 +30,13 @@ export function mount(root: HTMLElement, rawEnv: Record<string, unknown>) {
     showConfigError(root, error);
     return;
   }
+  // Before the first paint, so a saved light or dark choice does not flash the other theme.
+  applyTheme(readTheme());
   createRoot(root).render(
     <StrictMode>
-      <App env={env} queryClient={createQueryClient()} />
+      <BrowserRouter>
+        <App env={env} queryClient={createQueryClient()} auth={createBrowserAuthService(env)} />
+      </BrowserRouter>
     </StrictMode>,
   );
 }

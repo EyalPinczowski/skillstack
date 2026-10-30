@@ -1,32 +1,65 @@
-import { APP_NAME } from '@skillstack/shared';
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
-import { DemoBanner, EnvironmentBadge } from './components/EnvironmentBadge';
-import { Home } from './components/Home';
-import { Logo } from './components/Logo';
+import { useMemo } from 'react';
+import { Navigate, Route, Routes } from 'react-router';
+import { createApiClient } from './api/client';
+import { ApiProvider } from './api/ApiProvider';
+import type { AuthService } from './auth/auth-service';
+import { AuthProvider } from './auth/AuthProvider';
+import { RequireAccount } from './auth/RequireAccount';
+import { DemoBanner } from './components/EnvironmentBadge';
 import type { Env } from './env';
+import { AppShell, PublicShell } from './layout/Shell';
+import { LegalPage } from './pages/LegalPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { SignInPage } from './pages/SignInPage';
+import { TodayPage } from './pages/TodayPage';
 
-export function App({ env, queryClient }: { env: Env; queryClient: QueryClient }) {
+/**
+ * The whole app. The router is supplied from outside (BrowserRouter in production, MemoryRouter in
+ * tests), and so are the query client and the auth service.
+ */
+export function App({
+  env,
+  queryClient,
+  auth,
+}: {
+  env: Env;
+  queryClient: QueryClient;
+  auth: AuthService;
+}) {
+  const api = useMemo(
+    () => createApiClient({ baseUrl: env.apiUrl, getAccessToken: () => auth.getAccessToken() }),
+    [env.apiUrl, auth],
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
-      <a
-        href="#main"
-        className="fixed left-4 top-4 z-10 inline-flex min-h-11 -translate-y-[200%] items-center rounded-sm bg-accent px-4 py-3 font-bold text-on-accent focus:translate-y-0"
-      >
-        Skip to main content
-      </a>
-      <DemoBanner appEnv={env.appEnv} />
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex min-h-16 max-w-3xl items-center gap-3 px-4">
-          <Logo title={null} />
-          <span className="text-h2 font-bold">{APP_NAME}</span>
-          <span className="ml-auto">
-            <EnvironmentBadge appEnv={env.appEnv} />
-          </span>
-        </div>
-      </header>
-      <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-4 py-6">
-        <Home apiUrl={env.apiUrl} />
-      </main>
+      <AuthProvider service={auth}>
+        <ApiProvider client={api}>
+          <a
+            href="#main"
+            className="fixed left-4 top-4 z-20 inline-flex min-h-11 -translate-y-[200%] items-center rounded-sm bg-accent px-4 py-3 font-bold text-on-accent focus:translate-y-0"
+          >
+            Skip to main content
+          </a>
+          <DemoBanner appEnv={env.appEnv} />
+          <Routes>
+            <Route element={<PublicShell appEnv={env.appEnv} />}>
+              <Route path="/signin" element={<SignInPage />} />
+              <Route path="/terms" element={<LegalPage slug="terms" />} />
+              <Route path="/privacy" element={<LegalPage slug="privacy" />} />
+              <Route path="/disclaimer" element={<LegalPage slug="disclaimer" />} />
+            </Route>
+            <Route element={<RequireAccount appEnv={env.appEnv} />}>
+              <Route element={<AppShell appEnv={env.appEnv} />}>
+                <Route index element={<TodayPage apiUrl={env.apiUrl} />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </ApiProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

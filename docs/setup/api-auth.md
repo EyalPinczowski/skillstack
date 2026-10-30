@@ -32,6 +32,26 @@ The JWKS path and the issuer format (`https://<project-ref>.supabase.co/auth/v1`
 5. **Turnstile (not wired in this branch).** Enable CAPTCHA protection with Cloudflare Turnstile. Needs check whether it covers one-time-code and Google sign-in. The API does not verify it yet.
 6. **Do not rely on Supabase to block sign-ups.** Supabase may create an auth user for any email that completes sign-in. That is harmless: without an allowlist entry the API refuses to create an account and every `/me` call returns 403. Optionally disable open sign-ups (needs check) so strangers do not get auth users at all.
 
+## The web app's sign-in (`apps/web`)
+
+The browser talks to Supabase Auth directly with `@supabase/supabase-js` and sends the access token to this API.
+
+| Name                     | Where                                | Value                                                              |
+| ------------------------ | ------------------------------------ | ------------------------------------------------------------------ |
+| `VITE_SUPABASE_URL`      | Vercel project settings, `.env.local` | `https://<project-ref>.supabase.co`                                |
+| `VITE_SUPABASE_ANON_KEY` | Vercel project settings, `.env.local` | the project's anon / publishable key (public by design; never commit it) |
+
+What the app does, and what to configure for it (all dashboard menu names **needs check**):
+
+- **Session.** The library stores the session in the browser, refreshes it before it expires and reads the redirect after Google sign-in (PKCE flow). `onAuthStateChange` drives the signed-in and signed-out screens.
+- **Email code.** The sign-in page calls `signInWithOtp` and then `verifyOtp` with `type: email`. The email only contains a code if the "Magic Link" email template includes `{{ .Token }}`; the default template may show only a link, so edit the template (needs check) and confirm the code length is 6 (the app accepts exactly 6 digits).
+- **Google.** The app calls `signInWithOAuth` with `redirectTo` set to the site origin. That origin (each Vercel URL, and `http://localhost:5173` for local work) must be listed under Authentication, URL Configuration, Redirect URLs (needs check). The Supabase-side callback URL for the Google Cloud OAuth client is shown in the Google provider settings (see ADR 006).
+- **Sign out of all devices** calls `signOut({ scope: 'global' })`. Needs check: Supabase's documentation should be read for what this does to access tokens that other devices already hold. They may stay valid until they expire, and this API does not keep a list of revoked tokens.
+- **Turnstile.** `AuthService.sendCode(email, { captchaToken })` already accepts the token and passes it to Supabase; the widget itself is not wired yet (marked `TURNSTILE SEAM` in `SignInPage.tsx`).
+- **After sign-in** the app calls `GET /api/v1/me`. A `403` shows only "This account cannot use Skillstack." with a sign-out button, so the screen cannot be used to probe the allowlist. A `401` ends the local session.
+- **Delete my account** removes the Skillstack data (above). It does not delete the Supabase Auth user (that needs the service key, which the API does not hold). Needs check whether to add that later.
+- **Typed client.** The web app's API types are generated from this API's OpenAPI document: `pnpm api:types` after changing a route or schema, commit `apps/web/src/api/schema.d.ts`. CI fails when it is out of date (`pnpm api:types:check`).
+
 ## The first admin
 
 There is no way to become admin in the app. After the database is migrated:

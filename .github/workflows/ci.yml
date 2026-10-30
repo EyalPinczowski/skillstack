@@ -40,6 +40,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: API types are up to date with the OpenAPI document
+        run: bash scripts/check-api-types-drift.sh
       - run: pnpm --filter @skillstack/web typecheck
       - run: pnpm --filter @skillstack/web test
       - run: pnpm --filter @skillstack/web build

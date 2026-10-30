@@ -26,11 +26,19 @@ describe('mount', () => {
     expect(alert).toHaveTextContent('Skillstack could not start');
     expect(alert).toHaveTextContent(/VITE_API_URL/);
     expect(alert).toHaveTextContent(/VITE_APP_ENV/);
+    expect(alert).toHaveTextContent(/VITE_SUPABASE_URL/);
     expect(screen.queryByRole('main')).not.toBeInTheDocument();
   });
 
   it('renders the app when the environment is valid', async () => {
-    await act(async () => mount(root, { VITE_APP_ENV: 'rnd', VITE_API_URL: 'https://api.test' }));
+    await act(async () =>
+      mount(root, {
+        VITE_APP_ENV: 'rnd',
+        VITE_API_URL: 'https://api.test',
+        VITE_SUPABASE_URL: 'https://project.supabase.test',
+        VITE_SUPABASE_ANON_KEY: 'anon-key-placeholder',
+      }),
+    );
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByText('R&D environment')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();

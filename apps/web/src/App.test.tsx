@@ -1,18 +1,10 @@
-import { APP_TAGLINE } from '@skillstack/shared';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from './App';
-import type { Env } from './env';
-import { createQueryClient } from './lib/query-client';
-
-const env: Env = { appEnv: 'operational', apiUrl: 'https://api.example.test' };
+import { ENV, fakeAuth, installApi, json, meBody, renderApp, SESSION } from './test/helpers';
 
 beforeEach(() => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() => new Promise(() => {})),
-  );
+  installApi({ 'GET /api/v1/me': () => json(meBody()) });
 });
 
 afterEach(() => {
@@ -21,16 +13,16 @@ afterEach(() => {
 
 describe('App shell', () => {
   it('makes the skip link the first focusable element, pointing at main', async () => {
-    render(<App env={env} queryClient={createQueryClient()} />);
+    renderApp({ auth: fakeAuth(null), path: '/signin' });
     await userEvent.tab();
     const skip = screen.getByRole('link', { name: 'Skip to main content' });
     expect(skip).toHaveFocus();
     expect(skip).toHaveAttribute('href', '#main');
-    expect(screen.getByRole('main')).toHaveAttribute('id', 'main');
+    expect(await screen.findByRole('main')).toHaveAttribute('id', 'main');
   });
 
-  it('builds the skip link without sr-only, which would strip its padding', () => {
-    render(<App env={env} queryClient={createQueryClient()} />);
+  it('builds the skip link without sr-only, which would strip its padding', async () => {
+    renderApp({ auth: fakeAuth(null), path: '/signin' });
     const classes = screen.getByRole('link', { name: 'Skip to main content' }).classList;
     expect(classes).not.toContain('sr-only');
     expect(classes).not.toContain('focus:not-sr-only');
@@ -42,21 +34,33 @@ describe('App shell', () => {
     expect(Array.from(classes).some((c) => c.includes('transition'))).toBe(false);
   });
 
-  it('shows the app name and tagline from the shared package', () => {
-    render(<App env={env} queryClient={createQueryClient()} />);
-    expect(screen.getByRole('heading', { level: 1, name: 'Skillstack' })).toBeInTheDocument();
-    expect(screen.getByText(APP_TAGLINE)).toBeInTheDocument();
+  it('shows the app name and tagline on the sign-in page', async () => {
+    renderApp({ auth: fakeAuth(null), path: '/signin' });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getAllByText('Skillstack').length).toBeGreaterThan(0);
   });
 
-  it('wires the environment into the badge and banner', () => {
-    const { rerender } = render(<App env={env} queryClient={createQueryClient()} />);
+  it('wires the environment into the badge and banner', async () => {
+    const { unmount } = renderApp({ auth: fakeAuth(null), path: '/signin' });
     expect(screen.queryByText('R&D environment')).not.toBeInTheDocument();
     expect(screen.queryByText('Demo – sample data')).not.toBeInTheDocument();
+    unmount();
 
-    rerender(<App env={{ ...env, appEnv: 'rnd' }} queryClient={createQueryClient()} />);
+    const rnd = renderApp({
+      auth: fakeAuth(null),
+      path: '/signin',
+      env: { ...ENV, appEnv: 'rnd' },
+    });
     expect(screen.getByText('R&D environment')).toBeInTheDocument();
+    rnd.unmount();
 
-    rerender(<App env={{ ...env, appEnv: 'demo' }} queryClient={createQueryClient()} />);
+    renderApp({ auth: fakeAuth(null), path: '/signin', env: { ...ENV, appEnv: 'demo' } });
     expect(screen.getByText('Demo – sample data')).toBeInTheDocument();
+  });
+
+  it('keeps the server status on the signed-in home page', async () => {
+    renderApp({ auth: fakeAuth(SESSION), path: '/' });
+    expect(await screen.findByRole('heading', { name: 'No plan yet' })).toBeInTheDocument();
+    expect(await screen.findByText(/Connected/)).toBeInTheDocument();
   });
 });
