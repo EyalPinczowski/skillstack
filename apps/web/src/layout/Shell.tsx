@@ -2,7 +2,7 @@ import { APP_NAME } from '@skillstack/shared';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { EnvironmentBadge } from '../components/EnvironmentBadge';
-import { SettingsIcon, TodayIcon } from '../components/icons';
+import { PlanIcon, SettingsIcon, TodayIcon } from '../components/icons';
 import { Logo } from '../components/Logo';
 import type { AppEnv } from '../env';
 
@@ -50,6 +50,7 @@ export function PublicShell({ appEnv, children }: { appEnv: AppEnv; children?: R
 
 const NAV = [
   { to: '/', label: 'Today', end: true, Icon: TodayIcon },
+  { to: '/plan', label: 'Plan', end: false, Icon: PlanIcon },
   { to: '/settings', label: 'Settings', end: false, Icon: SettingsIcon },
 ];
 

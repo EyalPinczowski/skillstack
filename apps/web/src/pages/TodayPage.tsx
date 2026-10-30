@@ -1,16 +1,24 @@
 import { ApiStatus } from '../components/ApiStatus';
+import { ImportPlan } from '../plan/ImportPlan';
+import { PlanGate } from '../plan/PlanGate';
+import { Home } from './today/Home';
 
-/** The signed-in home. The plan builder and dashboard replace the empty state in later branches. */
-export function TodayPage({ apiUrl }: { apiUrl: string }) {
+function EmptyState({ apiUrl }: { apiUrl: string }) {
   return (
     <div className="space-y-6">
       <h1>Today</h1>
       <section
         aria-labelledby="empty-heading"
-        className="space-y-1 rounded-md border border-border bg-surface p-4"
+        className="space-y-3 rounded-md border border-border bg-surface p-4"
       >
-        <h2 id="empty-heading">No plan yet</h2>
-        <p className="text-muted">When you start a study plan, today’s tasks will show up here.</p>
+        <div className="space-y-1">
+          <h2 id="empty-heading">No plan yet</h2>
+          <p className="text-muted">
+            Bring in a plan file and today’s tasks will show up here. Plan changes are always
+            suggestions until you approve them.
+          </p>
+        </div>
+        <ImportPlan />
       </section>
       <section
         aria-labelledby="server-heading"
@@ -22,5 +30,12 @@ export function TodayPage({ apiUrl }: { apiUrl: string }) {
         <ApiStatus apiUrl={apiUrl} />
       </section>
     </div>
+  );
+}
+
+/** The signed-in home: the import form when there is no plan yet, otherwise the day. */
+export function TodayPage({ apiUrl }: { apiUrl: string }) {
+  return (
+    <PlanGate empty={<EmptyState apiUrl={apiUrl} />}>{(plan) => <Home plan={plan} />}</PlanGate>
   );
 }

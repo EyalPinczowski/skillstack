@@ -7,6 +7,7 @@ import { Button, ErrorText, linkClass, TextField } from '../components/ui';
 import { DELETE_PHRASE, EXPORT_FILENAME } from '../lib/account';
 import { downloadJson } from '../lib/download';
 import { LEGAL_PAGES } from '../lib/legal';
+import { TimeSettings } from './settings/TimeSettings';
 import { useTheme, type ThemePreference } from '../lib/theme';
 
 const MAX_NAME_LENGTH = 80;
@@ -249,6 +250,7 @@ export function SettingsPage() {
     <div className="space-y-6">
       <h1>Settings</h1>
       <ProfileSection />
+      <TimeSettings />
       <AppearanceSection />
       <DataSection />
       <SignOutSection />

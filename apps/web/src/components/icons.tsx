@@ -57,3 +57,64 @@ export const SettingsIcon = () => (
     <circle cx="8" cy="17" r="2" />
   </Icon>
 );
+
+export const PlanIcon = () => (
+  <Icon>
+    <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+  </Icon>
+);
+
+export const CourseIcon = () => (
+  <Icon>
+    <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H12v15H5.5A1.5 1.5 0 0 0 4 20.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H12v15h6.5a1.5 1.5 0 0 1 1.5 1.5z" />
+  </Icon>
+);
+
+export const ExamIcon = () => (
+  <Icon>
+    <path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3zM9 12l2.2 2.2L15.5 10" />
+  </Icon>
+);
+
+export const PracticeIcon = () => (
+  <Icon>
+    <path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14" />
+  </Icon>
+);
+
+export const AdminIcon = () => (
+  <Icon>
+    <path d="M9 4h6v3H9zM7 5.5H6a1 1 0 0 0-1 1V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6.5a1 1 0 0 0-1-1h-1M9 12h6M9 16h4" />
+  </Icon>
+);
+
+export const CvIcon = () => (
+  <Icon>
+    <path d="M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h4" />
+  </Icon>
+);
+
+export const CircleIcon = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="8" />
+  </Icon>
+);
+
+export const HalfCircleIcon = () => (
+  <Icon>
+    <circle cx="12" cy="12" r="8" />
+    <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" />
+  </Icon>
+);
+
+export const PinIcon = () => (
+  <Icon>
+    <path d="M9 4h6l-1 6 3 3H7l3-3-1-6zM12 13v7" />
+  </Icon>
+);
+
+export const SkipIcon = () => (
+  <Icon>
+    <path d="M5 6l8 6-8 6zM17 6v12" />
+  </Icon>
+);

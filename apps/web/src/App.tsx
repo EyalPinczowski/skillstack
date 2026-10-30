@@ -10,8 +10,11 @@ import { DemoBanner } from './components/EnvironmentBadge';
 import type { Env } from './env';
 import { AppShell, PublicShell } from './layout/Shell';
 import { LegalPage } from './pages/LegalPage';
+import { ActivePlanProvider } from './plan/ActivePlan';
+import { PlanPage } from './pages/PlanPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SignInPage } from './pages/SignInPage';
+import { TaskDetailPage } from './pages/TaskDetailPage';
 import { TodayPage } from './pages/TodayPage';
 
 /**
@@ -52,8 +55,12 @@ export function App({
             </Route>
             <Route element={<RequireAccount appEnv={env.appEnv} />}>
               <Route element={<AppShell appEnv={env.appEnv} />}>
-                <Route index element={<TodayPage apiUrl={env.apiUrl} />} />
-                <Route path="settings" element={<SettingsPage />} />
+                <Route element={<ActivePlanProvider />}>
+                  <Route index element={<TodayPage apiUrl={env.apiUrl} />} />
+                  <Route path="plan" element={<PlanPage />} />
+                  <Route path="plan/:taskId" element={<TaskDetailPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                </Route>
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

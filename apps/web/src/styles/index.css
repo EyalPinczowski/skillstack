@@ -36,6 +36,11 @@
     outline-offset: 2px;
   }
 
+  /* Programmatic focus target after navigation: not interactive, so no ring around the page. */
+  main:focus-visible {
+    outline: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

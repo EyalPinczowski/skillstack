@@ -1,4 +1,10 @@
-import { forwardRef, useId, type ButtonHTMLAttributes, type InputHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  useId,
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from 'react';
 import { AlertIcon } from './icons';
 
 const base =
@@ -68,6 +74,43 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
     </div>
   );
 });
+
+interface TextAreaFieldProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'id'> {
+  label: string;
+  hint?: string;
+  error?: string | null;
+}
+
+/** A labelled multi-line field, wired the same way as TextField. */
+export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
+  function TextAreaField({ label, hint, error, className = '', ...props }, ref) {
+    const id = useId();
+    const hintId = `${id}-hint`;
+    const errorId = `${id}-error`;
+    const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
+    return (
+      <div className="space-y-1">
+        <label htmlFor={id} className="block font-bold">
+          {label}
+        </label>
+        {hint ? (
+          <p id={hintId} className="text-muted">
+            {hint}
+          </p>
+        ) : null}
+        <textarea
+          ref={ref}
+          id={id}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy || undefined}
+          className={`min-h-11 w-full rounded-sm border border-border bg-surface px-3 py-2 text-text placeholder:text-muted ${className}`}
+          {...props}
+        />
+        {error ? <ErrorText id={errorId}>{error}</ErrorText> : null}
+      </div>
+    );
+  },
+);
 
 /** An error in words with an icon, announced when it appears. Never colour alone. */
 export function ErrorText({ children, id }: { children: string; id?: string }) {
