@@ -26,8 +26,8 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 - Whether `corepack enable` selects pnpm 10 from `packageManager` on Render. Confirm in the first build log.
 - The `TRUST_PROXY` hop count on Render (see `.env.example`). Keep `0` until verified.
 - Whether the Skillstack beta counts as "non-commercial personal use" for Vercel Hobby (no ads, no payments, invite-only: it appears to fit, but Vercel decides; contact Vercel support if unsure).
-- GitHub Actions minutes for the wake-up workflow if the repo is private: the cron `*/14 4-19 * * *` starts 80 runs a day (5 an hour for 16 UTC hours), including the runs the local-time guard skips, and each run is billed per started minute, so about 2,400 minutes a month. That is more than the included minutes of GitHub Free for private repos (2,000 a month, needs check). Keep this repo public, or narrow the cron, before relying on it. Public repos: check GitHub's current billing page.
-- Study hours: the spec does not define them. `wakeup.yml` uses 07:00-22:00 Asia/Jerusalem as a placeholder.
+- GitHub Actions minutes for the wake-up workflow if the repo is private: the cron `*/14 5-18 * * *` starts 70 runs a day (5 an hour for 14 UTC hours), including the runs the local-time guard skips, and each run is billed per started minute, so about 2,100 minutes a month. That is more than the included minutes of GitHub Free for private repos (2,000 a month, needs check). Keep this repo public, or narrow the cron, before relying on it. Public repos: check GitHub's current billing page.
+- Study hours: the spec does not define them. `wakeup.yml` uses 08:00-20:00 Asia/Jerusalem, chosen by the owner.
 
 ## 1. Frontend on Vercel Hobby
 
@@ -58,7 +58,7 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 
 1. Repository Settings > Secrets and variables > Actions > Variables > New repository variable: `API_HEALTH_URL` = `https://<your-skillstack-api>.onrender.com/api/v1/health`. (A secret with the same name also works; the workflow reads the variable first.)
 2. Leave it unset to disable pinging; the workflow then exits silently.
-3. The cron is `*/14 4-19 * * *` (UTC). A guard step lets the ping through only between 07:00 and 22:00 in Asia/Jerusalem, so daylight saving needs no change.
+3. The cron is `*/14 5-18 * * *` (UTC). A guard step lets the ping through only between 08:00 and 20:00 in Asia/Jerusalem, so daylight saving needs no change.
 4. Scheduled workflows run only from the default branch and are disabled after 60 days of repository inactivity (public repos); re-enable them in the Actions tab if that happens.
 
 ## Environment variable names
