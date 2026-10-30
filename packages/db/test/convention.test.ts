@@ -38,8 +38,17 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
           [schema],
         );
         expect(rows.map((r) => r.relname).sort()).toEqual([
+          'app_settings',
+          'app_users',
+          'day_overrides',
           'environment_info',
+          'events',
+          'legal_acceptances',
+          'logs',
+          'plans',
           'schema_migrations',
+          'tasks',
+          'week_patterns',
         ]);
         for (const row of rows) {
           expect(row.relrowsecurity, `${row.relname} RLS`).toBe(true);

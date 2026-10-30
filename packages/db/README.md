@@ -5,11 +5,15 @@ Database environments (`prod`, `rnd`) and the migration runner. Background: ADR 
 ## Conventions
 
 1. Only two environments exist: schemas `prod` and `rnd`. Every migration run names its schema explicitly; the runner refuses anything else (`public`, empty, `PROD`, injection text) before it connects.
-2. Every table in an environment schema has **row-level security enabled** and a **SELECT policy for `backup_<schema>`** (`using (true)`). Policies for app users target `app_<schema>_user` and use `auth.uid()`.
+2. Every table in an environment schema has **row-level security enabled** and a **SELECT policy for `backup_<schema>`** (`using (true)`). Policies for app users target `app_<schema>_user` and use `<schema>.current_user_id()` (ADR 010), never Supabase's `auth.uid()`. Without a user context it is NULL, so a query sees no rows.
 3. Nothing has `BYPASSRLS`. Objects are created under `SET LOCAL ROLE {{owner}}` so `owner_<schema>` owns them.
 4. Nothing is granted to `PUBLIC`, `anon`, `authenticated` or `service_role`. The shared Supabase `authenticated` role is not used.
 5. Migrations are additive, named `NNNN_name.sql`, never edited after they were applied (the runner compares checksums and fails naming the file).
 6. `findConventionViolations(client, schema)` (exported from `src/`) checks convention 2; call it in the tests of every migration branch.
+
+## Data model (migrations 0002-0005)
+
+`current_user_id()` (0002); `app_users`, `app_settings`, `legal_acceptances` (0003); `plans`, `week_patterns`, `day_overrides`, `tasks`, `logs` (0004); `events` (0005, append-only). Client-generated ids are unique per user (composite keys with `user_id`), and child rows reference `(user_id, plan_id)` so they cannot point at another user's plan. RLS is enabled, not forced: the NOLOGIN owner role is the admin/background path (creating users, changing `role`/`status`, account deletion). The app role cannot insert or delete `app_users` rows or write `app_settings`, and cannot update or delete `events` or `legal_acceptances`. Tests: `test/data-model.test.ts`.
 
 SQL tokens: `{{schema}} {{owner}} {{app}} {{app_user}} {{backup}}`. Anything else in `{{ }}` is an error.
 
@@ -45,14 +49,13 @@ pnpm --filter @skillstack/db test
 packages/db/scripts/test-postgres.sh stop         # stops the cluster and deletes its directory
 ```
 
-Without `TEST_DATABASE_URL` the database tests are skipped with a warning; when `CI` is set they fail instead. The tests use a non-superuser admin (`migrator`) and a stub `auth.uid()` that exists only in `test/setup.sql`.
+Without `TEST_DATABASE_URL` the database tests are skipped with a warning; when `CI` is set they fail instead. The tests use a non-superuser admin (`migrator`) and no stub of Supabase's `auth` schema: the policies depend only on `current_user_id()` from the migrations.
 
 ## Needs check (not provable with the local tests)
 
 - Whether Supabase's default admin role (`postgres`) can do what `migrator` does here: CREATE ROLE, `GRANT owner_<s> TO current_user`, `ALTER ROLE ... NOBYPASSRLS`, `CREATE SCHEMA ... AUTHORIZATION owner_<s>`, `ALTER DEFAULT PRIVILEGES FOR ROLE owner_<s>`.
 - That Supabase's role has the BYPASSRLS attribute (needed on PG16 to run `ALTER ROLE ... NOBYPASSRLS`). Finding from the tests: a non-superuser cannot run `NOSUPERUSER` or `NOREPLICATION` in `ALTER ROLE` (permission denied), so bootstrap omits them and fails the run if either attribute is present.
 - Supabase's Postgres major version (tests use 16; the SQL avoids PG16-only syntax, but PG15 was not run).
-- That Supabase's real `auth.uid()` reads `request.jwt.claims` the way the test stub does, and that `auth` is usable by `app_<s>_user` (the stub grants USAGE/EXECUTE to PUBLIC; the real grants are unverified).
 - Whether Supabase has extra default privileges for new objects in other schemas, or grants on the `public` schema, that give `app_<s>` more than intended.
 - The pooler: transaction mode keeps no session state, so `SET LOCAL ROLE` must be inside each request transaction; custom role names may need the `role.project-ref` form (ADR 003).
 - Password authentication for the new login roles from the backend hosts (connection string flavour and IPv6/pooler question: see `docs/setup/database.md`).

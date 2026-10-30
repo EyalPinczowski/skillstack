@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { readdirSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { migrate, setPasswords } from '../src/index';
 import {
@@ -71,6 +72,10 @@ describe.skipIf(!dbAvailable)('set-passwords', () => {
   });
 });
 
+const MIGRATION_COUNT = readdirSync(new URL('../migrations/', import.meta.url)).filter((f) =>
+  f.endsWith('.sql'),
+).length;
+
 describe.skipIf(!dbAvailable)('cli migrate and status against a real database', () => {
   beforeAll(resetEnvironments);
 
@@ -78,12 +83,14 @@ describe.skipIf(!dbAvailable)('cli migrate and status against a real database', 
     const env = { DATABASE_URL: TEST_DATABASE_URL! };
     const dry = await runCli(['migrate', '--schema', 'rnd', '--dry-run'], env);
     expect(dry.code).toBe(0);
-    expect(dry.stdout).toMatch(/Would apply 1 migration\(s\) on schema rnd/);
+    expect(dry.stdout).toMatch(
+      new RegExp(`Would apply ${MIGRATION_COUNT} migration.s. on schema rnd`),
+    );
     const real = await runCli(['migrate', '--schema', 'rnd'], env);
     expect(real.code).toBe(0);
-    expect(real.stdout).toMatch(/Applied 1 migration\(s\)/);
+    expect(real.stdout).toMatch(new RegExp(`Applied ${MIGRATION_COUNT} migration`));
     const status = await runCli(['status', '--schema', 'rnd'], env);
-    expect(status.stdout).toMatch(/1 applied, 0 pending/);
+    expect(status.stdout).toMatch(new RegExp(`${MIGRATION_COUNT} applied, 0 pending`));
     expect(real.stdout + real.stderr).not.toContain(TEST_DATABASE_URL!);
   });
 });

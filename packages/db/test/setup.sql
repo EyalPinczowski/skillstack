@@ -16,13 +16,5 @@ select 'create database skillstack_test owner migrator'
 where not exists (select from pg_database where datname = 'skillstack_test')
 \gexec
 
-\connect skillstack_test
-
--- Stub of Supabase's `auth.uid()`. Supabase provides the real `auth` schema, so this stub must
--- never be part of a migration. It reads the same setting the backend sets per request.
-create schema if not exists auth;
-create or replace function auth.uid() returns uuid
-  language sql stable
-  as $$ select nullif(current_setting('request.jwt.claims', true)::jsonb ->> 'sub', '')::uuid $$;
-grant usage on schema auth to public;
-grant execute on function auth.uid() to public;
+-- Nothing else is needed: policies use <schema>.current_user_id() from the migrations (ADR 010),
+-- not Supabase's auth.uid(), so no stub of the auth schema exists here.
