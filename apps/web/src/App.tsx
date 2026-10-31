@@ -9,10 +9,12 @@ import { RequireAccount } from './auth/RequireAccount';
 import { DemoBanner } from './components/EnvironmentBadge';
 import type { Env } from './env';
 import { AppShell, PublicShell } from './layout/Shell';
+import { BriefingPage } from './pages/briefing/BriefingPage';
 import { LegalPage } from './pages/LegalPage';
 import { ActivePlanProvider } from './plan/ActivePlan';
 import { PlanLayout } from './plan/PlanSummaryBar';
 import { PlanPage } from './pages/PlanPage';
+import { ReviewPage } from './pages/review/ReviewPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SignInPage } from './pages/SignInPage';
 import { TaskDetailPage } from './pages/TaskDetailPage';
@@ -64,6 +66,8 @@ export function App({
                     <Route path="plan" element={<PlanPage />} />
                     <Route path="plan/:taskId" element={<TaskDetailPage />} />
                   </Route>
+                  <Route path="briefing/:date" element={<BriefingPage />} />
+                  <Route path="review/:date" element={<ReviewPage />} />
                   <Route path="settings" element={<SettingsPage />} />
                 </Route>
               </Route>

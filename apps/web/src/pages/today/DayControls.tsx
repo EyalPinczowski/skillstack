@@ -5,7 +5,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { CheckIcon, LockIcon } from '../../components/icons';
 import { Button, ErrorText } from '../../components/ui';
 import { describeError } from '../../lib/messages';
-import { BriefingDestinationPlaceholder, ReviewDestinationPlaceholder } from './day-destinations';
+import { BriefingLink, ReviewLink } from './day-destinations';
 
 type Message = { tone: 'ok'; text: string } | { tone: 'error'; text: string };
 
@@ -75,7 +75,7 @@ export function DayControls({
         <p className="text-muted">
           This day is frozen. Work you did not finish moved to the next study day.
         </p>
-        <ReviewDestinationPlaceholder />
+        <ReviewLink date={date} />
       </>
     );
   } else if (day.status === 'started') {
@@ -90,7 +90,7 @@ export function DayControls({
             End day
           </Button>
         </div>
-        <BriefingDestinationPlaceholder />
+        <BriefingLink date={date} />
         {confirming ? (
           <ConfirmDialog
             title="End today?"
@@ -110,14 +110,17 @@ export function DayControls({
     );
   } else {
     content = (
-      <Button
-        variant="primary"
-        className="min-h-14 w-full text-lg sm:w-auto sm:min-w-64"
-        disabled={start.isPending}
-        onClick={() => run(start, 'Day started.', 'Could not start the day.')}
-      >
-        Start study day
-      </Button>
+      <>
+        <Button
+          variant="primary"
+          className="min-h-14 w-full text-lg sm:w-auto sm:min-w-64"
+          disabled={start.isPending}
+          onClick={() => run(start, 'Day started.', 'Could not start the day.')}
+        >
+          Start study day
+        </Button>
+        <BriefingLink date={date} />
+      </>
     );
   }
 
