@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
 import { App } from './App';
-import { createBrowserAuthService } from './auth/auth-service';
+import { createBrowserAuthService, type AuthService } from './auth/auth-service';
 import { parseEnv } from './env';
 import { createQueryClient } from './lib/query-client';
 import { applyTheme, readTheme } from './lib/theme';
@@ -22,7 +22,12 @@ function showConfigError(root: HTMLElement, error: unknown) {
 }
 
 /** Reads the environment before React mounts, so a bad build shows a message, not a blank page. */
-export function mount(root: HTMLElement, rawEnv: Record<string, unknown>) {
+export function mount(
+  root: HTMLElement,
+  rawEnv: Record<string, unknown>,
+  /** Replaces the Supabase sign-in. Only the end-to-end build passes it (see main.tsx). */
+  authOverride?: AuthService,
+) {
   let env;
   try {
     env = parseEnv(rawEnv);
@@ -35,7 +40,11 @@ export function mount(root: HTMLElement, rawEnv: Record<string, unknown>) {
   createRoot(root).render(
     <StrictMode>
       <BrowserRouter>
-        <App env={env} queryClient={createQueryClient()} auth={createBrowserAuthService(env)} />
+        <App
+          env={env}
+          queryClient={createQueryClient()}
+          auth={authOverride ?? createBrowserAuthService(env)}
+        />
       </BrowserRouter>
     </StrictMode>,
   );
