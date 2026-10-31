@@ -1,9 +1,8 @@
-import { APP_NAME, APP_TAGLINE } from '@skillstack/shared';
+import { APP_TAGLINE } from '@skillstack/shared';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation } from 'react-router';
 import { AuthFailure } from '../auth/auth-service';
 import { useAuth } from '../auth/AuthProvider';
-import { Logo } from '../components/Logo';
 import { Button, ErrorText, linkClass, TextField } from '../components/ui';
 
 export const RESEND_COOLDOWN_SECONDS = 30;
@@ -154,13 +153,7 @@ export function SignInPage() {
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-md items-center py-4">
       <div className="w-full space-y-5 rounded-lg border border-border bg-surface p-6 sm:p-8">
-        <div className="flex items-center gap-3">
-          <Logo className="size-11 text-accent" title={null} />
-          <div>
-            <p className="text-h2 font-bold leading-tight">{APP_NAME}</p>
-            <p className="text-muted first-letter:uppercase">{APP_TAGLINE}</p>
-          </div>
-        </div>
+        <p className="text-muted first-letter:uppercase">{APP_TAGLINE}</p>
 
         {notice === 'accountDeleted' ? (
           <p role="status" className="rounded-sm bg-ok-soft p-3 font-bold text-ok">
