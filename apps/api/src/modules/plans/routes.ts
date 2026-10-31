@@ -7,6 +7,8 @@ import { errorResponseSchema } from '../../errors';
 import { installAccountGuard } from '../accounts/guard';
 import { createAccountService } from '../accounts/service';
 import type { TokenVerifier } from '../accounts/token-verifier';
+import { briefingRoutes } from '../briefing/routes';
+import { createBriefingService } from '../briefing/service';
 import { daysRoutes } from '../days/routes';
 import { createDaysService } from '../days/service';
 import { schedulingRoutes } from '../scheduling/routes';
@@ -180,6 +182,8 @@ export const planRoutes: FastifyPluginAsyncZod<PlanRoutesOptions> = async (
 
   // Without a database the guard already answered 503, so these never run with `db` null.
   const days = createDaysService(db!, now);
-  app.register(schedulingRoutes, { service: createSchedulingService(db!, days), userId });
+  const scheduling = createSchedulingService(db!, days);
+  app.register(schedulingRoutes, { service: scheduling, userId });
+  app.register(briefingRoutes, { service: createBriefingService(scheduling), userId });
   app.register(daysRoutes, { service: days, userId });
 };

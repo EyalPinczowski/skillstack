@@ -197,6 +197,15 @@ export function createDaysService(db: Database, now: () => Date = () => new Date
   return {
     open,
 
+    /**
+     * The plan's tasks as they stood at the start of `date`, for reads that show what was
+     * planned for a day (the briefing). Inside the caller's transaction, like `open`.
+     */
+    async tasksAt(ctx: UserContext, userId: string, c: DayContext, date: string): Promise<Task[]> {
+      const logs = await repo.logsFrom(ctx, userId, c.plan.id, date);
+      return tasksAtStartOf(c.plan.tasks, logs, date);
+    },
+
     /** The same for a read that has no use for the schedule: nothing happens without a week pattern. */
     rolloverIfScheduled(userId: string, planId: string): Promise<void> {
       return db.withUser(userId, async (ctx) => {
