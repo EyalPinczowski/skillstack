@@ -1,0 +1,202 @@
+import type { ComponentType } from 'react';
+import { Link } from 'react-router';
+import type { OpenTask, OpenTasks, PlanSummary, Progress, Schedule, Task } from '../api/client';
+import { useDay, useOpenTasks, useProgress, useSchedule, useTasks } from '../api/hooks';
+import { QueryView } from '../components/QueryView';
+import { TaskTypeChip } from '../components/TaskChips';
+import { ArrowUpIcon, AlertIcon, CheckIcon, ClockIcon, ReturnIcon } from '../components/icons';
+import { linkClass } from '../components/ui';
+import { weekDays, weekTotals } from '../lib/day-hours';
+import { carriedOverText, formatDate, formatHours, monthDay, weekdayShort } from '../lib/format';
+import { TASK_TYPE_META } from '../lib/task-types';
+import { computeTrend, trendLabel, type TrendStatus } from '../lib/trend';
+import { PlanGate, PlanSwitcher } from '../plan/PlanGate';
+import { WeekChart } from './week/WeekChart';
+
+const TREND_STYLE: Record<TrendStatus, { Icon: ComponentType; className: string }> = {
+  ahead: { Icon: ArrowUpIcon, className: 'text-ok' },
+  on_track: { Icon: CheckIcon, className: 'text-ok' },
+  behind: { Icon: AlertIcon, className: 'text-warn' },
+  unknown: { Icon: ClockIcon, className: 'text-muted' },
+};
+
+function TrendSection({ plan, schedule }: { plan: PlanSummary; schedule: Schedule }) {
+  const trend = computeTrend(schedule.finishDate, plan.endDate);
+  const { Icon, className } = TREND_STYLE[trend.status];
+  return (
+    <section aria-labelledby="trend-heading" className="space-y-1">
+      <h2 id="trend-heading">Trend</h2>
+      <p className={`flex items-center gap-2 text-lg font-bold ${className}`}>
+        <Icon />
+        {trendLabel(trend)}
+      </p>
+      <p className="text-muted">
+        {schedule.finishDate
+          ? `Projected finish ${formatDate(schedule.finishDate)}`
+          : 'There is no projected finish date yet.'}
+        {plan.endDate ? ` · Plan end ${formatDate(plan.endDate, 'short')}` : ''}
+      </p>
+    </section>
+  );
+}
+
+function OpenTaskRow({ task, weekStart }: { task: OpenTask; weekStart: string }) {
+  const meta = task.type in TASK_TYPE_META ? TASK_TYPE_META[task.type as Task['type']] : null;
+  return (
+    <li
+      className={`space-y-2 rounded-md border border-l-4 border-border bg-surface p-4 ${meta?.strip ?? ''}`}
+    >
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        {meta ? <TaskTypeChip type={task.type as Task['type']} /> : null}
+        <span className="ml-auto text-muted tabular-nums">
+          {formatHours(task.remainingHours)} left
+        </span>
+      </div>
+      <h3 className="text-lg font-bold">
+        <Link
+          to={`/plan/${encodeURIComponent(task.taskId)}`}
+          className={`${linkClass} inline-block min-h-11 py-2`}
+        >
+          {task.title}
+        </Link>
+      </h3>
+      {task.carriedOverFrom.length > 0 ? (
+        <p className="inline-flex items-center gap-2 rounded-sm bg-warn-soft px-2 py-1 font-bold text-warn">
+          <ReturnIcon />
+          {carriedOverText(task.carriedOverFrom, weekStart)}
+        </p>
+      ) : null}
+      {task.plannedDates.length > 0 ? (
+        <p className="text-muted">
+          Planned{' '}
+          {task.plannedDates.map((d) => (d < weekStart ? monthDay(d) : weekdayShort(d))).join(', ')}
+        </p>
+      ) : null}
+    </li>
+  );
+}
+
+function WeekView({
+  plan,
+  schedule,
+  tasks,
+  progress,
+  open,
+}: {
+  plan: PlanSummary;
+  schedule: Schedule;
+  tasks: Task[];
+  progress: Progress;
+  open: OpenTasks;
+}) {
+  const day = useDay(plan.id, schedule.today);
+  const todayFrozen = Boolean(day.data?.frozen);
+  const days = weekDays(schedule.blocks, progress.byDay, open.weekStart, open.today, todayFrozen);
+  const totals = weekTotals(
+    days,
+    schedule.blocks,
+    new Map(tasks.map((t) => [t.id, t.status])),
+    open.weekStart,
+    open.weekEnd,
+  );
+  // Tasks that were carried over come first: they have already waited.
+  const sorted = [...open.tasks].sort(
+    (a, b) => Number(b.carriedOverFrom.length > 0) - Number(a.carriedOverFrom.length > 0),
+  );
+  return (
+    <>
+      <p className="text-muted">
+        {formatDate(open.weekStart, 'short')} to {formatDate(open.weekEnd, 'short')} · {plan.name}
+      </p>
+
+      <TrendSection plan={plan} schedule={schedule} />
+
+      <section aria-labelledby="week-progress-heading" className="space-y-3">
+        <h2 id="week-progress-heading">Week progress</h2>
+        <dl className="grid grid-cols-2 gap-3">
+          <div>
+            <dt className="text-muted">Tasks completed</dt>
+            <dd className="text-h2 font-bold tabular-nums">
+              {totals.tasksDone} of {totals.tasksPlanned}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted">Hours, actual of planned</dt>
+            <dd className="text-h2 font-bold tabular-nums">
+              {formatHours(totals.actualHours)} of {formatHours(totals.plannedHours)}
+            </dd>
+          </div>
+        </dl>
+        <WeekChart days={days} />
+      </section>
+
+      <section aria-labelledby="open-heading" className="space-y-3">
+        <h2 id="open-heading">Open tasks</h2>
+        {sorted.length === 0 ? (
+          <p className="text-muted">Nothing is open this week.</p>
+        ) : (
+          <ul className="space-y-3">
+            {sorted.map((task) => (
+              <OpenTaskRow key={task.taskId} task={task} weekStart={open.weekStart} />
+            ))}
+          </ul>
+        )}
+      </section>
+    </>
+  );
+}
+
+function WeekLoader({ plan }: { plan: PlanSummary }) {
+  const schedule = useSchedule(plan.id);
+  const tasks = useTasks(plan.id);
+  const progress = useProgress(plan.id);
+  const open = useOpenTasks(plan.id);
+  return (
+    <QueryView query={schedule} label="Loading your schedule…">
+      {(sched) => (
+        <QueryView query={tasks} label="Loading your tasks…">
+          {({ tasks: list }) => (
+            <QueryView query={progress} label="Loading your progress…">
+              {(prog) => (
+                <QueryView query={open} label="Loading this week…">
+                  {(openTasks) => (
+                    <WeekView
+                      plan={plan}
+                      schedule={sched}
+                      tasks={list}
+                      progress={prog}
+                      open={openTasks}
+                    />
+                  )}
+                </QueryView>
+              )}
+            </QueryView>
+          )}
+        </QueryView>
+      )}
+    </QueryView>
+  );
+}
+
+/** The week: progress, planned against actual hours per day, open tasks and the trend. */
+export function WeekPage() {
+  return (
+    <div className="space-y-6">
+      <h1>Week</h1>
+      <PlanSwitcher />
+      <PlanGate
+        empty={
+          <p className="text-muted">
+            No plan yet. Import one from{' '}
+            <Link to="/" className={linkClass}>
+              Today
+            </Link>
+            .
+          </p>
+        }
+      >
+        {(plan) => <WeekLoader plan={plan} />}
+      </PlanGate>
+    </div>
+  );
+}
