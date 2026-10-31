@@ -75,3 +75,88 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 | GitHub | `API_HEALTH_URL` (repository variable or secret)                                                            |
 
 See `.env.example` and `apps/web/.env.example` for what each one means.
+
+---
+
+# Option B: Cloudflare (instead of Vercel for the web app)
+
+Use this if you prefer to host the frontend on Cloudflare. The API (Render) and database (Supabase) do not change. Pick one host per environment; do not run both for the same address. Facts below were read from the official Cloudflare docs on 2026-10-31; anything not stated there is marked **needs check**.
+
+> **Card requirement.** Cloudflare's Workers pricing page lists a Free plan, and a web search summary of Cloudflare's pages said "no credit card required", but I could not confirm that wording by fetching the page. Treat "no card at sign-up" as **needs check**. If any Cloudflare screen asks for a card or payment method, stop and ask (project rule: $0, no card). Do not click any "Upgrade", "Workers Paid" or "Pro" button.
+
+## Which Cloudflare product
+
+- The Cloudflare Pages docs say: "Start new projects with Workers." and "Workers supports most Pages use cases and offers a broader feature set." (https://developers.cloudflare.com/pages/). The docs I read do not say Pages is deprecated, so Pages still exists, but this guide uses **Workers with static assets** (no Worker code, only files).
+- Cloudflare's Pages-to-Workers migration page compares the features (https://developers.cloudflare.com/workers/static-assets/migrate-from-pages/).
+- The repository contains `wrangler.jsonc` (repo root: `name` `skillstack-web`, `assets.directory` `./apps/web/dist`, `not_found_handling` `single-page-application`) and `apps/web/public/_headers`. Vite copies everything in `public/` into `apps/web/dist`, which is where Cloudflare reads `_headers`. Vercel ignores both files.
+- SPA fallback: with `not_found_handling = "single-page-application"` unmatched paths return `200` with `index.html` (https://developers.cloudflare.com/workers/static-assets/). That replaces the Vercel rewrite, so no `_redirects` file is needed.
+
+## Verified free-plan facts (Cloudflare)
+
+| Topic                         | Fact                                                                                                                                                                       | Source                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Static asset requests         | "Requests to static assets are free and unlimited."                                                                                                                        | https://developers.cloudflare.com/workers/platform/pricing/             |
+| Workers requests              | Free plan: 100,000 requests per day to Worker code (not used by an assets-only Worker), 10 ms CPU per invocation.                                                          | https://developers.cloudflare.com/workers/platform/pricing/             |
+| Bandwidth                     | No free-plan bandwidth cap is stated on the pricing page. Free-plan bandwidth: needs check.                                                                                | https://developers.cloudflare.com/workers/platform/pricing/             |
+| Asset limits (Free)           | 20,000 files per Worker version, 25 MiB per file.                                                                                                                          | https://developers.cloudflare.com/workers/platform/limits/              |
+| Builds (Workers Builds, Free) | 3,000 build minutes per month, 1 concurrent build, 20 minute build timeout.                                                                                                | https://developers.cloudflare.com/workers/ci-cd/builds/limits-and-pricing/ |
+| Pages builds (reference)      | 500 builds per month on Free. Not used by this guide.                                                                                                                      | https://developers.cloudflare.com/pages/platform/limits/                |
+| `_headers`                    | Up to 100 rules, 2,000 characters per line; file goes in the assets directory (framework projects: `public/`).                                                              | https://developers.cloudflare.com/workers/static-assets/headers/        |
+| Node version                  | Build image default is Node 24.22.1 (22.23.4 also preinstalled). Set with the `NODE_VERSION` build variable or a `.nvmrc` / `.node-version` file.                           | https://developers.cloudflare.com/workers/ci-cd/builds/build-image/     |
+| pnpm                          | Run through Corepack; the version comes from the top-level `packageManager` field in `package.json` (this repo: `pnpm@10.28.0`).                                           | https://developers.cloudflare.com/workers/ci-cd/builds/build-image/     |
+| Build image                   | Ubuntu 24.04 on x86_64.                                                                                                                                                    | https://developers.cloudflare.com/workers/ci-cd/builds/build-image/     |
+| Branches                      | Production branch is set under Settings > Build > Branch control (defaults to the repo's default branch). "Enable Preview Builds" builds all other branches with a preview URL. | https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/  |
+| Turnstile                     | Free plan exists: 20 widgets per account, unlimited verifications, 10 hostnames per widget.                                                                                | https://developers.cloudflare.com/turnstile/plans/                      |
+
+## Needs check (Cloudflare)
+
+- Whether sign-up or the first deploy asks for a card (see the box above).
+- Commercial-use terms of the Free plan for Workers: the service-specific terms page I read does not cover them. It does say Cloudflare may limit use of the CDN to serve video or a disproportionate share of images or large files without a paid service (https://www.cloudflare.com/service-specific-terms-application-services/). A study-plan app serves small files, but read the terms yourself.
+- Free-plan bandwidth limit (not stated, see table).
+- Whether `_headers` rules are also applied to the `index.html` returned by the SPA fallback. The docs do not say. After the first deploy, open a deep link such as `/plan` and check the response headers in the browser (DevTools > Network > the document > Headers) for `x-frame-options: DENY`. If missing, report it; do not work around it with a Worker (Worker-generated responses do not get `_headers` at all).
+- Which Wrangler version Workers Builds runs when the repo has no `wrangler` dependency (the docs say it uses the version in `package.json`). The first build log shows it. If the build fails on the config, report it instead of changing dependencies.
+- Whether build variables can differ per branch (production vs preview). The docs list only one set of "Build variables and secrets". This matters for `VITE_APP_ENV` and `VITE_API_URL`, see step 7.
+- A stable address for the `rnd` branch (step 7).
+- Whether Workers Builds accepts a GitHub repo owned by an organization (not checked).
+
+## Steps (click by click)
+
+1. **Sign up.** Go to https://dash.cloudflare.com/sign-up. Enter your email and a password, or choose sign-in with GitHub if offered. Verify the email. Choose the **Free** plan if asked. If a screen asks for a card, stop.
+2. **Create the project.** In the dashboard left menu choose **Workers & Pages**, then **Create application**, then **GitHub** (the path described at https://developers.cloudflare.com/workers/ci-cd/builds/). Authorise the Cloudflare GitHub app for the Skillstack repository only, not all repositories. Pick the repository.
+3. **Project name.** Set the name to `skillstack-web`. It must match `name` in `wrangler.jsonc`, otherwise the build fails.
+4. **Production branch.** `main`.
+5. **Build settings** (Settings > Build):
+   - Root directory: leave empty (repository root).
+   - Build command: `corepack enable && pnpm install --frozen-lockfile && pnpm --filter @skillstack/web build`
+   - Deploy command: leave the default `npx wrangler deploy` (it reads `wrangler.jsonc`).
+   - Node version: add the build variable `NODE_VERSION` = `22` (the repo requires Node 22 or newer; the image default 24 also satisfies that, so this is optional).
+6. **Build variables** (Settings > Build > Variables and secrets). Public values only. Never add a service key, `SUPABASE_SERVICE_ROLE_KEY` or a database password here.
+   - `VITE_APP_ENV`: `operational` for the production site.
+   - `VITE_API_URL`: the production Render API URL, no trailing slash.
+   - `VITE_SUPABASE_URL`: `https://<project-ref>.supabase.co`.
+   - `VITE_SUPABASE_ANON_KEY`: the anon / publishable key (public by design).
+
+   These are baked into the files at build time, so a changed value needs a new build (retry the build or push a commit).
+
+7. **R&D (`rnd` branch).** Under Settings > Build > Branch control tick **Enable Preview Builds**; each push to `rnd` then gets a preview URL (Worker's Previews section). Because build variables may not differ per branch (needs check), the safest setup is a second Worker connected to the same repo with production branch `rnd`, its own variables (`VITE_APP_ENV=rnd`, R&D API URL) and name `skillstack-web-rnd`. Its name must still match the config: set its deploy command to `npx wrangler deploy --name skillstack-web-rnd` (needs check that Workers Builds accepts this with the name check). If that does not work, stop and ask.
+8. **Save and Deploy.** Watch the build log; confirm pnpm is 10.x and the build ends with the Vite output.
+9. **Find the site address.** Open the Worker, Overview or Settings > Domains & Routes (exact menu name needs check). The address looks like `https://skillstack-web.<your-subdomain>.workers.dev`. Copy only the origin (no path, no trailing slash).
+10. **Tell the API.** In Render, open `skillstack-api` > Environment and add the Cloudflare origin to `CORS_ORIGINS` (comma separated, exact origin, no wildcard); the R&D service gets the R&D origin. Save; Render redeploys.
+11. **Tell Supabase.** In Supabase, Authentication > URL Configuration (see `docs/setup/supabase.md`), add the Cloudflare address to the Site URL / Redirect URLs, with the sign-in callback path the app uses. Without this, sign-in redirects fail.
+12. **Check security headers.** Open the site, DevTools > Network > the document request > Headers: expect `x-content-type-options`, `x-frame-options: DENY`, `referrer-policy`, `permissions-policy`, `strict-transport-security` and `content-security-policy: frame-ancestors 'none'`. Reload a deep link (for example `/plan`) to confirm the SPA fallback works.
+
+## Vercel vs Cloudflare (verified facts only)
+
+|                           | Vercel Hobby                                                    | Cloudflare Workers (Free)                                                   |
+| ------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Cost                      | Free                                                            | Free (card at sign-up: needs check)                                         |
+| Commercial use            | "Restricted to non-commercial personal use only"                | Not stated in the pages read: needs check                                   |
+| Static traffic            | 1,000,000 CDN requests and 100 GB Fast Data Transfer per month  | Static asset requests free and unlimited; bandwidth cap not stated (needs check) |
+| Builds                    | 45 min per deployment, 1 concurrent, 100 deployments per day    | 3,000 build minutes per month, 1 concurrent, 20 min timeout                 |
+| GitHub organization repos | Not on Hobby                                                    | needs check                                                                 |
+| Config in this repo       | `vercel.json`                                                   | `wrangler.jsonc` + `apps/web/public/_headers`                               |
+| Product status            | Current                                                         | Cloudflare docs tell new projects to start with Workers (Pages still documented) |
+
+## Turnstile
+
+Cloudflare Turnstile (bot protection planned for sign-in) lives in the same Cloudflare account, so the account created here is the one to use later. Its Free plan allows 20 widgets and unlimited verifications (source in the table above). Card requirement for Turnstile: needs check.
