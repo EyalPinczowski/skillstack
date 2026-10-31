@@ -1,0 +1,12 @@
+# Security headers for Cloudflare (Workers static assets). Vercel ignores this file.
+# Keep in sync with the "headers" list in the root vercel.json
+# (checked by src/hosting/cloudflare.test.ts).
+# The main Content-Security-Policy is a <meta> tag generated at build time;
+# frame-ancestors is not allowed in a meta tag, so it is sent as a header here.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: frame-ancestors 'none'

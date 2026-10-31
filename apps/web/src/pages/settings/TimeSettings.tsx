@@ -151,7 +151,7 @@ function Form({
 
   function onPreview(event: FormEvent) {
     event.preventDefault();
-    const built = patternFromDraft(draft, pattern);
+    const built = patternFromDraft(draft);
     if ('error' in built) return setFormError(built.error);
     const change = diffTimeSettings(
       { pattern, overrides },
@@ -269,6 +269,35 @@ function Form({
           onChange={(event) => set('minBlockMinutes', event.target.value)}
         />
       </div>
+
+      {draft.weekdays.length > 0 ? (
+        <fieldset className="space-y-3">
+          <legend className="font-bold">Hours on specific days (optional)</legend>
+          <p className="text-muted">
+            Leave a day empty to use “Hours per study day” ({draft.defaultHours.trim() || '…'}).
+          </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[...draft.weekdays]
+              .sort((a, b) => a - b)
+              .map((day) => (
+                <TextField
+                  key={day}
+                  label={`${WEEKDAY_NAMES[day]} hours`}
+                  type="number"
+                  inputMode="decimal"
+                  step="0.25"
+                  min="0"
+                  max="24"
+                  placeholder={draft.defaultHours}
+                  value={draft.hoursByWeekday[day] ?? ''}
+                  onChange={(event) =>
+                    set('hoursByWeekday', { ...draft.hoursByWeekday, [day]: event.target.value })
+                  }
+                />
+              ))}
+          </div>
+        </fieldset>
+      ) : null}
 
       <div className="space-y-3">
         <h3 className="font-bold">Exceptions for single days</h3>

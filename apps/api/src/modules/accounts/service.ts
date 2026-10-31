@@ -52,6 +52,10 @@ export function createAccountService(db: Database, authAdmin: AuthAdmin = unconf
     /** First call creates the profile (allowlist and cap are enforced in the database). */
     provision: (userId: string, email: string | null) => db.provision(userId, email ?? ''),
 
+    /** True when the user accepted the current version of every legal document (spec 9). */
+    hasAcceptedCurrentLegal: (userId: string) =>
+      db.withUser(userId, async (ctx) => (await legalStatus(ctx, userId)).allAccepted),
+
     getMe: (userId: string) =>
       db.withUser(userId, async (ctx) => {
         const { rows } = await ctx.client.query<UserRow>(

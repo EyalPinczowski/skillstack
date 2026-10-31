@@ -25,12 +25,13 @@ import {
   rejectAllVerifier,
   type TokenVerifier,
 } from './modules/accounts/token-verifier';
+import { createDatabaseProbe } from './modules/health/probe';
 import { healthRoutes } from './modules/health/routes';
 import { planRoutes } from './modules/plans/routes';
 import { taskRoutes } from './modules/tasks/routes';
 import { installIdempotency } from './plugins/idempotency';
 import { generateRequestId, installRequestId } from './plugins/request-id';
-import { installSecurityHeaders } from './plugins/security-headers';
+import { installSecurityHeaders, transformSwaggerCsp } from './plugins/security-headers';
 
 const HEALTH_URL = '/api/v1/health';
 
@@ -139,12 +140,16 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
     },
     transform: jsonSchemaTransform,
   });
-  app.register(swaggerUi, { routePrefix: '/api/v1/docs' });
+  app.register(swaggerUi, {
+    routePrefix: '/api/v1/docs',
+    staticCSP: true,
+    transformStaticCSP: transformSwaggerCsp,
+  });
 
   app.register(
     async (v1) => {
       v1.get('/openapi.json', { schema: { hide: true } }, async () => app.swagger());
-      v1.register(healthRoutes, { config });
+      v1.register(healthRoutes, { config, probe: createDatabaseProbe(db) });
       v1.register(accountRoutes, { verifier, db, authAdmin });
       v1.register(planRoutes, { verifier, db, now: deps.now });
       v1.register(taskRoutes, { verifier, db, now: deps.now });

@@ -1,3 +1,4 @@
+import { WEEKDAY_NAMES } from '@skillstack/shared';
 import type { DayOverride, PreviewRequest, WeekPattern } from '../../api/client';
 import type { TimeSettingsChange } from '../../api/hooks';
 
@@ -5,6 +6,8 @@ import type { TimeSettingsChange } from '../../api/hooks';
 export interface PatternDraft {
   weekdays: number[];
   defaultHours: string;
+  /** Hours for one weekday (0 = Sunday), as text. A missing or empty entry uses defaultHours. */
+  hoursByWeekday: Record<number, string>;
   windowStart: string;
   windowEnd: string;
   lunchStart: string;
@@ -19,6 +22,9 @@ export function draftFromPattern(p: WeekPattern): PatternDraft {
   return {
     weekdays: [...p.studyWeekdays].sort((a, b) => a - b),
     defaultHours: String(p.defaultHours),
+    hoursByWeekday: Object.fromEntries(
+      Object.entries(p.hoursByWeekday).map(([day, hours]) => [Number(day), String(hours)]),
+    ),
     windowStart: p.windowStart,
     windowEnd: p.windowEnd,
     lunchStart: p.lunchStart ?? '',
@@ -43,7 +49,6 @@ const NUMBER_FIELDS: [keyof PatternDraft, string][] = [
  */
 export function patternFromDraft(
   draft: PatternDraft,
-  base: WeekPattern,
 ): { pattern: WeekPattern } | { error: string } {
   const numbers: Record<string, number> = {};
   for (const [key, label] of NUMBER_FIELDS) {
@@ -52,10 +57,20 @@ export function patternFromDraft(
     if (text === '' || !Number.isFinite(value)) return { error: `Enter a number for “${label}”.` };
     numbers[key] = value;
   }
+  // Hours of a weekday that is switched off for now are kept, so switching it back on restores them.
+  const hoursByWeekday: Record<string, number> = {};
+  for (const [day, text] of Object.entries(draft.hoursByWeekday)) {
+    if (text.trim() === '') continue;
+    const hours = Number(text);
+    if (!Number.isFinite(hours)) {
+      return { error: `Enter a number for “${WEEKDAY_NAMES[Number(day)]} hours”.` };
+    }
+    hoursByWeekday[day] = hours;
+  }
   const pattern: WeekPattern = {
     studyWeekdays: [...draft.weekdays].sort((a, b) => a - b),
     defaultHours: numbers.defaultHours!,
-    hoursByWeekday: base.hoursByWeekday,
+    hoursByWeekday,
     windowStart: draft.windowStart,
     windowEnd: draft.windowEnd,
     ...(draft.lunchStart ? { lunchStart: draft.lunchStart } : {}),
@@ -72,7 +87,7 @@ const fingerprint = (p: WeekPattern) =>
   JSON.stringify([
     [...p.studyWeekdays].sort(),
     p.defaultHours,
-    p.hoursByWeekday,
+    Object.entries(p.hoursByWeekday).sort(([a], [b]) => a.localeCompare(b)),
     p.windowStart,
     p.windowEnd,
     p.lunchStart ?? null,

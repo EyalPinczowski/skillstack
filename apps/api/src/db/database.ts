@@ -50,8 +50,17 @@ export interface Database {
   withUser<T>(userId: string, fn: (ctx: UserContext) => Promise<T>): Promise<T>;
   /** Creates (or returns) the profile row via provision_user, as the app login. */
   provision(userId: string, email: string): Promise<UserRow>;
+  /**
+   * A cheap `select 1` over a fresh connection as the app login, for the health check. Never
+   * throws and never returns error text: a connection error can contain the host or the user.
+   */
+  ping(timeoutMs?: number): Promise<PingResult>;
   close(): Promise<void>;
 }
+
+export type PingResult = { ok: true } | { ok: false; reason: 'timeout' | 'error' };
+
+export const DEFAULT_PING_TIMEOUT_MS = 1500;
 
 /** `date` columns stay plain 'YYYY-MM-DD' strings instead of being shifted by the server's zone. */
 const DATE_OID = 1082;
@@ -74,6 +83,9 @@ export function createDatabase(options: {
     max: options.max ?? 5,
     types,
   });
+  // An idle connection can fail (database restart, paused project, network). Without a listener
+  // that is an uncaught exception and the process dies; the pool drops the client by itself.
+  pool.on('error', () => undefined);
 
   return {
     schema,
@@ -113,6 +125,36 @@ export function createDatabase(options: {
           throw new ProvisionDeniedError(message);
         }
         throw error;
+      }
+    },
+
+    async ping(timeoutMs = DEFAULT_PING_TIMEOUT_MS) {
+      // Not the pool: a busy pool must not read as a dead database, and a hung connect must not
+      // hold a pool slot. pg gives up on its own a little after our own deadline.
+      const client = new pg.Client({
+        connectionString: options.connectionString,
+        connectionTimeoutMillis: timeoutMs + 500,
+        query_timeout: timeoutMs + 500,
+      });
+      client.on('error', () => undefined);
+      let timer: NodeJS.Timeout | undefined;
+      const deadline = new Promise<PingResult>((resolve) => {
+        timer = setTimeout(() => resolve({ ok: false, reason: 'timeout' }), timeoutMs);
+      });
+      const attempt = (async (): Promise<PingResult> => {
+        try {
+          await client.connect();
+          await client.query('select 1');
+          return { ok: true };
+        } catch {
+          return { ok: false, reason: 'error' };
+        }
+      })();
+      try {
+        return await Promise.race([attempt, deadline]);
+      } finally {
+        clearTimeout(timer);
+        client.end().catch(() => undefined);
       }
     },
 

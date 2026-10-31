@@ -7,7 +7,7 @@ import { errorResponseSchema } from '../src/errors';
 import { createSupabaseVerifier } from '../src/modules/accounts/token-verifier';
 import { validateImport } from '../src/modules/plans/import';
 import { createPlanService } from '../src/modules/plans/service';
-import { dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
+import { acceptCurrentLegal, dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
 import { testConfig } from './helpers';
 import { ISSUER, makeTestKeys, type TestKeys } from './tokens';
 
@@ -54,6 +54,11 @@ describe.skipIf(!dbAvailable)('plans and schedule (real Postgres, locally signed
       await c.query(
         `insert into rnd.allowed_emails (email) values ('a@example.com'), ('b@example.com')`,
       );
+      await c.query(
+        `insert into rnd.app_users (id, email) values ($1, 'a@example.com'), ($2, 'b@example.com')`,
+        [A, B],
+      );
+      await acceptCurrentLegal(c, [A, B]);
     });
   });
 

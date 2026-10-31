@@ -10,6 +10,8 @@ How the API knows who is calling, and what the owner must configure in Supabase 
 4. The first signed-in call to any route (`/api/v1/me`, plans, tasks) creates the account through the database function `provision_user`, which fails unless the token's email is on the allowlist (`allowed_emails`) and the number of active users is below `user_cap`. This applies to every sign-in method, Google included.
 5. Each request then runs in one transaction as `app_<schema>_user` with the user's claims set, so row-level security shows only that user's rows.
 
+6. Until the user has accepted the current version of both the Terms of Use and the Privacy Policy, the same guard answers every route except `GET /me`, `POST /me/legal-acceptances`, `GET /me/export` and `DELETE /me` with `403` and the code `terms_not_accepted` (spec 9). The list is `TERMS_EXEMPT_ROUTES` in `apps/api/src/modules/accounts/guard.ts`; a new route is blocked unless it is added there, and `apps/api/test/terms-guard.test.ts` checks every documented signed-in route. The web app reloads `GET /me` on this error and shows the Terms screen. Bumping a version in `legal.ts` therefore sends everyone back to that screen.
+
 An unapproved email, a full beta and a disabled account all get the same `403` answer, so the API never tells anyone whether an email is on the list.
 
 ## Environment variables (Render)

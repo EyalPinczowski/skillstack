@@ -275,3 +275,20 @@ describe('cache between people', () => {
     expect(await screen.findByDisplayValue('Lee')).toBeInTheDocument();
   });
 });
+
+describe('403 terms_not_accepted from a data call', () => {
+  it('shows the Terms screen when the API reports a newer version than /me said', async () => {
+    let accepted = true;
+    const api = installApi({
+      'GET /api/v1/me': () => json(meBody(accepted ? {} : { legal: unacceptedLegal })),
+      'GET /api/v1/plans': () => {
+        accepted = false; // the Terms were updated while this tab was open
+        return apiError(403, 'terms_not_accepted', 'Accept the current Terms of Use to continue.');
+      },
+    });
+    renderApp({ auth: fakeAuth(SESSION), path: '/' });
+    expect(await screen.findByRole('heading', { name: 'Before you continue' })).toBeInTheDocument();
+    expect(api.count('GET /api/v1/me')).toBe(2);
+    expect(screen.queryByRole('heading', { name: 'No plan yet' })).not.toBeInTheDocument();
+  });
+});

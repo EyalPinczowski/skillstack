@@ -1,3 +1,4 @@
+import { createServer, type Socket } from 'node:net';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase, schemaForAppEnv, type Database } from '../src/db/database';
@@ -132,6 +133,84 @@ describe.skipIf(!dbAvailable)('withUser (real Postgres)', () => {
       }
     } finally {
       await prod.close();
+    }
+  });
+});
+
+describe.skipIf(!dbAvailable)('ping and idle connection errors (real Postgres)', () => {
+  let testDb: TestDb;
+
+  beforeAll(async () => {
+    testDb = await prepareDatabase();
+  });
+
+  it('answers ok through the app login', async () => {
+    const db = createDatabase({ connectionString: testDb.appUrl('rnd'), appEnv: 'rnd' });
+    try {
+      await expect(db.ping()).resolves.toEqual({ ok: true });
+    } finally {
+      await db.close();
+    }
+  });
+
+  it('keeps the process alive when idle pooled connections are cut, and reconnects', async () => {
+    const db = createDatabase({ connectionString: testDb.appUrl('rnd'), appEnv: 'rnd' });
+    try {
+      await db.withUser(A, ({ client }) => client.query('select 1'));
+      // Like a database restart or a paused project: an idle pooled connection errors. Without an
+      // error listener on the pool that is an uncaught exception and the API process dies.
+      await testDb.admin((c) =>
+        c.query(
+          `select pg_terminate_backend(pid) from pg_stat_activity where usename = 'app_rnd' and pid <> pg_backend_pid()`,
+        ),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      await expect(db.withUser(A, ({ client }) => client.query('select 1'))).resolves.toBeDefined();
+    } finally {
+      await db.close();
+    }
+  });
+
+  it('reports an unreachable database as not ok, without throwing or leaking details', async () => {
+    const closed = createServer();
+    await new Promise<void>((resolve) => closed.listen(0, '127.0.0.1', resolve));
+    const { port } = closed.address() as { port: number };
+    await new Promise((resolve) => closed.close(resolve));
+    const db = createDatabase({
+      connectionString: `postgres://app_rnd:very-secret-password@127.0.0.1:${port}/skillstack_test`,
+      appEnv: 'rnd',
+    });
+    try {
+      const result = await db.ping();
+      expect(result).toEqual({ ok: false, reason: 'error' });
+      expect(JSON.stringify(result)).not.toContain('very-secret-password');
+      expect(JSON.stringify(result)).not.toContain(String(port));
+    } finally {
+      await db.close();
+    }
+  });
+
+  it('gives up after the timeout when the server accepts the connection but never answers', async () => {
+    const sockets: Socket[] = [];
+    const silent = createServer((socket) => {
+      sockets.push(socket);
+      socket.on('error', () => undefined);
+    });
+    await new Promise<void>((resolve) => silent.listen(0, '127.0.0.1', resolve));
+    const { port } = silent.address() as { port: number };
+    const db = createDatabase({
+      connectionString: `postgres://app_rnd:x@127.0.0.1:${port}/skillstack_test`,
+      appEnv: 'rnd',
+    });
+    try {
+      const started = Date.now();
+      const result = await db.ping(300);
+      expect(result).toEqual({ ok: false, reason: 'timeout' });
+      expect(Date.now() - started).toBeLessThan(2000);
+    } finally {
+      await db.close().catch(() => undefined);
+      sockets.forEach((socket) => socket.destroy());
+      await new Promise((resolve) => silent.close(resolve));
     }
   });
 });

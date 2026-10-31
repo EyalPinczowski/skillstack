@@ -1,10 +1,13 @@
 import { LessonSchema, LocalDateSchema, TaskSchema } from '@skillstack/shared';
 import { z } from 'zod';
+import { noNulCharacters } from '../../validation';
 
 const shape = TaskSchema.shape;
 
 export const planParams = z.object({ planId: z.uuid() });
-export const taskParams = z.object({ planId: z.uuid(), taskId: z.string().min(1).max(200) });
+export const taskParams = noNulCharacters(
+  z.object({ planId: z.uuid(), taskId: z.string().min(1).max(200) }),
+);
 
 /** A task as the API shows it: the shared task shape (absent optional fields are left out). */
 export const taskView = z.object({
@@ -45,36 +48,40 @@ export const taskList = z.object({ tasks: z.array(taskView) });
  * `planId` and every other key are rejected with 400, never silently ignored. Optional text
  * fields take `null` to clear them. Field rules come from the shared task schema.
  */
-export const patchTaskBody = z
-  .strictObject({
-    title: shape.title,
-    provider: z.string().min(1).max(200).nullable(),
-    url: shape.url.unwrap().nullable(),
-    estHours: shape.estHours,
-    order: shape.order,
-    dependsOn: shape.dependsOn.unwrap().max(200),
-    notBefore: LocalDateSchema.nullable(),
-    splittable: shape.splittable.unwrap(),
-    certificateName: z.string().min(1).max(200).nullable(),
-    lessons: shape.lessons.unwrap().max(500),
-    howToSteps: shape.howToSteps.unwrap().max(200),
-    promptTemplate: z.string().max(20_000).nullable(),
-    practiceKind: z.string().max(100).nullable(),
-    notes: z.string().max(10_000).nullable(),
-  })
-  .partial()
-  .refine((body) => Object.keys(body).length > 0, { message: 'Nothing to change' });
+export const patchTaskBody = noNulCharacters(
+  z
+    .strictObject({
+      title: shape.title,
+      provider: z.string().min(1).max(200).nullable(),
+      url: shape.url.unwrap().nullable(),
+      estHours: shape.estHours,
+      order: shape.order,
+      dependsOn: shape.dependsOn.unwrap().max(200),
+      notBefore: LocalDateSchema.nullable(),
+      splittable: shape.splittable.unwrap(),
+      certificateName: z.string().min(1).max(200).nullable(),
+      lessons: shape.lessons.unwrap().max(500),
+      howToSteps: shape.howToSteps.unwrap().max(200),
+      promptTemplate: z.string().max(20_000).nullable(),
+      practiceKind: z.string().max(100).nullable(),
+      notes: z.string().max(10_000).nullable(),
+    })
+    .partial()
+    .refine((body) => Object.keys(body).length > 0, { message: 'Nothing to change' }),
+);
 export type PatchTaskBody = z.infer<typeof patchTaskBody>;
 
-export const logBody = z.strictObject({
-  /** Client-generated, so a retried request cannot create a second log. */
-  id: z.uuid(),
-  date: LocalDateSchema,
-  hours: z.number().gt(0).max(24),
-  result: z.string().max(200).optional(),
-  score: z.number().min(0).max(100_000).optional(),
-  note: z.string().max(5000).optional(),
-});
+export const logBody = noNulCharacters(
+  z.strictObject({
+    /** Client-generated, so a retried request cannot create a second log. */
+    id: z.uuid(),
+    date: LocalDateSchema,
+    hours: z.number().gt(0).max(24),
+    result: z.string().max(200).optional(),
+    score: z.number().min(0).max(100_000).optional(),
+    note: z.string().max(5000).optional(),
+  }),
+);
 export type LogBody = z.infer<typeof logBody>;
 
 export const logView = z.object({
