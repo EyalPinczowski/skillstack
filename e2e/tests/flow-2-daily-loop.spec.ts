@@ -81,10 +81,10 @@ test('daily loop: start, log time, the estimate prompt, mark done, end the day',
 });
 
 /**
- * What the UI offers after "Not yet" on the estimate prompt. Documented, not judged: the prompt is
- * the only place on Today with a "Mark as done" action for a task whose block is used up.
+ * "Not yet" only dismisses the question. The task stays open and the person can always finish or
+ * skip it explicitly, on the Worked on today card and on the task page.
  */
-test('daily loop: after "Not yet" the task stays open and Today offers no way to complete it', async ({
+test('daily loop: after "Not yet" Today and the task page still offer Mark done, Skip and Log time', async ({
   page,
   user,
 }) => {
@@ -98,32 +98,52 @@ test('daily loop: after "Not yet" the task stays open and Today offers no way to
 
   const prompt = page.getByRole('group', { name: `Estimate reached: ${title}` });
   await prompt.getByRole('button', { name: 'Not yet' }).click();
+  const workedOn = page.getByRole('region', { name: 'Worked on today' });
+  const actions = (scope: Pick<typeof page, 'getByRole'>) =>
+    ['Log time', 'Mark done', 'Skip'].map((name) =>
+      scope.getByRole('button', { name: new RegExp(`^${name}`) }),
+    );
 
-  await test.step('Today: the question is gone, the task is listed as worked on, nothing else', async () => {
+  await test.step('Today: the question is gone, the card offers Log time, Mark done and Skip', async () => {
     await expect(prompt).toHaveCount(0);
-    const workedOn = page.getByRole('region', { name: 'Worked on today' });
     await expect(workedOn).toContainText(title);
     await expect(workedOn).toContainText('Today 0.5 h · Estimated 0.5 h · Actual 0.5 h');
-    await expect(workedOn.getByRole('button')).toHaveCount(0);
-    // The block is used up, so the task has left "Today's blocks" and its "Mark done" with it.
-    const blocks = page.getByRole('region', { name: 'Today’s blocks' });
-    await expect(blocks.getByRole('heading', { name: title, level: 3 })).toHaveCount(0);
-    await expect(page.getByRole('button').filter({ hasText: title })).toHaveCount(0);
+    for (const button of actions(workedOn)) await expect(button).toBeEnabled();
+    await expect(workedOn.getByRole('button', { name: /^Reopen/ })).toHaveCount(0);
+    // Nothing was completed on its own.
     await expect(page.getByText(`Marked ${title} as done.`)).toHaveCount(0);
+    await expectNoA11yViolations(page, 'Today after "Not yet"');
   });
 
-  await test.step('the task page shows hours and status but no complete action', async () => {
+  await test.step('the task page offers the same actions', async () => {
     await page.goto('/plan/setup');
     await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
     await expect(page.getByText('0.5 h of 0.5 h')).toBeVisible();
-    await expect(page.getByRole('button').filter({ hasText: title })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: /Reopen/ })).toHaveCount(0);
+    for (const button of actions(page)) await expect(button).toBeEnabled();
+    await expect(page.getByRole('button', { name: /^Reopen/ })).toHaveCount(0);
+    await expectNoA11yViolations(page, 'the task page of an open task');
   });
 
-  await test.step('after a reload the question does not come back', async () => {
+  await test.step('after a reload the question stays dismissed and the actions remain', async () => {
     await page.goto('/');
-    await expect(page.getByRole('region', { name: 'Worked on today' })).toContainText(title);
+    await expect(workedOn).toContainText(title);
     await expect(page.getByRole('group', { name: /Estimate reached/ })).toHaveCount(0);
-    await expect(page.getByRole('button').filter({ hasText: title })).toHaveCount(0);
+    for (const button of actions(workedOn)) await expect(button).toBeEnabled();
+  });
+
+  await test.step('Mark done on the card completes it, only on that click', async () => {
+    await workedOn.getByRole('button', { name: /^Mark done/ }).click();
+    await expect(
+      page.getByRole('status').filter({ hasText: `Marked ${title} as done.` }),
+    ).toBeVisible();
+    await expect(workedOn.getByRole('button', { name: /^Reopen/ })).toBeVisible();
+    await expect(workedOn.getByRole('button', { name: /^Mark done/ })).toHaveCount(0);
+  });
+
+  await test.step('the task page now offers only Reopen', async () => {
+    await page.goto('/plan/setup');
+    await expect(page.getByRole('button', { name: /^Reopen/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Mark done/ })).toHaveCount(0);
+    await expectNoA11yViolations(page, 'the task page of a done task');
   });
 });
