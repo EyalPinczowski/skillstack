@@ -474,11 +474,96 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
       expect(view.tasks.filter((t: { taskId: string }) => t.taskId === 't1')).toHaveLength(1);
     });
 
-    it('leaves out skipped tasks', async () => {
-      clock = at(TUE);
+    it('lists a task skipped yesterday as skipped and carried over, so it can be reconsidered', async () => {
+      await logWork(1, 't1', SUN, 2);
+      await call('POST', `/plans/${PLAN_A}/tasks/t1/complete`, await asA());
+      // Sunday t1, Monday t2 (the plan for Monday), skipped during Monday.
+      clock = at(MON);
       await call('POST', `/plans/${PLAN_A}/tasks/t2/skip`, await asA());
+      clock = at(TUE);
+      const view = (await call('GET', `/plans/${PLAN_A}/open-tasks`, await asA())).json();
+      const t2 = view.tasks.find((t: { taskId: string }) => t.taskId === 't2');
+      expect(t2).toMatchObject({
+        status: 'skipped',
+        carriedOverFrom: [MON],
+        plannedDates: [MON], // Monday's frozen block is part of this week
+        remainingHours: 4,
+      });
+      expect(view.tasks.filter((t: { taskId: string }) => t.taskId === 't2')).toHaveLength(1);
+    });
+
+    it('leaves out a skipped task that was never planned on an earlier day, and done tasks', async () => {
+      // t3 is only planned from Wednesday on, so skipping it on Tuesday carries nothing over.
+      clock = at(TUE);
+      await call('POST', `/plans/${PLAN_A}/tasks/t3/skip`, await asA());
+      clock = at(WED);
+      await call('POST', `/plans/${PLAN_A}/tasks/t1/complete`, await asA());
+      const view = (await call('GET', `/plans/${PLAN_A}/open-tasks`, await asA())).json();
+      const ids = view.tasks.map((t: { taskId: string }) => t.taskId);
+      expect(ids).not.toContain('t3');
+      expect(ids).not.toContain('t1');
+    });
+
+    it('lists the task again as open once it is reopened', async () => {
+      await logWork(1, 't1', SUN, 2);
+      await call('POST', `/plans/${PLAN_A}/tasks/t1/complete`, await asA());
+      clock = at(MON);
+      await call('POST', `/plans/${PLAN_A}/tasks/t2/skip`, await asA());
+      clock = at(TUE);
+      await call('POST', `/plans/${PLAN_A}/tasks/t2/reopen`, await asA());
+      const view = (await call('GET', `/plans/${PLAN_A}/open-tasks`, await asA())).json();
+      const t2 = view.tasks.find((t: { taskId: string }) => t.taskId === 't2');
+      expect(t2).toMatchObject({ status: 'pending', carriedOverFrom: [MON] });
+    });
+  });
+
+  describe('a day snapshot is the plan as of the start of that day', () => {
+    /** Sunday's work is done, so Monday's plan is t2 (2 h of its 4). */
+    const finishSunday = async () => {
+      clock = at(SUN);
+      await logWork(1, 't1', SUN, 2);
+      await call('POST', `/plans/${PLAN_A}/tasks/t1/complete`, await asA());
+    };
+
+    const minutesOf = (blocks: Block[], task: string) =>
+      blocks.filter((b) => b.taskId === task).reduce((sum, b) => sum + b.minutes, 0);
+
+    it('keeps a task skipped during the day in that day’s snapshot', async () => {
+      await finishSunday();
+      clock = at(MON);
+      await call('POST', `/plans/${PLAN_A}/tasks/t2/skip`, await asA());
+      clock = at(TUE);
+      const mon = (await call('GET', DAY(MON), await asA())).json();
+      expect(minutesOf(mon.frozen.blocks, 't2')).toBe(120);
+    });
+
+    it('keeps a task marked done during the day, with no log, in that day’s snapshot', async () => {
+      await finishSunday();
+      clock = at(MON);
+      await call('POST', `/plans/${PLAN_A}/tasks/t2/complete`, await asA());
+      clock = at(TUE);
+      const mon = (await call('GET', DAY(MON), await asA())).json();
+      expect(minutesOf(mon.frozen.blocks, 't2')).toBe(120);
+      // Done tasks stay out of the open list.
       const view = (await call('GET', `/plans/${PLAN_A}/open-tasks`, await asA())).json();
       expect(view.tasks.map((t: { taskId: string }) => t.taskId)).not.toContain('t2');
+    });
+
+    it('does not put a task skipped on an earlier day into a later day’s snapshot', async () => {
+      await finishSunday();
+      clock = at(MON);
+      await call('POST', `/plans/${PLAN_A}/tasks/t2/skip`, await asA());
+      clock = at(WED);
+      const tue = (await call('GET', DAY(TUE), await asA())).json();
+      expect(minutesOf(tue.frozen.blocks, 't2')).toBe(0);
+    });
+
+    it('freezes the same blocks when the day is ended by hand after the task was skipped', async () => {
+      await finishSunday();
+      clock = at(MON);
+      await call('POST', `/plans/${PLAN_A}/tasks/t2/skip`, await asA());
+      const ended = (await call('POST', DAY(MON) + '/end', await asA())).json();
+      expect(minutesOf(ended.frozen.blocks, 't2')).toBe(120);
     });
   });
 

@@ -52,23 +52,44 @@ export function firstPlanDay(plan: PlanDetail, timezone: string): string {
   return compareDates(plan.startDate, createdDay) >= 0 ? plan.startDate : createdDay;
 }
 
+/** What the stored history says about tasks, for rebuilding the plan as of an earlier day. */
+interface History {
+  logs: { taskId: string; date: string; hours: number }[];
+  /** Latest completion or skip per task that is done or skipped now (see `statusChangeDates`). */
+  statusChanges: Map<string, { status: 'done' | 'skipped'; date: string }>;
+}
+
+async function loadHistory(
+  ctx: UserContext,
+  userId: string,
+  planId: string,
+  timezone: string,
+  from: string,
+): Promise<History> {
+  return {
+    logs: await repo.logsFrom(ctx, userId, planId, from),
+    statusChanges: await repo.statusChangeDates(ctx, userId, planId, timezone),
+  };
+}
+
 /**
  * The tasks as they stood at the start of `date`: work logged on or after that date does not
- * count yet, and a task finished on or after it is open again. This is what was planned for the
- * day, not what is left after the day's own work.
+ * count yet, and a task finished or skipped on or after it is open again. This is what was
+ * planned for the day, not what is left after the day's own work or decisions. A skipped task
+ * with no recorded skip date (skipped before skips were recorded) stays skipped.
  */
-function tasksAtStartOf(
-  tasks: Task[],
-  logs: { taskId: string; date: string; hours: number }[],
-  date: string,
-): Task[] {
+function tasksAtStartOf(tasks: Task[], history: History, date: string): Task[] {
   const later = new Map<string, number>();
-  for (const l of logs) {
+  for (const l of history.logs) {
     if (compareDates(l.date, date) >= 0) later.set(l.taskId, (later.get(l.taskId) ?? 0) + l.hours);
   }
   return tasks.map((t) => {
-    const hours = later.get(t.id);
-    if (!hours || t.status === 'skipped') return t;
+    const hours = later.get(t.id) ?? 0;
+    const change = history.statusChanges.get(t.id);
+    const changedLater =
+      change !== undefined && change.status === t.status && compareDates(change.date, date) >= 0;
+    if (t.status === 'skipped' && !changedLater) return t;
+    if (hours === 0 && !changedLater) return t;
     const doneHours = Math.max(0, t.doneHours - hours);
     return { ...t, doneHours, status: doneHours > 0 ? 'in_progress' : 'pending' };
   });
@@ -95,10 +116,10 @@ export function createDaysService(db: Database, now: () => Date = () => new Date
     pattern: WeekPattern,
     date: string,
     snapshots: Snapshot[],
-    logs: { taskId: string; date: string; hours: number }[],
+    history: History,
   ): Block[] {
     const result = schedule({
-      tasks: tasksAtStartOf(plan.tasks, logs, date),
+      tasks: tasksAtStartOf(plan.tasks, history, date),
       pattern,
       overrides: plan.overrides,
       today: date,
@@ -141,9 +162,9 @@ export function createDaysService(db: Database, now: () => Date = () => new Date
     const todo = missing(snapshots);
     if (todo.length === 0) return snapshots;
 
-    const logs = await repo.logsFrom(ctx, userId, c.plan.id, todo[0]!);
+    const history = await loadHistory(ctx, userId, c.plan.id, c.pattern.timezone, todo[0]!);
     for (const date of todo) {
-      const blocks = plannedFor(c.plan, c.pattern, date, snapshots, logs);
+      const blocks = plannedFor(c.plan, c.pattern, date, snapshots, history);
       if (await repo.insertSnapshot(ctx, userId, c.plan.id, date, blocks, 'auto_rollover')) {
         await plansRepo.insertEvent(ctx, userId, c.plan.id, 'day.rolled_over', {
           date,
@@ -202,8 +223,8 @@ export function createDaysService(db: Database, now: () => Date = () => new Date
      * planned for a day (the briefing). Inside the caller's transaction, like `open`.
      */
     async tasksAt(ctx: UserContext, userId: string, c: DayContext, date: string): Promise<Task[]> {
-      const logs = await repo.logsFrom(ctx, userId, c.plan.id, date);
-      return tasksAtStartOf(c.plan.tasks, logs, date);
+      const history = await loadHistory(ctx, userId, c.plan.id, c.pattern.timezone, date);
+      return tasksAtStartOf(c.plan.tasks, history, date);
     },
 
     /** The same for a read that has no use for the schedule: nothing happens without a week pattern. */
@@ -249,8 +270,8 @@ export function createDaysService(db: Database, now: () => Date = () => new Date
         if (existing) {
           source = existing.source;
         } else {
-          const logs = await repo.logsFrom(ctx, userId, planId, date);
-          const blocks = plannedFor(c.plan, c.pattern, date, snapshots, logs);
+          const history = await loadHistory(ctx, userId, planId, c.pattern.timezone, date);
+          const blocks = plannedFor(c.plan, c.pattern, date, snapshots, history);
           await repo.insertSnapshot(ctx, userId, planId, date, blocks, 'day_end');
         }
         if (await repo.endSession(ctx, userId, planId, date)) {

@@ -1,16 +1,25 @@
 import type { ComponentType } from 'react';
 import { Link } from 'react-router';
 import type { OpenTask, OpenTasks, PlanSummary, Progress, Schedule, Task } from '../api/client';
-import { useDay, useOpenTasks, useProgress, useSchedule, useTasks } from '../api/hooks';
+import {
+  useDay,
+  useOpenTasks,
+  useProgress,
+  useSchedule,
+  useTaskAction,
+  useTasks,
+} from '../api/hooks';
 import { QueryView } from '../components/QueryView';
-import { TaskTypeChip } from '../components/TaskChips';
+import { TaskStatusLabel, TaskTypeChip } from '../components/TaskChips';
 import { ArrowUpIcon, AlertIcon, CheckIcon, ClockIcon, ReturnIcon } from '../components/icons';
-import { linkClass } from '../components/ui';
+import { ErrorText, linkClass } from '../components/ui';
 import { weekDays, weekTotals } from '../lib/day-hours';
 import { carriedOverText, formatDate, formatHours, monthDay, weekdayShort } from '../lib/format';
+import { describeError } from '../lib/messages';
 import { TASK_TYPE_META } from '../lib/task-types';
 import { computeTrend, trendLabel, type TrendStatus } from '../lib/trend';
 import { PlanGate, PlanSwitcher } from '../plan/PlanGate';
+import { TaskActions } from './today/TaskActions';
 import { WeekChart } from './week/WeekChart';
 
 const TREND_STYLE: Record<TrendStatus, { Icon: ComponentType; className: string }> = {
@@ -40,7 +49,17 @@ function TrendSection({ plan, schedule }: { plan: PlanSummary; schedule: Schedul
   );
 }
 
-function OpenTaskRow({ task, weekStart }: { task: OpenTask; weekStart: string }) {
+function OpenTaskRow({
+  planId,
+  task,
+  weekStart,
+}: {
+  planId: string;
+  task: OpenTask;
+  weekStart: string;
+}) {
+  const reopen = useTaskAction(planId, 'reopen');
+  const skipped = task.status === 'skipped';
   const meta = task.type in TASK_TYPE_META ? TASK_TYPE_META[task.type as Task['type']] : null;
   return (
     <li
@@ -48,6 +67,7 @@ function OpenTaskRow({ task, weekStart }: { task: OpenTask; weekStart: string })
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {meta ? <TaskTypeChip type={task.type as Task['type']} /> : null}
+        {skipped ? <TaskStatusLabel status="skipped" /> : null}
         <span className="ml-auto text-muted tabular-nums">
           {formatHours(task.remainingHours)} left
         </span>
@@ -71,6 +91,23 @@ function OpenTaskRow({ task, weekStart }: { task: OpenTask; weekStart: string })
           Planned{' '}
           {task.plannedDates.map((d) => (d < weekStart ? monthDay(d) : weekdayShort(d))).join(', ')}
         </p>
+      ) : null}
+      {skipped ? (
+        <>
+          {/* Nothing reopens on its own: the person decides (spec 9). */}
+          <TaskActions
+            task={task}
+            busy={reopen.isPending}
+            logging
+            onLog={() => undefined}
+            onDone={() => undefined}
+            onSkip={() => undefined}
+            onReopen={() => reopen.mutate(task.taskId)}
+          />
+          {reopen.isError ? (
+            <ErrorText>{describeError(reopen.error, 'Could not reopen the task.')}</ErrorText>
+          ) : null}
+        </>
       ) : null}
     </li>
   );
@@ -137,7 +174,12 @@ function WeekView({
         ) : (
           <ul className="space-y-3">
             {sorted.map((task) => (
-              <OpenTaskRow key={task.taskId} task={task} weekStart={open.weekStart} />
+              <OpenTaskRow
+                key={task.taskId}
+                planId={plan.id}
+                task={task}
+                weekStart={open.weekStart}
+              />
             ))}
           </ul>
         )}

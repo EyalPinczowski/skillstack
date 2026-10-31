@@ -62,7 +62,8 @@ export interface OpenTask {
   taskId: string;
   title: string;
   type: Task['type'];
-  status: 'pending' | 'in_progress';
+  /** `skipped` only for a task skipped after it was planned on an earlier day (carried over). */
+  status: 'pending' | 'in_progress' | 'skipped';
   estHours: number;
   doneHours: number;
   remainingHours: number;
@@ -234,9 +235,11 @@ export function createSchedulingService(db: Database, days: DaysService) {
     },
 
     /**
-     * Tasks to show as "open" in the weekly view: not done and not skipped, and either planned
-     * this week (a frozen day of the week or a block still to come) or carried over, meaning
-     * planned on an earlier frozen day and still open.
+     * Tasks to show as "open" in the weekly view: not done, and either planned this week (a
+     * frozen day of the week or a block still to come) or carried over, meaning planned on an
+     * earlier frozen day and still open. A skipped task is shown only when it is carried over
+     * (it was planned on an earlier day and then skipped), so the user can reconsider it
+     * (spec 9); it is never planned ahead.
      */
     async openTasks(userId: string, planId: string, today?: string): Promise<OpenTasksView> {
       return db.withUser(userId, async (ctx) => {
@@ -266,7 +269,7 @@ export function createSchedulingService(db: Database, days: DaysService) {
         const sorted = (set: Set<string> | undefined) => [...(set ?? [])].sort(compareDates);
         const tasks: OpenTask[] = [];
         for (const t of c.plan.tasks) {
-          if (t.status !== 'pending' && t.status !== 'in_progress') continue;
+          if (t.status === 'done') continue;
           const plannedDates = sorted(planned.get(t.id));
           const carriedOverFrom = sorted(carried.get(t.id));
           if (plannedDates.length === 0 && carriedOverFrom.length === 0) continue;

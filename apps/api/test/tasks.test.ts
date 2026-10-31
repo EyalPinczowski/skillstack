@@ -640,6 +640,16 @@ describe.skipIf(!dbAvailable)('tasks and logs (real Postgres, locally signed tok
       expect(noop.json()).toMatchObject({ status: 'pending' });
     });
 
+    it('skip writes one task.skipped event, which a repeat does not duplicate', async () => {
+      await call('POST', `${T('t4')}/skip`, await asA());
+      await call('POST', `${T('t4')}/skip`, await asA());
+      const events = await rows<{ payload: { taskId: string } }>(
+        `select payload from rnd.events where type = 'task.skipped'`,
+      );
+      expect(events).toHaveLength(1);
+      expect(events[0]!.payload.taskId).toBe('t4');
+    });
+
     it('skip sets skipped (idempotent); a done task must be reopened first', async () => {
       const first = await call('POST', `${T('t4')}/skip`, await asA());
       const again = await call('POST', `${T('t4')}/skip`, await asA());
