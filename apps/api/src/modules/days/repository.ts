@@ -1,5 +1,5 @@
 import type { Block } from '@skillstack/shared';
-import type { UserContext } from '../../db/database';
+import { advisoryKey, type UserContext } from '../../db/database';
 
 export type SnapshotSource = 'day_end' | 'auto_rollover';
 
@@ -51,10 +51,10 @@ export async function lockPlanDays(
   userId: string,
   planId: string,
 ): Promise<void> {
-  // The schema is part of the key: advisory locks are database-wide, and the same user and
-  // client plan id can exist in both environments (one Supabase Auth, ADR 003).
+  // The same user and client plan id can exist in both environments (one Supabase Auth, ADR 003),
+  // which is why advisoryKey puts the schema into the key.
   await ctx.client.query(`select pg_advisory_xact_lock(hashtextextended($1::text, 0))`, [
-    `days:${ctx.schema}:${userId}:${planId}`,
+    advisoryKey(ctx, 'days', userId, planId),
   ]);
 }
 
