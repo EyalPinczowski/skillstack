@@ -4,6 +4,7 @@ import {
   isResponseSerializationError,
 } from 'fastify-type-provider-zod';
 import { z } from 'zod';
+import { NO_NUL_MESSAGE } from './validation';
 
 export const errorResponseSchema = z.object({
   error: z.object({ code: z.string(), message: z.string(), requestId: z.string() }),
@@ -47,6 +48,10 @@ export function installErrorHandling(app: FastifyInstance): void {
 
   app.setErrorHandler((error, request, reply) => {
     if (hasZodFastifySchemaValidationErrors(error)) {
+      // Text PostgreSQL cannot store is not a malformed request but an unprocessable one.
+      if (error.validation.some((issue) => issue.message === NO_NUL_MESSAGE)) {
+        return reply.status(422).send(body(request.id, 'unprocessable', NO_NUL_MESSAGE));
+      }
       return reply
         .status(400)
         .send(
