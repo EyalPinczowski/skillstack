@@ -2427,6 +2427,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plans/{planId}/days/{date}/briefing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The briefing for a study day (template-only, deterministic)
+         * @description Allowed for today (in the plan’s time zone) or an earlier date of the plan; a future date answers 422. A day that has been frozen (ended, or rolled over) uses its stored blocks, so its briefing does not change when the plan is edited later. `source` is always `template` in v0.2: no AI model is called. Links, providers and lesson titles appear only when the plan’s tasks have them. Reading brings every missed past day up to date first; nothing else is written and no event is logged.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    date: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            date: string;
+                            overview: string;
+                            tasks: {
+                                taskId: string;
+                                title: string;
+                                /** @enum {string} */
+                                type: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                provider?: string;
+                                url?: string;
+                                plannedMinutes: number;
+                                start: string;
+                                end: string;
+                                blocks: {
+                                    start: string;
+                                    end: string;
+                                    minutes: number;
+                                }[];
+                                what: string;
+                                lessons: {
+                                    title: string;
+                                    url?: string;
+                                    estMinutes?: number;
+                                    summary?: string;
+                                    needsCheck: boolean;
+                                }[];
+                                howToSteps: string[];
+                                promptTemplate: string | null;
+                                successCriteria: string | null;
+                                carriedOver: boolean;
+                            }[];
+                            suggestedOrder: {
+                                taskId: string;
+                                start: string;
+                                end: string;
+                            }[];
+                            /** @enum {string} */
+                            source: "template";
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plans/{planId}/days/{date}/start": {
         parameters: {
             query?: never;

@@ -21,9 +21,11 @@ describe('loadConfig defaults', () => {
         sharing: false,
         offline: false,
         pushNotifications: false,
+        aiOverview: false,
       },
+      ai: { allowPaid: false },
     });
-    expect(featureNames).toHaveLength(4);
+    expect(featureNames).toHaveLength(5);
   });
 });
 
@@ -87,6 +89,7 @@ describe('boolean variables', () => {
       sharing: true,
       offline: false,
       pushNotifications: true,
+      aiOverview: false,
     });
   });
 

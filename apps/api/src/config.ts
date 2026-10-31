@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { featureEnvShape, toFeatures, type Features } from './features';
+import type { AISettings } from './ai/provider';
+import { booleanString, featureEnvShape, toFeatures, type Features } from './features';
 
 const isBareOrigin = (value: string) => {
   try {
@@ -71,6 +72,8 @@ const envSchema = z.object({
     .string()
     .regex(/^postgres(ql)?:\/\//, 'must be a postgres:// connection string')
     .optional(),
+  // Lets paid AI providers register (spec 12.2). Off unless the owner sets it; no paid provider exists yet.
+  AI_ALLOW_PAID: booleanString('false'),
   ...featureEnvShape,
 });
 
@@ -93,6 +96,8 @@ export interface Config {
   rateLimitPerMinute: number;
   trustProxy: number;
   features: Features;
+  /** AI settings; every one is off by default (ADR 012). */
+  ai: AISettings;
 }
 
 export class ConfigError extends Error {
@@ -153,5 +158,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     rateLimitPerMinute: e.RATE_LIMIT_PER_MINUTE,
     trustProxy: e.TRUST_PROXY,
     features: toFeatures(e),
+    ai: { allowPaid: e.AI_ALLOW_PAID },
   };
 }
