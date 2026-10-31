@@ -42,6 +42,16 @@ function optionText(option: unknown): string | null {
   return null;
 }
 
+/** "SQL exam, Thu, Nov 19 at 10:00": which exam is at risk and when, without the advice. */
+export function anchorRiskHeadline(
+  warning: ScheduleWarning,
+  titleOf: (taskId: string) => string,
+): string {
+  const id = asString(warning.taskId);
+  const time = asString(warning.anchorStartTime);
+  return `${id ? titleOf(id) : 'A task'}, ${dateText(warning.anchorDate)}${time ? ` at ${time}` : ''}`;
+}
+
 /**
  * Words for an engine warning. The engine decides what is wrong; this only turns its fields into
  * a sentence. Unknown kinds and missing fields still give a readable line.
@@ -57,11 +67,10 @@ export function describeWarning(
       const options = Array.isArray(warning.options)
         ? warning.options.map(optionText).filter((o): o is string => o !== null)
         : [];
-      const time = asString(warning.anchorStartTime);
       return {
         label: 'Exam at risk',
         text:
-          `${title(warning.taskId)}, ${dateText(warning.anchorDate)}${time ? ` at ${time}` : ''}.` +
+          `${anchorRiskHeadline(warning, titleOf)}.` +
           (shortfall !== undefined
             ? ` About ${formatHours(minutesToHours(shortfall))} of earlier study does not fit before it.`
             : '') +
