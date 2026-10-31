@@ -51,8 +51,10 @@ export async function lockPlanDays(
   userId: string,
   planId: string,
 ): Promise<void> {
+  // The schema is part of the key: advisory locks are database-wide, and the same user and
+  // client plan id can exist in both environments (one Supabase Auth, ADR 003).
   await ctx.client.query(`select pg_advisory_xact_lock(hashtextextended($1::text, 0))`, [
-    `days:${userId}:${planId}`,
+    `days:${ctx.schema}:${userId}:${planId}`,
   ]);
 }
 
