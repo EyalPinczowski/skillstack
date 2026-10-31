@@ -388,6 +388,37 @@ describe.skipIf(!dbAvailable)('tasks and logs (real Postgres, locally signed tok
         title: 'renamed',
       });
     });
+
+    it('does not deadlock with a log being written for the same task (v0.2 review)', async () => {
+      // A log write locks the task row first and then, through the foreign keys of `logs` and
+      // `events`, takes a KEY SHARE lock on the plan row. An edit that holds the plan row with
+      // FOR UPDATE while it waits for the task row would close the loop.
+      await testDb.admin(async (c) => {
+        await c.query('begin');
+        await c.query(
+          `select 1 from rnd.tasks where user_id = $1 and plan_id = $2 and id = 't1' for update`,
+          [A, PLAN_A],
+        );
+        const patch = call('PATCH', T(), await asA(), { title: 'edited meanwhile' });
+        // Wait until the edit is queued behind the task row.
+        for (let i = 0; i < 100; i++) {
+          const [w] = await rows<{ n: number }>(
+            `select count(*)::int as n from pg_locks where not granted`,
+          );
+          if (w!.n > 0) break;
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        await c.query(`set local lock_timeout = '3s'`);
+        // What the log insert does next (foreign key check on the plan row).
+        await c.query(`select 1 from rnd.plans where user_id = $1 and id = $2 for key share`, [
+          A,
+          PLAN_A,
+        ]);
+        await c.query('commit');
+        expect((await patch).statusCode).toBe(200);
+      });
+      expect(await taskRow()).toMatchObject({ title: 'edited meanwhile' });
+    });
   });
 
   describe('POST logs', () => {
