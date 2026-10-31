@@ -7,6 +7,8 @@ import { errorResponseSchema } from '../../errors';
 import { installAccountGuard } from '../accounts/guard';
 import { createAccountService } from '../accounts/service';
 import type { TokenVerifier } from '../accounts/token-verifier';
+import { daysRoutes } from '../days/routes';
+import { createDaysService } from '../days/service';
 import { schedulingRoutes } from '../scheduling/routes';
 import { createSchedulingService } from '../scheduling/service';
 import { validateImport } from './import';
@@ -25,6 +27,8 @@ export interface PlanRoutesOptions {
   verifier: TokenVerifier;
   /** Null when no database is configured: the routes then answer 503. */
   db: Database | null;
+  /** The clock; tests inject a fixed one. Defaults to the system time. */
+  now?: () => Date;
 }
 
 const errors = {
@@ -39,7 +43,7 @@ const errors = {
 /** Plans, their time settings and the read side of scheduling, all under /api/v1/plans. */
 export const planRoutes: FastifyPluginAsyncZod<PlanRoutesOptions> = async (
   app,
-  { verifier, db },
+  { verifier, db, now },
 ) => {
   const accounts = db ? createAccountService(db) : null;
   installAccountGuard(app, verifier, accounts);
@@ -174,5 +178,8 @@ export const planRoutes: FastifyPluginAsyncZod<PlanRoutesOptions> = async (
     },
   );
 
-  app.register(schedulingRoutes, { service: createSchedulingService(plans), userId });
+  // Without a database the guard already answered 503, so these never run with `db` null.
+  const days = createDaysService(db!, now);
+  app.register(schedulingRoutes, { service: createSchedulingService(db!, days), userId });
+  app.register(daysRoutes, { service: days, userId });
 };

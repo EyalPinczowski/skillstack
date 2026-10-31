@@ -95,6 +95,10 @@ describe.skipIf(!dbAvailable)('terms and privacy must be accepted (real Postgres
         'POST /api/v1/plans/import',
         'GET /api/v1/plans/:planId/tasks',
         'GET /api/v1/plans/:id/schedule',
+        'GET /api/v1/plans/:id/open-tasks',
+        'POST /api/v1/plans/:planId/days/:date/start',
+        'POST /api/v1/plans/:planId/days/:date/end',
+        'GET /api/v1/plans/:planId/days/:date',
       ]),
     );
     expect(signedIn.length).toBeGreaterThanOrEqual(15);

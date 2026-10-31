@@ -7,6 +7,7 @@ describe('loadConfig defaults', () => {
     expect(loadConfig({})).toEqual({
       nodeEnv: 'development',
       supabase: null,
+      supabaseAdmin: null,
       databaseUrl: null,
       appEnv: 'operational',
       port: 3000,
@@ -104,6 +105,8 @@ describe('sign-in and database settings', () => {
     SUPABASE_JWKS_URL: 'https://abc.supabase.co/auth/v1/.well-known/jwks.json',
     SUPABASE_JWT_ISSUER: 'https://abc.supabase.co/auth/v1',
     DATABASE_URL: 'postgres://app_rnd:secret@db.example.com:5432/postgres',
+    SUPABASE_URL: 'https://abc.supabase.co',
+    SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_fake_key_for_tests_0000',
   };
 
   it('parses them', () => {
@@ -124,6 +127,20 @@ describe('sign-in and database settings', () => {
         'SUPABASE_JWKS_URL: required when NODE_ENV=production',
         'SUPABASE_JWT_ISSUER: required when NODE_ENV=production',
         'DATABASE_URL: required when NODE_ENV=production',
+      ]);
+    }
+    try {
+      loadConfig({
+        NODE_ENV: 'production',
+        SUPABASE_JWKS_URL: full.SUPABASE_JWKS_URL,
+        SUPABASE_JWT_ISSUER: full.SUPABASE_JWT_ISSUER,
+        DATABASE_URL: full.DATABASE_URL,
+      });
+      expect.unreachable();
+    } catch (err) {
+      expect((err as ConfigError).problems).toEqual([
+        'SUPABASE_URL: required when NODE_ENV=production',
+        'SUPABASE_SERVICE_ROLE_KEY: required when NODE_ENV=production',
       ]);
     }
     expect(() => loadConfig({ NODE_ENV: 'production', ...full })).not.toThrow();
@@ -154,6 +171,47 @@ describe('sign-in and database settings', () => {
     } catch (err) {
       expect((err as ConfigError).message).toMatch(/DATABASE_URL/);
       expect((err as ConfigError).message).not.toContain('hunter2');
+    }
+  });
+
+  it('parses the service key settings into supabaseAdmin', () => {
+    expect(loadConfig(full).supabaseAdmin).toEqual({
+      url: full.SUPABASE_URL,
+      serviceRoleKey: full.SUPABASE_SERVICE_ROLE_KEY,
+    });
+  });
+
+  it('wants the project URL and the service key together', () => {
+    expect(() => loadConfig({ SUPABASE_URL: full.SUPABASE_URL })).toThrow(/set both/);
+    expect(() => loadConfig({ SUPABASE_SERVICE_ROLE_KEY: full.SUPABASE_SERVICE_ROLE_KEY })).toThrow(
+      /set both/,
+    );
+  });
+
+  it.each([
+    'http://abc.supabase.co',
+    'https://abc.supabase.co/',
+    'https://abc.supabase.co/auth/v1',
+    'abc',
+  ])('rejects %j as SUPABASE_URL', (value) => {
+    expect(() => loadConfig({ ...full, SUPABASE_URL: value })).toThrow(/SUPABASE_URL/);
+  });
+
+  it('rejects a malformed service key without echoing it', () => {
+    const bad = [
+      'tiny-k3y',
+      'has a space in it, 1234567890',
+      'x'.repeat(3000),
+      'line\nbreak-0123456789abcdef',
+    ];
+    for (const value of bad) {
+      try {
+        loadConfig({ ...full, SUPABASE_SERVICE_ROLE_KEY: value });
+        expect.unreachable();
+      } catch (err) {
+        expect((err as ConfigError).message).toMatch(/SUPABASE_SERVICE_ROLE_KEY/);
+        expect((err as ConfigError).message).not.toContain(value);
+      }
     }
   });
 });

@@ -2,8 +2,10 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app';
 import { createDatabase, type Database } from '../src/db/database';
 import { errorResponseSchema } from '../src/errors';
+import { createSupabaseAuthAdmin } from '../src/modules/accounts/auth-admin';
 import { createSupabaseVerifier } from '../src/modules/accounts/token-verifier';
 import { acceptCurrentLegal, dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
+import { FAKE_SERVICE_KEY, startFakeSupabase, type FakeSupabase } from './fake-supabase';
 import { testConfig } from './helpers';
 import { ISSUER, makeTestKeys, unsignedToken, type TestKeys } from './tokens';
 
@@ -23,24 +25,38 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
   let db: Database;
   let keys: TestKeys;
   let app: ReturnType<typeof buildApp>;
+  let fake: FakeSupabase;
+  const logLines: string[] = [];
 
   beforeAll(async () => {
+    fake = await startFakeSupabase();
     testDb = await prepareDatabase();
     keys = await makeTestKeys();
     db = createDatabase({ connectionString: testDb.appUrl('rnd'), appEnv: 'rnd' });
-    app = buildApp(testConfig({ appEnv: 'rnd', rateLimitPerMinute: 10_000 }), {
+    app = buildApp(testConfig({ appEnv: 'rnd', rateLimitPerMinute: 10_000, logLevel: 'info' }), {
       verifier: createSupabaseVerifier({ issuer: ISSUER, keys: keys.keys }),
       db,
+      authAdmin: createSupabaseAuthAdmin({
+        baseUrl: fake.baseUrl,
+        serviceRoleKey: FAKE_SERVICE_KEY,
+        timeoutMs: 2000,
+      }),
+      logStream: { write: (line) => void logLines.push(line) },
     });
     await app.ready();
   });
 
   afterAll(async () => {
     await app?.close();
+    await fake?.close();
   });
 
   /** Clean slate: allowlist a, b and c; no accounts; cap 25. */
   beforeEach(async () => {
+    fake.requests.length = 0;
+    fake.status = 200;
+    delete fake.respond;
+    logLines.length = 0;
     await testDb.admin(async (c) => {
       await c.query('delete from rnd.app_users');
       await c.query('delete from rnd.allowed_emails');
@@ -483,6 +499,115 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
         async (c) => (await c.query('select id from rnd.app_users')).rows,
       );
       expect(ids).toEqual([{ id: B }]);
+    });
+    describe('Supabase Auth user', () => {
+      it('is deleted exactly once, with the verified id and both key headers', async () => {
+        await call('GET', '/me', await asA());
+        await call('GET', '/me', await asB());
+        const res = await del(await asA(), 'delete my account');
+        expect(res.statusCode).toBe(204);
+        expect(fake.requests).toHaveLength(1);
+        const [req] = fake.requests;
+        expect(req!.method).toBe('DELETE');
+        expect(req!.url).toBe(`/auth/v1/admin/users/${A}`);
+        expect(req!.headers.apikey).toBe(FAKE_SERVICE_KEY);
+        expect(req!.headers.authorization).toBe(`Bearer ${FAKE_SERVICE_KEY}`);
+      });
+
+      it('never sends another id, whatever the client puts in the request', async () => {
+        await call('GET', '/me', await asA());
+        await call('GET', '/me', await asB());
+        await app.inject({
+          method: 'DELETE',
+          url: `/api/v1/me?user_id=${B}&id=${C}`,
+          headers: { ...(await asA()), 'x-user-id': B },
+          payload: { confirmation: 'delete my account' },
+        });
+        expect(fake.requests.map((r) => r.url)).toEqual([`/auth/v1/admin/users/${A}`]);
+      });
+
+      it('does not call Supabase without the typed confirmation', async () => {
+        await call('GET', '/me', await asA());
+        await del(await asA(), 'nope');
+        expect(fake.requests).toHaveLength(0);
+      });
+
+      it('treats a Supabase 404 (already deleted) as success', async () => {
+        await call('GET', '/me', await asA());
+        fake.status = 404;
+        const res = await del(await asA(), 'delete my account');
+        expect(res.statusCode).toBe(204);
+        expect(await count('select count(*)::int as n from rnd.app_users')).toBe(0);
+      });
+
+      it('keeps all data when Supabase fails (502), and a retry then completes', async () => {
+        await call('GET', '/me', await asA());
+        await seedPlan(A, PLAN_A, 'Plan of A');
+        fake.status = 500;
+        const failed = await del(await asA(), 'delete my account');
+        expect(failed.statusCode).toBe(502);
+        expect(failed.json().error.code).toBe('auth_deletion_failed');
+        // Rolled back: the account, its plan and its allowlist entry are all still there.
+        expect(await count('select count(*)::int as n from rnd.app_users')).toBe(1);
+        expect(await count('select count(*)::int as n from rnd.plans')).toBe(1);
+        expect(
+          await count(
+            `select count(*)::int as n from rnd.allowed_emails where email = 'a@example.com'`,
+          ),
+        ).toBe(1);
+        // The same token still works, so the user can retry.
+        expect((await call('GET', '/me', await asA())).statusCode).toBe(200);
+
+        fake.status = 200;
+        const retry = await del(await asA(), 'delete my account');
+        expect(retry.statusCode).toBe(204);
+        expect(await count('select count(*)::int as n from rnd.app_users')).toBe(0);
+        expect(await count('select count(*)::int as n from rnd.plans')).toBe(0);
+      });
+
+      it('a deleted account cannot be re-provisioned with the still-valid token', async () => {
+        await call('GET', '/me', await asA());
+        await del(await asA(), 'delete my account');
+        fake.requests.length = 0;
+        expect((await call('GET', '/me', await asA())).statusCode).toBe(403);
+        expect((await del(await asA(), 'delete my account')).statusCode).toBe(403);
+        expect(await count('select count(*)::int as n from rnd.app_users')).toBe(0);
+        expect(fake.requests).toHaveLength(0);
+      });
+
+      it('fails closed (502, data kept) when no service key is configured', async () => {
+        const noKey = buildApp(testConfig({ appEnv: 'rnd', rateLimitPerMinute: 10_000 }), {
+          verifier: createSupabaseVerifier({ issuer: ISSUER, keys: keys.keys }),
+          db,
+        });
+        const headers = await asA();
+        await noKey.inject({ method: 'GET', url: '/api/v1/me', headers });
+        const res = await noKey.inject({
+          method: 'DELETE',
+          url: '/api/v1/me',
+          headers,
+          payload: { confirmation: 'delete my account' },
+        });
+        expect(res.statusCode).toBe(502);
+        expect(await count('select count(*)::int as n from rnd.app_users')).toBe(1);
+        await noKey.close();
+      });
+
+      it('never puts the service key in a response or a log line', async () => {
+        const responses: string[] = [];
+        // Failures first (the account stays), then the successful delete.
+        for (const status of [500, 401, 403, 404]) {
+          await call('GET', '/me', await asA());
+          fake.status = status;
+          const res = await del(await asA(), 'delete my account');
+          responses.push(res.body, JSON.stringify(res.headers));
+        }
+        // The fake echoes the key in its body; neither that body nor the key may leak.
+        const everything = responses.join('\n') + logLines.join('\n');
+        expect(everything).not.toContain(FAKE_SERVICE_KEY);
+        expect(everything).not.toContain('fake response');
+        expect(logLines.some((l) => l.includes('auth user deletion failed'))).toBe(true);
+      });
     });
   });
 

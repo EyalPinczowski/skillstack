@@ -14,6 +14,11 @@ import pkg from '../package.json' with { type: 'json' };
 import type { Config } from './config';
 import { createDatabase, type Database } from './db/database';
 import { installErrorHandling } from './errors';
+import {
+  createSupabaseAuthAdmin,
+  unconfiguredAuthAdmin,
+  type AuthAdmin,
+} from './modules/accounts/auth-admin';
 import { accountRoutes } from './modules/accounts/routes';
 import {
   createSupabaseVerifierFromUrl,
@@ -42,6 +47,12 @@ export interface AppDeps {
   verifier?: TokenVerifier;
   /** Defaults to a pool from config.databaseUrl, or to none (account routes answer 503). */
   db?: Database | null;
+  /** The clock for plan-local dates (day start/end, rollover). Defaults to the system time. */
+  now?: () => Date;
+  /** Defaults to Supabase from config (service key), or to failing closed when unconfigured. */
+  authAdmin?: AuthAdmin;
+  /** Tests only: where log lines go, so they can be inspected. Defaults to stdout. */
+  logStream?: { write(line: string): void };
 }
 
 /** Builds the app without listening, so tests can use `app.inject`. */
@@ -49,6 +60,14 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
   const verifier =
     deps.verifier ??
     (config.supabase ? createSupabaseVerifierFromUrl(config.supabase) : rejectAllVerifier);
+  const authAdmin =
+    deps.authAdmin ??
+    (config.supabaseAdmin
+      ? createSupabaseAuthAdmin({
+          baseUrl: config.supabaseAdmin.url,
+          serviceRoleKey: config.supabaseAdmin.serviceRoleKey,
+        })
+      : unconfiguredAuthAdmin);
   const db =
     deps.db !== undefined
       ? deps.db
@@ -60,6 +79,7 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
     // Default request logging has no headers or body; redact is a second line of defence.
     logger: {
       level: config.logLevel,
+      ...(deps.logStream ? { stream: deps.logStream } : {}),
       redact: ['req.headers.authorization', 'req.headers.cookie', 'req.headers["x-api-key"]'],
     },
     genReqId: generateRequestId,
@@ -130,9 +150,9 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
     async (v1) => {
       v1.get('/openapi.json', { schema: { hide: true } }, async () => app.swagger());
       v1.register(healthRoutes, { config, probe: createDatabaseProbe(db) });
-      v1.register(accountRoutes, { verifier, db });
-      v1.register(planRoutes, { verifier, db });
-      v1.register(taskRoutes, { verifier, db });
+      v1.register(accountRoutes, { verifier, db, authAdmin });
+      v1.register(planRoutes, { verifier, db, now: deps.now });
+      v1.register(taskRoutes, { verifier, db, now: deps.now });
     },
     { prefix: '/api/v1' },
   );

@@ -3,6 +3,7 @@ import type { FastifyRequest } from 'fastify';
 import type { Database } from '../../db/database';
 import { errorResponseSchema } from '../../errors';
 import { installAccountGuard } from '../accounts/guard';
+import { createDaysService } from '../days/service';
 import { createAccountService } from '../accounts/service';
 import type { TokenVerifier } from '../accounts/token-verifier';
 import {
@@ -23,6 +24,8 @@ export interface TaskRoutesOptions {
   verifier: TokenVerifier;
   /** Null when no database is configured: the routes then answer 503. */
   db: Database | null;
+  /** The clock; tests inject a fixed one. Defaults to the system time. */
+  now?: () => Date;
 }
 
 const errors = {
@@ -37,10 +40,11 @@ const tags = ['tasks'];
 
 export const taskRoutes: FastifyPluginAsyncZod<TaskRoutesOptions> = async (
   app,
-  { verifier, db },
+  { verifier, db, now },
 ) => {
   installAccountGuard(app, verifier, db ? createAccountService(db) : null);
   const service = db ? createTaskService(db) : null;
+  const days = db ? createDaysService(db, now) : null;
   /** The user id comes only from the verified token, never from the request. */
   const user = (request: FastifyRequest) => request.accountId!;
 
@@ -163,7 +167,11 @@ export const taskRoutes: FastifyPluginAsyncZod<TaskRoutesOptions> = async (
         response: { 200: progressView, ...errors },
       },
     },
-    async (request) => service!.progress(user(request), request.params.planId),
+    async (request) => {
+      // The dashboard is the first thing read the next day: freeze the days that have passed.
+      await days!.rolloverIfScheduled(user(request), request.params.planId);
+      return service!.progress(user(request), request.params.planId);
+    },
   );
 
   app.get(

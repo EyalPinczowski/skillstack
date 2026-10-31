@@ -18,9 +18,11 @@ An unapproved email, a full beta and a disabled account all get the same `403` a
 
 | Name                  | Value                                                          |
 | --------------------- | -------------------------------------------------------------- |
-| `NODE_ENV`            | `production` (the API then refuses to start without the next three) |
+| `NODE_ENV`            | `production` (the API then refuses to start without the next five) |
 | `SUPABASE_JWKS_URL`   | `https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json` |
 | `SUPABASE_JWT_ISSUER` | `https://<project-ref>.supabase.co/auth/v1`                    |
+| `SUPABASE_URL`        | `https://<project-ref>.supabase.co` (bare https origin, no path) |
+| `SUPABASE_SERVICE_ROLE_KEY` | **secret**, Render only (see "Service key for account deletion") |
 | `DATABASE_URL`        | connection string of `app_prod` or `app_rnd` (see `docs/setup/supabase.md`), never the admin |
 
 The JWKS path and the issuer format (`https://<project-ref>.supabase.co/auth/v1`) are shown in Supabase's documentation. The `aud` value `authenticated` is **needs check**: the documentation page read does not state it, so decode a real access token of the project once (for example at jwt.io, with a throwaway test account) and compare `iss` and `aud` before relying on it. If the project uses a custom domain, the issuer differs (**needs check**).
@@ -51,7 +53,7 @@ What the app does, and what to configure for it (all dashboard menu names **need
 - **Sign out of all devices** calls `signOut({ scope: 'global' })`. Needs check: Supabase's documentation should be read for what this does to access tokens that other devices already hold. They may stay valid until they expire, and this API does not keep a list of revoked tokens.
 - **Turnstile.** `AuthService.sendCode(email, { captchaToken })` already accepts the token and passes it to Supabase; the widget itself is not wired yet (marked `TURNSTILE SEAM` in `SignInPage.tsx`).
 - **After sign-in** the app calls `GET /api/v1/me`. A `403` shows only "This account cannot use Skillstack." with a sign-out button, so the screen cannot be used to probe the allowlist. A `401` ends the local session.
-- **Delete my account** removes the Skillstack data (above). It does not delete the Supabase Auth user (that needs the service key, which the API does not hold). Needs check whether to add that later.
+- **Delete my account** removes the Skillstack data and the Supabase Auth user (email, sign-in record) in one step; see "Deleting an account". The web app never holds the service key.
 - **Typed client.** The web app's API types are generated from this API's OpenAPI document: `pnpm api:types` after changing a route or schema, commit `apps/web/src/api/schema.d.ts`. CI fails when it is out of date (`pnpm api:types:check`).
 
 ## The first admin
@@ -64,9 +66,29 @@ DATABASE_URL=<admin connection> pnpm --filter @skillstack/db migrate promote-adm
 
 This adds the email to the allowlist and, if the account already exists, sets its role to `admin`. If you have not signed in yet, sign in once (the API creates the account), then run the command again. It refuses to run without `--schema`.
 
+## Service key for account deletion
+
+Deleting the Supabase Auth user needs the project's service-role (secret) key, which only the API on Render holds.
+
+1. In the Supabase dashboard open the project's API keys page (Settings, API Keys; **needs check** for the exact menu names, Supabase has been renaming this area). Supabase's documentation says secret keys bypass Row Level Security and must never be in a browser, a shipped app or source control. Two kinds exist: the legacy `service_role` JWT and the newer `sb_secret_...` key (**needs check** which your project shows; the API accepts either).
+2. Put it in Render as `SUPABASE_SERVICE_ROLE_KEY` for each API service (production and R&D), and the project URL as `SUPABASE_URL`. Never in Vercel, never in a `VITE_` variable, never in git, chat or logs. If it ever leaks, rotate it in the dashboard and update Render.
+3. In production the API **refuses to start** without both (like the other sign-in variables), so a deploy cannot silently lose the ability to delete Auth users. In development and tests they are optional; without them, "Delete my account" answers `502 auth_deletion_failed` and deletes nothing (fail closed, so the Auth user can never be left behind unnoticed).
+4. The API sends `DELETE {SUPABASE_URL}/auth/v1/admin/users/{id}` with the key in the `apikey` header, plus `Authorization: Bearer <key>` when the key is a JWT (the legacy key). The id is always the verified token's `sub`. It waits at most 8 seconds. It is a hard delete (no `should_soft_delete`; Supabase's `deleteUser` documents a soft-delete option that defaults to `false`).
+
+Verified in Supabase's documentation (read 31 October 2026): `auth.admin.deleteUser` needs the service key and is server-only; secret keys go in the `apikey` header and are not JWTs; the key page is under Settings, API Keys. Verified in Supabase Auth's OpenAPI file: `DELETE /admin/users/{userId}` has no body and answers 200 with the user, 401, 403 or 404 ("There is no such user"). **Needs check:** the `/auth/v1` prefix on the hosted API (taken from the issuer URL format), whether the `sb_secret_` key is accepted by the admin endpoint without `Authorization: Bearer`, and the hosted API's rate limit for admin calls. Test once on the R&D project with a throwaway account before relying on it.
+
 ## Deleting an account
 
-`DELETE /api/v1/me` with `{"confirmation": "delete my account"}` removes the user row and, through cascades, every row they own, then removes their email from the allowlist so a still-valid token cannot silently recreate the account. A new invite is needed to come back. Not part of this branch yet: revoking the calendar connection and deleting calendar events (the calendar does not exist yet) and the backup retention window (spec 3.A, privacy page).
+`DELETE /api/v1/me` with `{"confirmation": "delete my account"}`:
+
+1. In one database transaction it runs `delete_account()` (removes the user row and, through cascades, every row they own, and removes their email from the allowlist so a still-valid token cannot silently recreate the account), then
+2. calls the Supabase Admin API to delete the Auth user with the verified user's id, and only then commits.
+
+If step 2 fails (network, timeout, any status other than success or 404), the transaction is rolled back: **nothing is deleted**, the API answers `502` with code `auth_deletion_failed` and logs the reason and HTTP status (never the key, URL or response body). The user simply retries. Supabase answering 404 (the Auth user is already gone, for example because a commit failed after step 2) counts as success, so a retry always finishes.
+
+Why not commit the data first: removing the allowlist entry makes the guard answer 403 to every later call, so after a failed Auth deletion nobody could retry and the Auth user (the email) would stay. Rolling back keeps the whole operation retryable with the same token. The remaining window (Auth user deleted, then the commit fails) leaves data without a sign-in, but the token still works until it expires and the retry completes it. Accepted risk: if that token has expired, ask the owner to delete the rows by hand.
+
+A new invite is needed to come back. Not part of this branch yet: revoking the calendar connection and deleting calendar events (the calendar does not exist yet) and the backup retention window (spec 3.A, privacy page).
 
 ## Not built here
 

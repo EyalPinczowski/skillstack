@@ -15,6 +15,20 @@ const originSchema = z
 
 const MAX_TRUST_PROXY = 5;
 
+const httpsOrigin = z
+  .string()
+  .refine(
+    (v) => v.startsWith('https://') && isBareOrigin(v),
+    'must be a bare https origin such as https://<project-ref>.supabase.co',
+  );
+
+// Header-safe token characters only (linear check). The messages never echo the value.
+const serviceKey = z
+  .string()
+  .min(20, 'is too short to be a service key')
+  .max(2048, 'is too long to be a service key')
+  .regex(/^[A-Za-z0-9._~+/=-]+$/, 'contains characters a key never has');
+
 const httpsUrl = z.url().refine((v) => v.startsWith('https://'), 'must be an https URL');
 
 const envSchema = z.object({
@@ -48,6 +62,10 @@ const envSchema = z.object({
   SUPABASE_JWKS_URL: httpsUrl.optional(),
   // The `iss` of access tokens, e.g. https://<project-ref>.supabase.co/auth/v1
   SUPABASE_JWT_ISSUER: httpsUrl.optional(),
+  // Project URL and the service-role (secret) key, used to delete the Supabase Auth user on
+  // "Delete my account". The key is a server-only secret: never logged, returned or sent to the web.
+  SUPABASE_URL: httpsOrigin.optional(),
+  SUPABASE_SERVICE_ROLE_KEY: serviceKey.optional(),
   // Connection string of the app_<schema> login (not the admin). Never logged.
   DATABASE_URL: z
     .string()
@@ -60,6 +78,11 @@ export interface Config {
   nodeEnv: 'development' | 'test' | 'production';
   /** Null when not configured: sign-in then rejects every token (fail closed). */
   supabase: { jwksUrl: string; issuer: string } | null;
+  /**
+   * Null when not configured: account deletion then fails closed (502) because the Auth user
+   * could not be removed. Holds a secret: never log or serialise `serviceRoleKey`.
+   */
+  supabaseAdmin: { url: string; serviceRoleKey: string } | null;
   /** Null when not configured: account routes answer 503. */
   databaseUrl: string | null;
   appEnv: 'operational' | 'rnd';
@@ -95,6 +118,19 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       throw new ConfigError(missing.map((name) => `${name}: required when NODE_ENV=production`));
     }
   }
+  // Production always has sign-in verification (checked above), so deleting an account must be
+  // able to remove the Auth user too: refuse to start without the key rather than fail later.
+  if (e.NODE_ENV === 'production') {
+    const missing = (['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] as const).filter(
+      (name) => !e[name],
+    );
+    if (missing.length > 0) {
+      throw new ConfigError(missing.map((name) => `${name}: required when NODE_ENV=production`));
+    }
+  }
+  if (Boolean(e.SUPABASE_URL) !== Boolean(e.SUPABASE_SERVICE_ROLE_KEY)) {
+    throw new ConfigError(['SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY: set both or neither']);
+  }
   if (Boolean(e.SUPABASE_JWKS_URL) !== Boolean(e.SUPABASE_JWT_ISSUER)) {
     throw new ConfigError(['SUPABASE_JWKS_URL and SUPABASE_JWT_ISSUER: set both or neither']);
   }
@@ -103,6 +139,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     supabase:
       e.SUPABASE_JWKS_URL && e.SUPABASE_JWT_ISSUER
         ? { jwksUrl: e.SUPABASE_JWKS_URL, issuer: e.SUPABASE_JWT_ISSUER }
+        : null,
+    supabaseAdmin:
+      e.SUPABASE_URL && e.SUPABASE_SERVICE_ROLE_KEY
+        ? { url: e.SUPABASE_URL, serviceRoleKey: e.SUPABASE_SERVICE_ROLE_KEY }
         : null,
     databaseUrl: e.DATABASE_URL ?? null,
     appEnv: e.APP_ENV,
