@@ -20,6 +20,7 @@ import {
   rejectAllVerifier,
   type TokenVerifier,
 } from './modules/accounts/token-verifier';
+import { createDatabaseProbe } from './modules/health/probe';
 import { healthRoutes } from './modules/health/routes';
 import { planRoutes } from './modules/plans/routes';
 import { taskRoutes } from './modules/tasks/routes';
@@ -128,7 +129,7 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
   app.register(
     async (v1) => {
       v1.get('/openapi.json', { schema: { hide: true } }, async () => app.swagger());
-      v1.register(healthRoutes, { config });
+      v1.register(healthRoutes, { config, probe: createDatabaseProbe(db) });
       v1.register(accountRoutes, { verifier, db });
       v1.register(planRoutes, { verifier, db });
       v1.register(taskRoutes, { verifier, db });

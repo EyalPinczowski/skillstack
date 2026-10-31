@@ -11,7 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Liveness check */
+        /**
+         * Liveness check (also reports the database)
+         * @description Always 200 while the process runs. `database` is `ok`, `unavailable` (a `select 1` as the app login failed or took longer than 1.5 seconds) or `not_configured`. The result is cached for a few seconds. Use `/health/ready` to get a 503 when the database is down.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -36,6 +39,75 @@ export interface paths {
                             version: string;
                             /** Format: date-time */
                             time: string;
+                            /** @enum {string} */
+                            database: "ok" | "unavailable" | "not_configured";
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/health/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Readiness check: 503 when the database is down */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status: "ok";
+                            app: string;
+                            /** @enum {string} */
+                            environment: "operational" | "rnd";
+                            version: string;
+                            /** Format: date-time */
+                            time: string;
+                            /** @enum {string} */
+                            database: "ok" | "unavailable" | "not_configured";
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status: "unavailable";
+                            app: string;
+                            /** @enum {string} */
+                            environment: "operational" | "rnd";
+                            version: string;
+                            /** Format: date-time */
+                            time: string;
+                            /** @enum {string} */
+                            database: "ok" | "unavailable" | "not_configured";
                         };
                     };
                 };

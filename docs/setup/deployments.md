@@ -52,13 +52,13 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
    - `CORS_ORIGINS`: exact Vercel origin(s), comma separated, no wildcard. Production service gets the production Vercel URL; R&D service gets the preview URL.
    - `RATE_LIMIT_PER_MINUTE`: e.g. leave at the API default if blank is allowed (needs check) or set a number.
    - `TRUST_PROXY`: `0` until the hop count is verified.
-4. Wait for the first deploy. The health check is `GET /api/v1/health`.
+4. Wait for the first deploy. Render's health check is `GET /api/v1/health`. It answers 200 as long as the process runs, with a `database` field of `ok`, `unavailable` or `not_configured`, so a database blip (or a paused Supabase project) does not make Render mark the service unhealthy and restart it. `GET /api/v1/health/ready` answers 503 when the database is not usable; use it for your own monitoring, not as Render's health check path. Both are open (no sign-in); only `/health` is exempt from the rate limit, and the database check is cached for 5 seconds.
 5. Suspend or let `skillstack-api-rnd` sleep; only the production service should be kept awake (see the 750-hour budget above).
 6. Database and auth variables (Supabase) are added when the API starts using them; follow `docs/setup/supabase.md`. Never commit values.
 
 ## 3. Keep-warm GitHub Action
 
-`.github/workflows/wakeup.yml` pings the production API during study hours.
+`.github/workflows/wakeup.yml` pings the production API during study hours. The ping reaches the database too (the health route runs a `select 1`), so it also helps keep the free Supabase project from pausing (needs check: that this counts as activity, see `docs/setup/supabase.md`).
 
 1. Repository Settings > Secrets and variables > Actions > Variables > New repository variable: `API_HEALTH_URL` = `https://<your-skillstack-api>.onrender.com/api/v1/health`. (A secret with the same name also works; the workflow reads the variable first.)
 2. Leave it unset to disable pinging; the workflow then exits silently.
