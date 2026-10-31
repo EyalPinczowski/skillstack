@@ -57,6 +57,25 @@ const previewSchema = z.object({
   }),
 });
 
+const openTasksSchema = z.object({
+  today: LocalDateSchema,
+  weekStart: LocalDateSchema,
+  weekEnd: LocalDateSchema,
+  tasks: z.array(
+    z.object({
+      taskId: z.string(),
+      title: z.string(),
+      type: z.string(),
+      status: z.enum(['pending', 'in_progress']),
+      estHours: z.number(),
+      doneHours: z.number(),
+      remainingHours: z.number(),
+      plannedDates: z.array(LocalDateSchema),
+      carriedOverFrom: z.array(LocalDateSchema),
+    }),
+  ),
+});
+
 export interface SchedulingRoutesOptions {
   service: SchedulingService;
   /** The verified user's id (set by the account guard of the enclosing scope). */
@@ -99,5 +118,22 @@ export const schedulingRoutes: FastifyPluginAsyncZod<SchedulingRoutesOptions> = 
       },
     },
     async (request) => service.preview(userId(request), request.params.id, request.body),
+  );
+
+  app.get(
+    '/plans/:id/open-tasks',
+    {
+      schema: {
+        tags: ['scheduling'],
+        summary: 'Open tasks of the week, with the days they were carried over from',
+        description:
+          'Tasks that are not done or skipped and are either planned this week (Sunday to Saturday in the plan’s time zone, the week that holds `today`) or were planned on an earlier frozen day and are still open. `carriedOverFrom` lists those earlier dates; it is empty for a task that is only planned ahead. `today` defaults to the current date in the plan’s time zone.',
+        security: [{ bearerAuth: [] }],
+        params: planIdParams,
+        querystring: z.object({ today: LocalDateSchema.optional() }),
+        response: { 200: openTasksSchema, ...errors },
+      },
+    },
+    async (request) => service.openTasks(userId(request), request.params.id, request.query.today),
   );
 };
