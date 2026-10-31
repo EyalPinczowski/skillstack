@@ -33,7 +33,7 @@ const SERIES: {
 
 const W = 480;
 const H = 270;
-const M = { left: 52, right: 16, top: 14, bottom: 62 };
+const M = { left: 52, right: 26, top: 14, bottom: 62 };
 const plotW = W - M.left - M.right;
 const plotH = H - M.top - M.bottom;
 
