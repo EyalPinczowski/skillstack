@@ -9,6 +9,7 @@ import { PlanSwitcher } from '../../plan/PlanGate';
 import { BlockItem } from './BlockItem';
 import { ProgressSummary } from './ProgressSummary';
 import { UpcomingDays } from './UpcomingDays';
+import { useDayRollover } from './use-day-rollover';
 import { WarningsNotice } from './WarningsNotice';
 
 type Notice = { tone: 'ok'; text: string; undoTaskId?: string } | { tone: 'error'; text: string };
@@ -17,6 +18,7 @@ type Notice = { tone: 'ok'; text: string; undoTaskId?: string } | { tone: 'error
 export function Home({ plan }: { plan: PlanSummary }) {
   const schedule = useSchedule(plan.id);
   const tasks = useTasks(plan.id);
+  useDayRollover(plan.id, schedule);
   return (
     <div className="space-y-6">
       <h1>Today</h1>
