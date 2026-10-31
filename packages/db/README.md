@@ -11,11 +11,13 @@ Database environments (`prod`, `rnd`) and the migration runner. Background: ADR 
 5. Migrations are additive, named `NNNN_name.sql`, never edited after they were applied (the runner compares checksums and fails naming the file).
 6. `findConventionViolations(client, schema)` (exported from `src/`) checks convention 2; call it in the tests of every migration branch.
 
-## Data model (migrations 0002-0006)
+## Data model (migrations 0002-0008)
 
 `current_user_id()` (0002); `app_users`, `app_settings`, `legal_acceptances` (0003); `plans`, `week_patterns`, `day_overrides`, `tasks`, `logs` (0004); `events` (0005, append-only). Client-generated ids are unique per user (composite keys with `user_id`), and child rows reference `(user_id, plan_id)` so they cannot point at another user's plan. RLS is enabled, not forced: the NOLOGIN owner role is the admin/background path (creating users, changing `role`/`status`, account deletion). The app role cannot insert or delete `app_users` rows or write `app_settings`, and cannot update or delete `events` or `legal_acceptances`. Tests: `test/data-model.test.ts`.
 
 Migration 0006 (ADR 011) adds `allowed_emails` (no app privilege) and two `SECURITY DEFINER` functions: `provision_user(id, email)` (allowlist and `user_cap` checked; `EXECUTE` only for `app_<s>`, which for this holds `USAGE` on its schema and nothing on any table) and `delete_account()` (deletes only the claimed user; `EXECUTE` only for `app_<s>_user`). Tests: `test/accounts-admin.test.ts`.
+
+Migration 0007 adds `day_sessions` and `schedule_days` (frozen past days, append-only). Migration 0008 adds `day_reviews` (one per plan and date; the app may re-save only the ratings, note and outcomes, never delete) and `adjustments` (the user's accepted or rejected suggestions with their evidence; insert and select only). See `docs/api-reviews.md`.
 
 SQL tokens: `{{schema}} {{owner}} {{app}} {{app_user}} {{backup}}`. Anything else in `{{ }}` is an error.
 

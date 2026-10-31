@@ -38,10 +38,12 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
           [schema],
         );
         expect(rows.map((r) => r.relname).sort()).toEqual([
+          'adjustments',
           'allowed_emails',
           'app_settings',
           'app_users',
           'day_overrides',
+          'day_reviews',
           'day_sessions',
           'environment_info',
           'events',
