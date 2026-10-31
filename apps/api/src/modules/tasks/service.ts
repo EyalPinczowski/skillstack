@@ -1,6 +1,7 @@
 import { localDateOf, TaskSchema } from '@skillstack/shared';
 import type { Database, UserContext } from '../../db/database';
 import { HttpError } from '../../errors';
+import * as plansRepo from '../plans/repository';
 import { createsCycle } from './graph';
 import type { LogBody, LogView, PatchTaskBody, TaskView } from './schemas';
 
@@ -149,11 +150,12 @@ async function lockTask(
 }
 
 async function requirePlan(ctx: UserContext, userId: string, planId: string, lock = false) {
-  // NO KEY UPDATE, not UPDATE: a log write holds its task row and then takes KEY SHARE on the
-  // plan row (foreign keys of logs and events). FOR UPDATE would conflict with that and
-  // deadlock against an edit waiting for the same task row (v0.2 review).
+  if (lock) {
+    if (!(await plansRepo.lockPlan(ctx, userId, planId))) throw notFound();
+    return;
+  }
   const { rows } = await ctx.client.query(
-    `select 1 from ${ctx.schema}.plans where user_id = $1 and id = $2${lock ? ' for no key update' : ''}`,
+    `select 1 from ${ctx.schema}.plans where user_id = $1 and id = $2`,
     [userId, planId],
   );
   if (rows.length === 0) throw notFound();

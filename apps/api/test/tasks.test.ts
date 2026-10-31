@@ -399,14 +399,26 @@ describe.skipIf(!dbAvailable)('tasks and logs (real Postgres, locally signed tok
           `select 1 from rnd.tasks where user_id = $1 and plan_id = $2 and id = 't1' for update`,
           [A, PLAN_A],
         );
+        const me = (await c.query<{ pid: number }>('select pg_backend_pid() as pid')).rows[0]!;
         const patch = call('PATCH', T(), await asA(), { title: 'edited meanwhile' });
-        // Wait until the edit is queued behind the task row.
-        for (let i = 0; i < 100; i++) {
+        // Wait until the edit's backend is queued on a lock held by this connection. Matching the
+        // blocker keeps parallel tests and unrelated waiters out of the check.
+        let queued = false;
+        for (let i = 0; i < 100 && !queued; i++) {
           const [w] = await rows<{ n: number }>(
-            `select count(*)::int as n from pg_locks where not granted`,
+            `select count(*)::int as n from pg_stat_activity
+             where wait_event_type = 'Lock' and $1 = any (pg_blocking_pids(pid))`,
+            [me.pid],
           );
-          if (w!.n > 0) break;
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          queued = w!.n > 0;
+          if (!queued) await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        if (!queued) {
+          await c.query('rollback');
+          await patch.catch(() => undefined);
+          expect.fail(
+            'the PATCH never queued behind the task row: the interleaving did not happen',
+          );
         }
         await c.query(`set local lock_timeout = '3s'`);
         // What the log insert does next (foreign key check on the plan row).

@@ -163,3 +163,12 @@ export function createDatabase(options: {
     },
   };
 }
+
+/**
+ * Key text for a transaction-level advisory lock. Advisory locks are database-wide and both
+ * environments live in one database (ADR 003), so the schema is always part of the key.
+ * Pass the result to `hashtextextended($1::text, 0)`.
+ */
+export function advisoryKey(ctx: UserContext, scope: string, ...ids: string[]): string {
+  return [scope, ctx.schema, ...ids].join(':');
+}
