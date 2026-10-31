@@ -1,15 +1,18 @@
 import {
-  localDateOf,
+  addDays,
+  compareDates,
   schedule,
   summarizeChanges,
+  weekday,
   type ChangeSummary,
   type DayOverride,
   type ScheduleResult,
+  type Task,
   type WeekPattern,
 } from '@skillstack/shared';
-import { HttpError } from '../../errors';
+import type { Database } from '../../db/database';
+import type { DayContext, DaysService } from '../days/service';
 import type { PlanDetail } from '../plans/schemas';
-import type { PlanService } from '../plans/service';
 
 export interface ScheduleView {
   today: string;
@@ -35,66 +38,159 @@ export interface PreviewView {
   proposed: Pick<ScheduleView, 'finishDate' | 'warnings' | 'blocks'>;
 }
 
-function requirePattern(plan: PlanDetail): WeekPattern {
-  if (!plan.weekPattern) {
-    throw new HttpError(422, 'unprocessable', 'The plan has no week pattern yet.');
-  }
-  return plan.weekPattern;
+export interface OpenTask {
+  taskId: string;
+  title: string;
+  type: Task['type'];
+  status: 'pending' | 'in_progress';
+  estHours: number;
+  doneHours: number;
+  remainingHours: number;
+  /** Dates of this week on which the task has blocks (frozen or still to come), ascending. */
+  plannedDates: string[];
+  /** Earlier frozen days on which the task was planned and is still not done, ascending. */
+  carriedOverFrom: string[];
+}
+
+export interface OpenTasksView {
+  today: string;
+  /** The week is Sunday to Saturday in the plan's time zone and holds `today`. */
+  weekStart: string;
+  weekEnd: string;
+  tasks: OpenTask[];
 }
 
 /**
- * The read side of scheduling: loads a plan through the plan service and hands it to the pure
- * engine in @skillstack/shared. No scheduling rule lives here, and nothing here writes.
+ * The read side of scheduling: loads a plan, brings its stored past days up to date and hands
+ * both to the pure engine in @skillstack/shared. No scheduling rule lives here. The only write
+ * is the automatic freezing of days that have passed (see the days service).
  */
-export function createSchedulingService(plans: PlanService) {
-  /** Nothing is scheduled before the plan starts: a plan that starts later begins on its start date. */
-  const firstDay = (plan: PlanDetail, today: string) =>
-    today < plan.startDate ? plan.startDate : today;
-  const run = (plan: PlanDetail, pattern: WeekPattern, overrides: DayOverride[], today: string) =>
-    schedule({ tasks: plan.tasks, pattern, overrides, today: firstDay(plan, today) });
+export function createSchedulingService(db: Database, days: DaysService) {
+  /**
+   * The first date the engine may change. Nothing is scheduled before the plan starts, and a
+   * frozen day (ended, or rolled over) is never scheduled again: the schedule continues on the
+   * first date from `viewDay` that is not frozen.
+   */
+  const engineToday = (c: DayContext, viewDay: string): string => {
+    const frozen = new Set(c.snapshots.map((s) => s.date));
+    let day = compareDates(viewDay, c.plan.startDate) < 0 ? c.plan.startDate : viewDay;
+    while (frozen.has(day)) day = addDays(day, 1);
+    return day;
+  };
+
+  const run = (c: DayContext, pattern: WeekPattern, overrides: DayOverride[], viewDay: string) =>
+    schedule({
+      tasks: c.plan.tasks,
+      pattern,
+      overrides,
+      today: engineToday(c, viewDay),
+      frozenBlocks: c.snapshots.flatMap((s) => s.blocks),
+    });
+
+  const mergeOverrides = (plan: PlanDetail, changes: PreviewChanges): DayOverride[] => {
+    const removed = new Set(changes.removeOverrideDates ?? []);
+    const replaced = new Map((changes.overrides ?? []).map((o) => [o.date, o]));
+    return [
+      ...plan.overrides.filter((o) => !removed.has(o.date) && !replaced.has(o.date)),
+      ...replaced.values(),
+    ].sort((a, b) => compareDates(a.date, b.date));
+  };
 
   return {
     async getSchedule(userId: string, planId: string, today?: string): Promise<ScheduleView> {
-      const plan = await plans.get(userId, planId);
-      const pattern = requirePattern(plan);
-      const day = today ?? localDateOf(new Date(), pattern.timezone);
-      const result = run(plan, pattern, plan.overrides, day);
-      return {
-        today: day,
-        timezone: pattern.timezone,
-        finishDate: result.finishDate,
-        blocks: result.blocks,
-        warnings: result.warnings,
-      };
+      return db.withUser(userId, async (ctx) => {
+        const c = await days.open(ctx, userId, planId);
+        const day = today ?? c.today;
+        const result = run(c, c.pattern, c.plan.overrides, day);
+        return {
+          today: day,
+          timezone: c.pattern.timezone,
+          finishDate: result.finishDate,
+          blocks: result.blocks,
+          warnings: result.warnings,
+        };
+      });
     },
 
-    /** Computes the schedule the changes would give and compares it; saves nothing. */
+    /** Computes the schedule the changes would give and compares it; saves nothing but frozen past days. */
     async preview(userId: string, planId: string, changes: PreviewChanges): Promise<PreviewView> {
-      const plan = await plans.get(userId, planId);
-      const current = requirePattern(plan);
-      const pattern = changes.pattern ?? current;
-      const day = changes.today ?? localDateOf(new Date(), current.timezone);
+      return db.withUser(userId, async (ctx) => {
+        const c = await days.open(ctx, userId, planId);
+        const pattern = changes.pattern ?? c.pattern;
+        const day = changes.today ?? c.today;
+        const overrides = mergeOverrides(c.plan, changes);
 
-      const removed = new Set(changes.removeOverrideDates ?? []);
-      const replaced = new Map((changes.overrides ?? []).map((o) => [o.date, o]));
-      const overrides = [
-        ...plan.overrides.filter((o) => !removed.has(o.date) && !replaced.has(o.date)),
-        ...replaced.values(),
-      ].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+        const before = run(c, c.pattern, c.plan.overrides, day);
+        const after = run(c, pattern, overrides, day);
+        return {
+          today: day,
+          summary: summarizeChanges(before, after, {
+            today: engineToday(c, day),
+            pattern,
+            overrides,
+            tasks: c.plan.tasks,
+          }),
+          current: { finishDate: before.finishDate, warnings: before.warnings },
+          proposed: {
+            finishDate: after.finishDate,
+            warnings: after.warnings,
+            blocks: after.blocks,
+          },
+        };
+      });
+    },
 
-      const before = run(plan, current, plan.overrides, day);
-      const after = run(plan, pattern, overrides, day);
-      return {
-        today: day,
-        summary: summarizeChanges(before, after, {
-          today: firstDay(plan, day),
-          pattern,
-          overrides,
-          tasks: plan.tasks,
-        }),
-        current: { finishDate: before.finishDate, warnings: before.warnings },
-        proposed: { finishDate: after.finishDate, warnings: after.warnings, blocks: after.blocks },
-      };
+    /**
+     * Tasks to show as "open" in the weekly view: not done and not skipped, and either planned
+     * this week (a frozen day of the week or a block still to come) or carried over, meaning
+     * planned on an earlier frozen day and still open.
+     */
+    async openTasks(userId: string, planId: string, today?: string): Promise<OpenTasksView> {
+      return db.withUser(userId, async (ctx) => {
+        const c = await days.open(ctx, userId, planId);
+        const day = today ?? c.today;
+        const weekStart = addDays(day, -weekday(day));
+        const weekEnd = addDays(weekStart, 6);
+        const result = run(c, c.pattern, c.plan.overrides, day);
+
+        const carried = new Map<string, Set<string>>();
+        for (const s of c.snapshots) {
+          if (compareDates(s.date, day) > 0) continue;
+          for (const b of s.blocks) {
+            const dates = carried.get(b.taskId) ?? new Set<string>();
+            dates.add(s.date);
+            carried.set(b.taskId, dates);
+          }
+        }
+        const planned = new Map<string, Set<string>>();
+        for (const b of result.blocks) {
+          if (compareDates(b.date, weekStart) < 0 || compareDates(b.date, weekEnd) > 0) continue;
+          const dates = planned.get(b.taskId) ?? new Set<string>();
+          dates.add(b.date);
+          planned.set(b.taskId, dates);
+        }
+
+        const sorted = (set: Set<string> | undefined) => [...(set ?? [])].sort(compareDates);
+        const tasks: OpenTask[] = [];
+        for (const t of c.plan.tasks) {
+          if (t.status !== 'pending' && t.status !== 'in_progress') continue;
+          const plannedDates = sorted(planned.get(t.id));
+          const carriedOverFrom = sorted(carried.get(t.id));
+          if (plannedDates.length === 0 && carriedOverFrom.length === 0) continue;
+          tasks.push({
+            taskId: t.id,
+            title: t.title,
+            type: t.type,
+            status: t.status,
+            estHours: t.estHours,
+            doneHours: t.doneHours,
+            remainingHours: Math.max(0, t.estHours - t.doneHours),
+            plannedDates,
+            carriedOverFrom,
+          });
+        }
+        return { today: day, weekStart, weekEnd, tasks };
+      });
     },
   };
 }
