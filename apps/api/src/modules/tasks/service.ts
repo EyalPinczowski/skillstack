@@ -1,4 +1,4 @@
-import { TaskSchema } from '@skillstack/shared';
+import { localDateOf, TaskSchema } from '@skillstack/shared';
 import type { Database, UserContext } from '../../db/database';
 import { HttpError } from '../../errors';
 import { createsCycle } from './graph';
@@ -178,7 +178,24 @@ const EDITABLE: ReadonlyArray<readonly [keyof PatchTaskBody, string, string]> = 
 ];
 
 /** Task, log and progress operations. Every query runs inside db.withUser (row-level security). */
-export function createTaskService(db: Database) {
+/**
+ * Today's date in the plan's time zone, for events that the day snapshots read ("this task was
+ * completed or skipped on that day"). Null when the plan has no week pattern yet.
+ */
+async function planLocalToday(
+  ctx: UserContext,
+  userId: string,
+  planId: string,
+  now: () => Date,
+): Promise<string | null> {
+  const { rows } = await ctx.client.query<{ timezone: string }>(
+    `select timezone from ${ctx.schema}.week_patterns where user_id = $1 and plan_id = $2`,
+    [userId, planId],
+  );
+  return rows[0] ? localDateOf(now(), rows[0].timezone) : null;
+}
+
+export function createTaskService(db: Database, now: () => Date = () => new Date()) {
   const run = <T>(userId: string, fn: (ctx: UserContext) => Promise<T>) => db.withUser(userId, fn);
 
   return {
@@ -353,6 +370,7 @@ export function createTaskService(db: Database) {
         await writeEvent(ctx, userId, planId, 'task.completed', {
           taskId,
           doneHours: task.doneHours,
+          date: await planLocalToday(ctx, userId, planId, now),
         });
         if (task.isCertificate) {
           // A reopened and re-completed certificate is still one certificate.
@@ -400,6 +418,11 @@ export function createTaskService(db: Database) {
            where user_id = $1 and plan_id = $2 and id = $3 returning ${TASK_COLUMNS}`,
           [userId, planId, taskId],
         );
+        // The day snapshots read this to know the task was still open earlier that day.
+        await writeEvent(ctx, userId, planId, 'task.skipped', {
+          taskId,
+          date: await planLocalToday(ctx, userId, planId, now),
+        });
         return toTaskView(rows[0]!);
       }),
 

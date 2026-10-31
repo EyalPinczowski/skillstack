@@ -66,7 +66,7 @@ const openTasksSchema = z.object({
       taskId: z.string(),
       title: z.string(),
       type: z.string(),
-      status: z.enum(['pending', 'in_progress']),
+      status: z.enum(['pending', 'in_progress', 'skipped']),
       estHours: z.number(),
       doneHours: z.number(),
       remainingHours: z.number(),
@@ -127,7 +127,7 @@ export const schedulingRoutes: FastifyPluginAsyncZod<SchedulingRoutesOptions> = 
         tags: ['scheduling'],
         summary: 'Open tasks of the week, with the days they were carried over from',
         description:
-          'Tasks that are not done or skipped and are either planned this week (Sunday to Saturday in the plan’s time zone, the week that holds `today`) or were planned on an earlier frozen day and are still open. `carriedOverFrom` lists those earlier dates; it is empty for a task that is only planned ahead. `today` defaults to the current date in the plan’s time zone.',
+          'Tasks that are not done and are either planned this week (Sunday to Saturday in the plan’s time zone, the week that holds `today`) or were planned on an earlier frozen day and are still open. A skipped task appears (status `skipped`) only when it was planned on an earlier frozen day, so it can be reconsidered; reopen it to plan it again. `carriedOverFrom` lists those earlier dates; it is empty for a task that is only planned ahead. `today` defaults to the current date in the plan’s time zone.',
         security: [{ bearerAuth: [] }],
         params: planIdParams,
         querystring: z.object({ today: LocalDateSchema.optional() }),

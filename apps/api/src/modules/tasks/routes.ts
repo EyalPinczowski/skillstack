@@ -43,7 +43,7 @@ export const taskRoutes: FastifyPluginAsyncZod<TaskRoutesOptions> = async (
   { verifier, db, now },
 ) => {
   installAccountGuard(app, verifier, db ? createAccountService(db) : null);
-  const service = db ? createTaskService(db) : null;
+  const service = db ? createTaskService(db, now) : null;
   const days = db ? createDaysService(db, now) : null;
   /** The user id comes only from the verified token, never from the request. */
   const user = (request: FastifyRequest) => request.accountId!;

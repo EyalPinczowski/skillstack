@@ -32,7 +32,7 @@ services:
         sync: false
       - key: SUPABASE_URL
         sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY # server-only secret, never in Vercel or git
+      - key: SUPABASE_SERVICE_ROLE_KEY # server-only secret, OPERATIONAL service only, never in Vercel or git
         sync: false
       - key: DATABASE_URL
         sync: false
@@ -67,7 +67,7 @@ services:
         sync: false
       - key: SUPABASE_URL
         sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY # server-only secret, never in Vercel or git
-        sync: false
+      # No SUPABASE_SERVICE_ROLE_KEY here on purpose: R&D shares Supabase Auth with the live app, so
+      # only skillstack-api may hold the key. The R&D API refuses to start if the key is set.
       - key: DATABASE_URL
         sync: false

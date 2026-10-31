@@ -23,6 +23,12 @@ Body: a plan file (`formatVersion: 1`, shared `PlanFileSchema`) plus
 
 The plan, week pattern, day overrides, tasks and a `plan.imported` event are written in one transaction. Sending the same `id` and content again returns **200** with the stored plan and creates nothing; the same `id` with different content returns **409**. Content is compared with a hash recorded in the `plan.imported` event, so a retry still returns 200 after the plan was edited. Limits: body 512 KiB (413), 500 tasks and 1000 overrides (422). Invalid plans (unknown time zone, duplicate task ids, unknown dependencies, blank names, end before start, duplicate override dates) answer 422 with the field paths in `message`.
 
+## Open tasks and day snapshots
+
+`GET /plans/:id/open-tasks?today=` lists the tasks of the week that are not done: planned this week, or carried over (planned on an earlier frozen day and still open, listed in `carriedOverFrom`). A task that was **skipped** after it was planned on an earlier day stays in the list with `status: "skipped"` and its `carriedOverFrom` dates, so the user can reconsider it (spec section 9); nothing reopens it automatically, and `POST .../reopen` brings it back. A skipped task that was never planned on an earlier day, and every done task, are left out.
+
+A frozen day (`schedule_days`) is **the plan as of the start of that day**: work logged on or after the day, and a task completed or skipped on or after the day, do not count yet. So a task skipped or marked done (without any log) during Monday is still in Monday's snapshot. Without that, such a task would vanish from the day it was planned on, the day review would show less than was planned, and a task skipped yesterday could never be carried over. The date comes from the `date` in the `task.completed` / `task.skipped` events (the plan-local date, written by the API; for older completion events the event time in the plan's time zone). A task skipped before skips were recorded has no such date and stays skipped in every snapshot, which is the old behaviour. Days that are already frozen never change.
+
 ## Notes
 
 - The schedule uses the stored tasks only. CV-update tasks appear once the tasks module creates them (they are not projected here).

@@ -14,7 +14,7 @@ export function TaskActions({
   onSkip,
   onReopen,
 }: {
-  task: Task;
+  task: Pick<Task, 'title' | 'status'>;
   /** True while a mark-done, skip or reopen for this task is running. */
   busy: boolean;
   /** True while the log form is open. */

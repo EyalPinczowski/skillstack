@@ -11,6 +11,7 @@ import {
   planRoutes,
   progress,
   schedule,
+  taskView,
 } from '../test/plan-fixtures';
 
 afterEach(() => {
@@ -150,6 +151,59 @@ describe('Week', () => {
     expect(within(rows[1]!).getByRole('link', { name: 'SQL exam' })).toBeInTheDocument();
     expect(within(rows[1]!).queryByText(/Carried over/)).not.toBeInTheDocument();
     expect(within(rows[1]!).getByText('Planned Thu')).toBeInTheDocument();
+  });
+
+  describe('a task skipped yesterday', () => {
+    const skippedRoutes = (extra: Parameters<typeof planRoutes>[0] = {}) => ({
+      [`GET ${BASE}/open-tasks`]: () =>
+        json(
+          openTasks({
+            tasks: [
+              {
+                taskId: 'sql1',
+                title: 'Intro to SQL',
+                type: 'course',
+                status: 'skipped',
+                estHours: 3,
+                doneHours: 1,
+                remainingHours: 2,
+                plannedDates: ['2026-11-09'],
+                carriedOverFrom: ['2026-11-09'],
+              },
+            ],
+          }),
+        ),
+      ...extra,
+    });
+
+    it('shows Skipped in words with an icon, still marked as carried over', async () => {
+      open(skippedRoutes());
+      const heading = await screen.findByRole('heading', { name: 'Open tasks' });
+      const [row] = within(heading.closest('section') as HTMLElement).getAllByRole('listitem');
+      const status = within(row!).getByText('Skipped');
+      expect(status.closest('span')!.querySelector('svg')).not.toBeNull();
+      expect(within(row!).getByText(/Carried over from/)).toBeInTheDocument();
+      expect(within(row!).getByRole('link', { name: 'Intro to SQL' })).toBeInTheDocument();
+    });
+
+    it('offers only Reopen, and reopens on the click and not before', async () => {
+      const api = open(
+        skippedRoutes({ [`POST ${BASE}/tasks/sql1/reopen`]: () => json(taskView()) }),
+      );
+      const heading = await screen.findByRole('heading', { name: 'Open tasks' });
+      const [row] = within(heading.closest('section') as HTMLElement).getAllByRole('listitem');
+      expect(within(row!).queryByRole('button', { name: /Mark done|Skip|Log time/ })).toBeNull();
+      expect(api.count(`POST ${BASE}/tasks/sql1/reopen`)).toBe(0);
+      await userEvent.setup().click(within(row!).getByRole('button', { name: /^Reopen/ }));
+      expect(api.count(`POST ${BASE}/tasks/sql1/reopen`)).toBe(1);
+    });
+
+    it('has no accessibility violations', async () => {
+      open(skippedRoutes());
+      await screen.findByRole('heading', { name: 'Open tasks' });
+      await screen.findByText('Skipped');
+      await expectNoAxeViolations();
+    });
   });
 
   it('says when nothing is open', async () => {

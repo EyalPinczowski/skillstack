@@ -220,7 +220,7 @@ export interface paths {
         post?: never;
         /**
          * Delete the account and all its data
-         * @description The body must contain {"confirmation": "delete my account"}. Deletes the Skillstack data and the Supabase Auth user together; if the Auth user cannot be deleted, nothing is deleted (502) and the request can be retried.
+         * @description The body must contain {"confirmation": "delete my account"}. Deletes the Skillstack data and, on the operational API, the Supabase Auth user together; if the Auth user cannot be deleted, nothing is deleted (502) and the request can be retried. The R&D API shares the Auth project, so it deletes only its own data and never the Auth user.
          */
         delete: {
             parameters: {
@@ -2287,7 +2287,7 @@ export interface paths {
         };
         /**
          * Open tasks of the week, with the days they were carried over from
-         * @description Tasks that are not done or skipped and are either planned this week (Sunday to Saturday in the plan’s time zone, the week that holds `today`) or were planned on an earlier frozen day and are still open. `carriedOverFrom` lists those earlier dates; it is empty for a task that is only planned ahead. `today` defaults to the current date in the plan’s time zone.
+         * @description Tasks that are not done and are either planned this week (Sunday to Saturday in the plan’s time zone, the week that holds `today`) or were planned on an earlier frozen day and are still open. A skipped task appears (status `skipped`) only when it was planned on an earlier frozen day, so it can be reconsidered; reopen it to plan it again. `carriedOverFrom` lists those earlier dates; it is empty for a task that is only planned ahead. `today` defaults to the current date in the plan’s time zone.
          */
         get: {
             parameters: {
@@ -2317,7 +2317,7 @@ export interface paths {
                                 title: string;
                                 type: string;
                                 /** @enum {string} */
-                                status: "pending" | "in_progress";
+                                status: "pending" | "in_progress" | "skipped";
                                 estHours: number;
                                 doneHours: number;
                                 remainingHours: number;

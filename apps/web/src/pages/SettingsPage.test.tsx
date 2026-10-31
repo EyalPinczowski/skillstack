@@ -2,7 +2,16 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { expectNoAxeViolations } from '../test/axe';
-import { apiError, fakeAuth, installApi, json, meBody, renderApp, SESSION } from '../test/helpers';
+import {
+  apiError,
+  ENV,
+  fakeAuth,
+  installApi,
+  json,
+  meBody,
+  renderApp,
+  SESSION,
+} from '../test/helpers';
 
 const createObjectURL = vi.fn<(blob: Blob) => string>(() => 'blob:fake');
 const revokeObjectURL = vi.fn();
@@ -21,9 +30,13 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function open(routes: Parameters<typeof installApi>[0] = {}, auth = fakeAuth(SESSION)) {
+function open(
+  routes: Parameters<typeof installApi>[0] = {},
+  auth = fakeAuth(SESSION),
+  appEnv: 'operational' | 'rnd' = 'operational',
+) {
   const api = installApi({ 'GET /api/v1/me': () => json(meBody()), ...routes });
-  renderApp({ auth, path: '/settings' });
+  renderApp({ auth, path: '/settings', env: { ...ENV, appEnv } });
   return { api, auth };
 }
 
@@ -192,6 +205,24 @@ describe('settings page', () => {
       await user.clear(confirmBox());
       await user.type(confirmBox(), 'delete my account');
       expect(deleteButton()).toBeEnabled();
+    });
+
+    it('says the sign-in record is deleted on the live app', async () => {
+      open();
+      await screen.findByRole('heading', { level: 1, name: 'Settings' });
+      const section = screen.getByRole('region', { name: 'Delete my account' });
+      expect(section).toHaveTextContent('and sign-in record (your email)');
+      expect(section).not.toHaveTextContent('R&D test account');
+    });
+
+    it('says on R&D that the sign-in record stays because it is shared with the live app', async () => {
+      open({}, fakeAuth(SESSION), 'rnd');
+      await screen.findByRole('heading', { level: 1, name: 'Settings' });
+      const section = screen.getByRole('region', { name: 'Delete my account' });
+      expect(section).toHaveTextContent(
+        'R&D test account: your sign-in record stays because it is shared with the live app.',
+      );
+      expect(section).not.toHaveTextContent('and sign-in record (your email)');
     });
 
     it('turns off phone autocorrection and capitalisation for the phrase', async () => {

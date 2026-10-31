@@ -138,6 +138,41 @@ export async function endSession(
   return rowCount === 1;
 }
 
+/**
+ * For each task that is done or skipped now: the plan-local date of its latest `task.completed`
+ * or `task.skipped` event. A task with no such event (changed before these events existed, or
+ * created that way) is absent.
+ */
+export async function statusChangeDates(
+  ctx: UserContext,
+  userId: string,
+  planId: string,
+  timezone: string,
+): Promise<Map<string, { status: 'done' | 'skipped'; date: string }>> {
+  const { rows } = await ctx.client.query<{
+    task_id: string;
+    type: 'task.completed' | 'task.skipped';
+    date: string;
+  }>(
+    `select distinct on (payload ->> 'taskId')
+            payload ->> 'taskId' as task_id, type,
+            coalesce(payload ->> 'date', (created_at at time zone $3)::date::text) as date
+     from ${ctx.schema}.events
+     where user_id = $1 and plan_id = $2 and type in ('task.completed', 'task.skipped')
+     order by payload ->> 'taskId', created_at desc, id desc`,
+    [userId, planId, timezone],
+  );
+  return new Map(
+    rows.map((r) => [
+      r.task_id,
+      {
+        status: r.type === 'task.completed' ? ('done' as const) : ('skipped' as const),
+        date: r.date,
+      },
+    ]),
+  );
+}
+
 /** Hours logged per task and date on or after `from`. */
 export async function logsFrom(
   ctx: UserContext,
