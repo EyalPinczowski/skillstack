@@ -121,6 +121,25 @@ const TABLES: UserTable[] = [
        values ('${u}', '${PLAN_B}', '2026-01-07', '[]', 'day_end')`,
   },
   {
+    name: 'day_reviews',
+    ownerColumn: 'user_id',
+    // The app may re-save ratings, note and outcomes (column grant); no deletes.
+    update: `note = 'changed'`,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.day_reviews (user_id, plan_id, date, difficulty, density, energy)
+       values ('${u}', '${PLAN_B}', '2026-01-07', 3, 3, 3)`,
+  },
+  {
+    name: 'adjustments',
+    ownerColumn: 'user_id',
+    update: null,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.adjustments (user_id, plan_id, suggestion_id, rule, key, evidence, status)
+       values ('${u}', '${PLAN_B}', 'sg_new', 'density_too_low', '2026-01-07', '{}', 'rejected')`,
+  },
+  {
     name: 'events',
     ownerColumn: 'user_id',
     update: null,
@@ -169,6 +188,12 @@ async function seed(client: pg.Client): Promise<void> {
       insert into rnd.schedule_days (user_id, plan_id, date, blocks, source) values
         ('${USER_A}', '${PLAN_A}', '2026-01-05', '[]', 'day_end'),
         ('${USER_B}', '${PLAN_B}', '2026-01-05', '[]', 'auto_rollover');
+      insert into rnd.day_reviews (user_id, plan_id, date, difficulty, density, energy) values
+        ('${USER_A}', '${PLAN_A}', '2026-01-05', 2, 4, 3),
+        ('${USER_B}', '${PLAN_B}', '2026-01-05', 3, 3, 3);
+      insert into rnd.adjustments (user_id, plan_id, suggestion_id, rule, key, evidence, status) values
+        ('${USER_A}', '${PLAN_A}', 'sg_a1', 'density_too_low', '2026-01-05', '{}', 'rejected'),
+        ('${USER_B}', '${PLAN_B}', 'sg_b1', 'density_too_low', '2026-01-05', '{}', 'rejected');
       insert into rnd.app_settings (key, value, is_public) values ('secret.key', '"x"', false);
     `);
     await client.query('commit');
@@ -374,6 +399,131 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
             client.query(
               `insert into rnd.schedule_days (user_id, plan_id, date, blocks, source)
                values ('${USER_A}', '${PLAN_B}', '2026-03-02', '[]', 'day_end')`,
+            ),
+          ),
+        ).rejects.toThrow(/violates foreign key constraint/);
+      });
+    });
+  });
+
+  describe('day_reviews can be re-saved in part and adjustments are append-only', () => {
+    it('lets the app change ratings, note and outcomes of a review but nothing else', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        await asUser(client, 'rnd', USER_A, async () => {
+          const ok = await client.query(
+            `update rnd.day_reviews set difficulty = 5, density = 1, energy = 2, note = 'n',
+               outcomes = '[]', updated_at = now() where user_id = $1`,
+            [USER_A],
+          );
+          expect(ok.rowCount).toBe(1);
+        });
+        for (const sql of [
+          `update rnd.day_reviews set date = '2026-02-02' where user_id = $1`,
+          `update rnd.day_reviews set plan_id = '${PLAN_B}' where user_id = $1`,
+          `update rnd.day_reviews set created_at = now() where user_id = $1`,
+          `delete from rnd.day_reviews where user_id = $1`,
+        ]) {
+          await expect(
+            asUser(client, 'rnd', USER_A, () => client.query(sql, [USER_A])),
+          ).rejects.toThrow(NO_PRIVILEGE);
+        }
+      });
+    });
+
+    it('refuses out-of-range ratings, a long note, non-array outcomes and a second review for a date', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        const row = (cols: string, vals: string) =>
+          `insert into rnd.day_reviews (user_id, plan_id, date, ${cols})
+           values ('${USER_A}', '${PLAN_A}', '2026-03-01', ${vals})`;
+        for (const bad of [
+          row('difficulty, density, energy', '0, 3, 3'),
+          row('difficulty, density, energy', '3, 6, 3'),
+          row('difficulty, density, energy', '3, 3, 0'),
+          row('difficulty, density, energy, note', `3, 3, 3, '${'x'.repeat(2001)}'`),
+          row('difficulty, density, energy, outcomes', `3, 3, 3, '{}'`),
+          row('difficulty, density, energy, outcomes', `3, 3, 3, '"x"'`),
+          row(
+            'difficulty, density, energy, outcomes',
+            `3, 3, 3, (select jsonb_agg(1) from generate_series(1, 201))`,
+          ),
+        ]) {
+          await expect(asUser(client, 'rnd', USER_A, () => client.query(bad))).rejects.toThrow(
+            /violates check constraint/,
+          );
+        }
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(
+              `insert into rnd.day_reviews (user_id, plan_id, date, difficulty, density, energy)
+               values ('${USER_A}', '${PLAN_A}', '2026-01-05', 3, 3, 3)`,
+            ),
+          ),
+        ).rejects.toThrow(/duplicate key/);
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(
+              `insert into rnd.day_reviews (user_id, plan_id, date, difficulty, density, energy)
+               values ('${USER_A}', '${PLAN_B}', '2026-03-02', 3, 3, 3)`,
+            ),
+          ),
+        ).rejects.toThrow(/violates foreign key constraint/);
+      });
+    });
+
+    it('denies UPDATE and DELETE on adjustments and has only INSERT and SELECT policies', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        for (const sql of [
+          `update rnd.adjustments set status = 'accepted' where user_id = '${USER_A}'`,
+          `delete from rnd.adjustments where user_id = '${USER_A}'`,
+        ]) {
+          await expect(asUser(client, 'rnd', USER_A, () => client.query(sql))).rejects.toThrow(
+            NO_PRIVILEGE,
+          );
+        }
+      });
+      await withClient(TEST_SUPERUSER_URL!, async (client) => {
+        const { rows } = await client.query<{ polcmd: string }>(
+          `select p.polcmd from pg_policy p
+            where p.polrelid = 'rnd.adjustments'::regclass
+              and 'app_rnd_user'::regrole::oid = any (p.polroles)
+            order by 1`,
+        );
+        expect(rows.map((r) => r.polcmd)).toEqual(['a', 'r']);
+      });
+    });
+
+    it('refuses bad adjustment rows: unknown rule or status, accepted without an option or change, a duplicate suggestion, a foreign plan', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        const row = (suggestion: string, rule: string, status: string, extra = '') =>
+          `insert into rnd.adjustments (user_id, plan_id, suggestion_id, rule, key, evidence, status ${extra ? ', ' + extra.split('|')[0] : ''})
+           values ('${USER_A}', '${PLAN_A}', '${suggestion}', '${rule}', 'k', '{}', '${status}' ${extra ? ', ' + extra.split('|')[1] : ''})`;
+        for (const bad of [
+          row('sg_x1', 'made_up', 'rejected'),
+          row('sg_x2', 'density_too_low', 'maybe'),
+          // accepted needs an option and the applied change
+          row('sg_x3', 'density_too_low', 'accepted'),
+          row('sg_x4', 'density_too_low', 'accepted', 'option_index|0'),
+          // rejected must not carry an option or a change
+          row('sg_x5', 'density_too_low', 'rejected', 'option_index|0'),
+          row('sg_x6', 'density_too_low', 'rejected', `applied_change|'{}'`),
+          // evidence must be an object
+          `insert into rnd.adjustments (user_id, plan_id, suggestion_id, rule, key, evidence, status)
+           values ('${USER_A}', '${PLAN_A}', 'sg_x7', 'density_too_low', 'k', '[]', 'rejected')`,
+        ]) {
+          await expect(asUser(client, 'rnd', USER_A, () => client.query(bad))).rejects.toThrow(
+            /violates check constraint/,
+          );
+        }
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(row('sg_a1', 'density_too_low', 'rejected')),
+          ),
+        ).rejects.toThrow(/duplicate key/);
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(
+              `insert into rnd.adjustments (user_id, plan_id, suggestion_id, rule, key, evidence, status)
+               values ('${USER_A}', '${PLAN_B}', 'sg_y1', 'density_too_low', 'k', '{}', 'rejected')`,
             ),
           ),
         ).rejects.toThrow(/violates foreign key constraint/);
@@ -824,6 +974,8 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
             'day_overrides',
             'day_sessions',
             'schedule_days',
+            'day_reviews',
+            'adjustments',
           ]) {
             const { rows } = await client.query(
               `select count(*)::int as n from rnd.${table} where plan_id = $1`,
