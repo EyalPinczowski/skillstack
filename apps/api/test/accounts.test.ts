@@ -3,7 +3,7 @@ import { buildApp } from '../src/app';
 import { createDatabase, type Database } from '../src/db/database';
 import { errorResponseSchema } from '../src/errors';
 import { createSupabaseVerifier } from '../src/modules/accounts/token-verifier';
-import { dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
+import { acceptCurrentLegal, dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
 import { testConfig } from './helpers';
 import { ISSUER, makeTestKeys, unsignedToken, type TestKeys } from './tokens';
 
@@ -241,6 +241,13 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
   });
 
   describe('PATCH /me', () => {
+    // Changing the profile is not on the list of routes that work before the Terms are accepted.
+    beforeEach(async () => {
+      await call('GET', '/me', await asA());
+      await call('GET', '/me', await asB());
+      await testDb.admin((c) => acceptCurrentLegal(c, [A, B]));
+    });
+
     it('changes the display name, trims it and can clear it', async () => {
       const res = await call('PATCH', '/me', await asA(), { displayName: '  Ada  ' });
       expect(res.statusCode).toBe(200);

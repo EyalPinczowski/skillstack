@@ -15,6 +15,26 @@ const unauthorized = () => new HttpError(401, 'unauthorized', 'Authentication is
 /** One message for every refusal (not on the list, cap reached, disabled): nothing to probe. */
 const forbidden = () => new HttpError(403, 'forbidden', 'This account cannot use Skillstack.');
 
+const termsNotAccepted = () =>
+  new HttpError(
+    403,
+    'terms_not_accepted',
+    'Accept the current Terms of Use and Privacy Policy to continue.',
+  );
+
+/**
+ * The only signed-in routes that work before the current Terms and Privacy Policy are accepted
+ * (spec 9): reading the account and its legal status, accepting, downloading the user's own data
+ * and deleting the account. Everything else, in every module, answers 403 `terms_not_accepted`.
+ * The key is the method plus the route pattern, so a new route is blocked unless it is added here.
+ */
+export const TERMS_EXEMPT_ROUTES: ReadonlySet<string> = new Set([
+  'GET /api/v1/me',
+  'POST /api/v1/me/legal-acceptances',
+  'GET /api/v1/me/export',
+  'DELETE /api/v1/me',
+]);
+
 /** A bearer token of token characters only: a linear check, no backtracking on user input. */
 function bearerToken(request: FastifyRequest): string | null {
   const header = request.headers.authorization;
@@ -24,7 +44,8 @@ function bearerToken(request: FastifyRequest): string | null {
 }
 
 /**
- * Verifies the token, provisions the account on first use and checks it is active. Install it
+ * Verifies the token, provisions the account on first use, checks it is active and (except on
+ * `TERMS_EXEMPT_ROUTES`) that the current Terms and Privacy Policy are accepted. Install it
  * once in every plugin scope that serves signed-in routes; it sets `request.accountId` from the
  * verified token and from nowhere else.
  */
@@ -58,6 +79,9 @@ export function installAccountGuard(
         throw forbidden();
       }
       throw error;
+    }
+    if (!TERMS_EXEMPT_ROUTES.has(`${request.method} ${request.routeOptions.url}`)) {
+      if (!(await service.hasAcceptedCurrentLegal(verified.userId))) throw termsNotAccepted();
     }
     request.accountId = verified.userId;
   });

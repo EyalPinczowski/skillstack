@@ -5,7 +5,7 @@ import type { z } from 'zod';
 import { errorResponseSchema } from '../src/errors';
 import type { progressView } from '../src/modules/tasks/schemas';
 import { createSupabaseVerifier } from '../src/modules/accounts/token-verifier';
-import { dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
+import { acceptCurrentLegal, dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
 import { testConfig } from './helpers';
 import { ISSUER, makeTestKeys, type TestKeys } from './tokens';
 
@@ -61,6 +61,7 @@ describe.skipIf(!dbAvailable)('tasks and logs (real Postgres, locally signed tok
            values ($1, $2, 'builder', 'Plan', '2026-11-01')`,
           [user, id],
         );
+      await acceptCurrentLegal(c, [A, B]);
       await plan(A, PLAN_A);
       await plan(A, PLAN_A2);
       await plan(B, PLAN_B);

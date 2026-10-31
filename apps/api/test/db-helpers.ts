@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { migrate, setPasswords } from '@skillstack/db';
 import pg from 'pg';
+import { CURRENT_LEGAL_VERSIONS, LEGAL_DOCUMENTS } from '../src/modules/accounts/legal';
 
 /**
  * Real-Postgres test setup, a small duplicate of packages/db/test/helpers.ts (that file is not
@@ -95,4 +96,25 @@ export async function prepareDatabase(): Promise<TestDb> {
     appUrl: (schema) => urlFor(TEST_DATABASE_URL!, `app_${schema}`, passwords[schema]),
     admin: (work) => withClient(TEST_SUPERUSER_URL!, work),
   };
+}
+
+/**
+ * Records that these users accepted the current Terms and Privacy Policy. The API refuses every
+ * data route with 403 `terms_not_accepted` until then (spec 9), so tests that are not about
+ * that call this after inserting the users. The users must already exist in app_users.
+ */
+export async function acceptCurrentLegal(
+  client: pg.Client,
+  userIds: string[],
+  schema: Schema = 'rnd',
+): Promise<void> {
+  for (const userId of userIds) {
+    for (const document of LEGAL_DOCUMENTS) {
+      await client.query(
+        `insert into ${schema}.legal_acceptances (user_id, document, version) values ($1, $2, $3)
+         on conflict do nothing`,
+        [userId, document, CURRENT_LEGAL_VERSIONS[document]],
+      );
+    }
+  }
 }
