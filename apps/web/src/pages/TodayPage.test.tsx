@@ -59,8 +59,8 @@ describe('Today', () => {
     expect(bar).toHaveAttribute('aria-valuenow', '33');
     expect(screen.getByText('33%')).toBeInTheDocument();
     expect(screen.getByText('1.5 h done of 4.5 h planned')).toBeInTheDocument();
-    expect(screen.getByText('Fri, Nov 20')).toBeInTheDocument();
-    expect(screen.getByText('0 of 1')).toBeInTheDocument();
+    expect(screen.getByText('Finish Fri, Nov 20')).toBeInTheDocument();
+    expect(screen.getByText('Certificates 0 of 1')).toBeInTheDocument();
   });
 
   it('lists today’s blocks with type chip, time range, title, hours and actions', async () => {
@@ -69,7 +69,8 @@ describe('Today', () => {
     expect(block.getByRole('heading', { name: 'Intro to SQL' })).toBeInTheDocument();
     expect(block.getByText('Course')).toBeInTheDocument();
     expect(block.getByText('09:00–10:30')).toBeInTheDocument();
-    expect(block.getByText(/1\.5 h · 1 h of 3 h done/)).toBeInTheDocument();
+    expect(block.getByText('Estimated 3 h · Actual 1 h')).toBeInTheDocument();
+    expect(block.getByText('In progress')).toBeInTheDocument();
     for (const name of ['Log time', 'Mark done', 'Skip']) {
       expect(block.getByRole('button', { name: new RegExp(name) })).toBeInTheDocument();
     }
@@ -87,11 +88,14 @@ describe('Today', () => {
 
   it('pins an exam-at-risk warning as text with an icon', async () => {
     open({ [`GET ${BASE}/schedule`]: () => json(schedule({ warnings: [anchorAtRisk] })) });
-    const region = await screen.findByRole('region', { name: 'Schedule warnings' });
+    const region = await screen.findByRole('group', { name: 'Exam at risk' });
     expect(region).toHaveTextContent('Exam at risk:');
     expect(region).toHaveTextContent('SQL exam, Thu, Nov 19 at 10:00');
-    expect(region).toHaveTextContent('add about 1.5 h of study, or add a study day');
     expect(region.querySelector('svg')).not.toBeNull();
+    expect(within(region).getByRole('link', { name: 'See the plan' })).toHaveAttribute(
+      'href',
+      '/plan',
+    );
     await expectNoAxeViolations();
   });
 

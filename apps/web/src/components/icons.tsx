@@ -118,3 +118,40 @@ export const SkipIcon = () => (
     <path d="M5 6l8 6-8 6zM17 6v12" />
   </Icon>
 );
+
+export const WeekIcon = () => (
+  <Icon>
+    <path d="M4 20V10M10 20V5M16 20v-7M22 20H2" />
+  </Icon>
+);
+
+export const ArrowUpIcon = () => (
+  <Icon>
+    <path d="M12 20V5M6 11l6-6 6 6" />
+  </Icon>
+);
+
+export const ReturnIcon = () => (
+  <Icon>
+    <path d="M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3" />
+  </Icon>
+);
+
+export const ChevronLeftIcon = () => (
+  <Icon>
+    <path d="M15 5l-7 7 7 7" />
+  </Icon>
+);
+
+export const ChevronRightIcon = () => (
+  <Icon>
+    <path d="M9 5l7 7-7 7" />
+  </Icon>
+);
+
+export const LockIcon = () => (
+  <Icon>
+    <rect x="5" y="11" width="14" height="9" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </Icon>
+);

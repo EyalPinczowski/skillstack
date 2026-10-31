@@ -31,6 +31,9 @@ export type SchedulePreview = Ok<paths['/api/v1/plans/{id}/schedule/preview']['p
 export type PreviewRequest = Body<paths['/api/v1/plans/{id}/schedule/preview']['post']>;
 export type Task = Ok<paths['/api/v1/plans/{planId}/tasks']['get']>['tasks'][number];
 export type TaskType = Task['type'];
+export type OpenTasks = Ok<paths['/api/v1/plans/{id}/open-tasks']['get']>;
+export type OpenTask = OpenTasks['tasks'][number];
+export type DayState = Ok<paths['/api/v1/plans/{planId}/days/{date}']['get']>;
 export type Progress = Ok<paths['/api/v1/plans/{planId}/progress']['get']>;
 export type LogRequest = Body<paths['/api/v1/plans/{planId}/tasks/{taskId}/logs']['post']>;
 export type LogResult = Ok<paths['/api/v1/plans/{planId}/tasks/{taskId}/logs']['post']>;
@@ -156,6 +159,34 @@ export function createApiClient({
       ),
     getProgress: (planId: string, signal?: AbortSignal) =>
       unwrap(raw.GET('/api/v1/plans/{planId}/progress', { params: { path: { planId } }, signal })),
+    listLogs: (planId: string, from: string, to: string, signal?: AbortSignal) =>
+      unwrap(
+        raw.GET('/api/v1/plans/{planId}/logs', {
+          params: { path: { planId }, query: { from, to } },
+          signal,
+        }),
+      ),
+    getOpenTasks: (id: string, signal?: AbortSignal) =>
+      unwrap(raw.GET('/api/v1/plans/{id}/open-tasks', { params: { path: { id } }, signal })),
+    getDay: (planId: string, date: string, signal?: AbortSignal) =>
+      unwrap(
+        raw.GET('/api/v1/plans/{planId}/days/{date}', {
+          params: { path: { planId, date } },
+          signal,
+        }),
+      ),
+    startDay: (planId: string, date: string) =>
+      unwrap(
+        raw.POST('/api/v1/plans/{planId}/days/{date}/start', {
+          params: { path: { planId, date } },
+        }),
+      ),
+    endDay: (planId: string, date: string) =>
+      unwrap(
+        raw.POST('/api/v1/plans/{planId}/days/{date}/end', {
+          params: { path: { planId, date } },
+        }),
+      ),
     exportData: () => unwrap(raw.GET('/api/v1/me/export')),
     deleteAccount: (confirmation: string) =>
       unwrap(raw.DELETE('/api/v1/me', { body: { confirmation } })),

@@ -1,4 +1,5 @@
-import type { Briefing, DayState } from '../api/briefing-hooks';
+import type { Briefing } from '../api/briefing-hooks';
+import type { DayState } from '../api/client';
 import type { StoredReview, Suggestion } from '../api/review-hooks';
 import { apiError, json } from './helpers';
 import { NOW, PLAN_ID, planRoutes } from './plan-fixtures';

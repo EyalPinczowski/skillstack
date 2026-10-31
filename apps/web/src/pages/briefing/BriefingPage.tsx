@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router';
-import type { Briefing, BriefingTask, DayState } from '../../api/briefing-hooks';
-import { useBriefing, useDayState, useStartDay } from '../../api/briefing-hooks';
+import { useBriefing, type Briefing, type BriefingTask } from '../../api/briefing-hooks';
+import type { DayState } from '../../api/client';
+import { useDay, useStartDay } from '../../api/hooks';
 import { TaskTypeChip } from '../../components/TaskChips';
 import { AlertIcon, CheckIcon } from '../../components/icons';
 import { Button, ErrorText, linkClass } from '../../components/ui';
@@ -153,7 +154,7 @@ function StartDay({
   state: DayState | undefined;
 }) {
   const navigate = useNavigate();
-  const start = useStartDay(planId, date);
+  const start = useStartDay(planId);
   if (!state) return null;
   if (state.frozen || state.status === 'ended') {
     return (
@@ -181,7 +182,7 @@ function StartDay({
           <Button
             variant="primary"
             disabled={start.isPending}
-            onClick={() => start.mutate(undefined, { onSuccess: () => void navigate('/') })}
+            onClick={() => start.mutate(date, { onSuccess: () => void navigate('/') })}
           >
             {start.isPending ? 'Starting…' : 'Start study day'}
           </Button>
@@ -268,7 +269,7 @@ function BriefingBody({
 function BriefingContent({ planId, date }: { planId: string; date: string }) {
   const briefing = useBriefing(planId, date);
   // The start button needs the day state, but the briefing itself must not wait for it.
-  const dayState = useDayState(planId, date);
+  const dayState = useDay(planId, date);
   return (
     <DayQueryView query={briefing} label="Loading the briefing…" what="briefing">
       {(data) => <BriefingBody planId={planId} briefing={data} dayState={dayState.data} />}

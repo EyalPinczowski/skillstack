@@ -21,6 +21,10 @@ export const meKey = ['me'] as const;
 // show, instead of waiting silently for a connection.
 const mutationDefaults = { networkMode: 'always' } as const;
 
+// The plan summary bar and the page under it read the same schedule, tasks and progress. Without
+// a short freshness window the second one to mount would fetch them all again.
+const SHARED_STALE_MS = 10_000;
+
 /** The signed-in account. A 403 here means the email is not on the allowlist. */
 export function useMe() {
   const api = useApi();
@@ -73,6 +77,9 @@ export const planKey = (planId: string) => ['plan', planId] as const;
 export const tasksKey = (planId: string) => ['tasks', planId] as const;
 export const scheduleKey = (planId: string) => ['schedule', planId] as const;
 export const progressKey = (planId: string) => ['progress', planId] as const;
+export const openTasksKey = (planId: string) => ['open-tasks', planId] as const;
+export const logsKey = (planId: string) => ['logs', planId] as const;
+export const dayKey = (planId: string, date: string) => ['day', planId, date] as const;
 
 export function usePlans() {
   const api = useApi();
@@ -95,6 +102,7 @@ export function useTasks(planId: string | undefined) {
     queryKey: tasksKey(planId ?? ''),
     queryFn: ({ signal }) => api.listTasks(planId!, signal),
     enabled: !!planId,
+    staleTime: SHARED_STALE_MS,
   });
 }
 
@@ -104,6 +112,7 @@ export function useSchedule(planId: string | undefined) {
     queryKey: scheduleKey(planId ?? ''),
     queryFn: ({ signal }) => api.getSchedule(planId!, signal),
     enabled: !!planId,
+    staleTime: SHARED_STALE_MS,
   });
 }
 
@@ -113,6 +122,37 @@ export function useProgress(planId: string | undefined) {
     queryKey: progressKey(planId ?? ''),
     queryFn: ({ signal }) => api.getProgress(planId!, signal),
     enabled: !!planId,
+    staleTime: SHARED_STALE_MS,
+  });
+}
+
+/** The open tasks of the week (with the days they were carried over from). */
+export function useOpenTasks(planId: string | undefined) {
+  const api = useApi();
+  return useQuery({
+    queryKey: openTasksKey(planId ?? ''),
+    queryFn: ({ signal }) => api.getOpenTasks(planId!, signal),
+    enabled: !!planId,
+  });
+}
+
+/** The time logs between two local dates, inclusive. */
+export function useLogs(planId: string | undefined, from: string, to: string) {
+  const api = useApi();
+  return useQuery({
+    queryKey: [...logsKey(planId ?? ''), from, to],
+    queryFn: ({ signal }) => api.listLogs(planId!, from, to, signal),
+    enabled: !!planId,
+  });
+}
+
+/** Session state of one day (not started, started, ended) and its frozen blocks once frozen. */
+export function useDay(planId: string | undefined, date: string | undefined) {
+  const api = useApi();
+  return useQuery({
+    queryKey: dayKey(planId ?? '', date ?? ''),
+    queryFn: ({ signal }) => api.getDay(planId!, date!, signal),
+    enabled: !!planId && !!date,
   });
 }
 
@@ -124,6 +164,8 @@ function useInvalidatePlanData() {
       queryClient.invalidateQueries({ queryKey: tasksKey(planId) }),
       queryClient.invalidateQueries({ queryKey: progressKey(planId) }),
       queryClient.invalidateQueries({ queryKey: scheduleKey(planId) }),
+      queryClient.invalidateQueries({ queryKey: openTasksKey(planId) }),
+      queryClient.invalidateQueries({ queryKey: logsKey(planId) }),
       queryClient.invalidateQueries({ queryKey: planKey(planId) }),
       queryClient.invalidateQueries({ queryKey: plansKey }),
     ]);
@@ -208,5 +250,37 @@ export function useSaveTimeSettings(planId: string) {
     },
     // Even a half-finished save changes the plan, so refresh on failure too.
     onSettled: () => invalidate(planId),
+  });
+}
+
+/**
+ * Starts a study day. The API call is idempotent (a repeat answers 200 with the same state), so a
+ * retry after a lost answer is safe. The returned state replaces the cached day.
+ */
+export function useStartDay(planId: string) {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...mutationDefaults,
+    mutationFn: (date: string) => api.startDay(planId, date),
+    onSuccess: (day) => queryClient.setQueryData(dayKey(planId, day.date), day),
+  });
+}
+
+/**
+ * Ends a study day: the API freezes its blocks and unfinished work moves to the next study day,
+ * so the schedule, the open tasks and the day itself are refreshed. Idempotent like start.
+ */
+export function useEndDay(planId: string) {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidatePlanData();
+  return useMutation({
+    ...mutationDefaults,
+    mutationFn: (date: string) => api.endDay(planId, date),
+    onSuccess: (day) => {
+      queryClient.setQueryData(dayKey(planId, day.date), day);
+      void invalidate(planId);
+    },
   });
 }

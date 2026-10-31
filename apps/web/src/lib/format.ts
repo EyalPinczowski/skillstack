@@ -11,6 +11,25 @@ export function formatDate(date: string, style: 'long' | 'short' = 'long'): stri
   });
 }
 
+/** "Mon" for a local date. */
+export function weekdayShort(date: string): string {
+  const { year, month, day } = parseLocalDate(date);
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
+    weekday: 'short',
+    timeZone: 'UTC',
+  });
+}
+
+/** "Nov 9" for a local date. */
+export function monthDay(date: string): string {
+  const { year, month, day } = parseLocalDate(date);
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+}
+
 /** 1.5 -> "1.5 h", 2 -> "2 h". Hours are shown to at most two decimals. */
 export function formatHours(hours: number): string {
   return `${Number(hours.toFixed(2))} h`;
@@ -39,4 +58,13 @@ export function dayOfPlan(
 export function percent(part: number, whole: number): number {
   if (whole <= 0) return 0;
   return Math.min(100, Math.round((part / whole) * 100));
+}
+
+/**
+ * "Carried over from Mon, Tue". Days inside the week are named by weekday; an earlier day (a
+ * task that has waited since last week) by its date, so two different Mondays never look alike.
+ */
+export function carriedOverText(dates: string[], weekStart: string): string {
+  const names = dates.map((d) => (d < weekStart ? monthDay(d) : weekdayShort(d)));
+  return `Carried over from ${names.join(', ')}`;
 }

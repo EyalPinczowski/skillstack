@@ -12,12 +12,14 @@ import { AppShell, PublicShell } from './layout/Shell';
 import { BriefingPage } from './pages/briefing/BriefingPage';
 import { LegalPage } from './pages/LegalPage';
 import { ActivePlanProvider } from './plan/ActivePlan';
+import { PlanLayout } from './plan/PlanSummaryBar';
 import { PlanPage } from './pages/PlanPage';
 import { ReviewPage } from './pages/review/ReviewPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SignInPage } from './pages/SignInPage';
 import { TaskDetailPage } from './pages/TaskDetailPage';
 import { TodayPage } from './pages/TodayPage';
+import { WeekPage } from './pages/WeekPage';
 
 /**
  * The whole app. The router is supplied from outside (BrowserRouter in production, MemoryRouter in
@@ -58,9 +60,12 @@ export function App({
             <Route element={<RequireAccount appEnv={env.appEnv} />}>
               <Route element={<AppShell appEnv={env.appEnv} />}>
                 <Route element={<ActivePlanProvider />}>
-                  <Route index element={<TodayPage apiUrl={env.apiUrl} />} />
-                  <Route path="plan" element={<PlanPage />} />
-                  <Route path="plan/:taskId" element={<TaskDetailPage />} />
+                  <Route element={<PlanLayout />}>
+                    <Route index element={<TodayPage apiUrl={env.apiUrl} />} />
+                    <Route path="week" element={<WeekPage />} />
+                    <Route path="plan" element={<PlanPage />} />
+                    <Route path="plan/:taskId" element={<TaskDetailPage />} />
+                  </Route>
                   <Route path="briefing/:date" element={<BriefingPage />} />
                   <Route path="review/:date" element={<ReviewPage />} />
                   <Route path="settings" element={<SettingsPage />} />

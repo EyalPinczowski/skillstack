@@ -1,4 +1,6 @@
 import type {
+  DayState,
+  OpenTasks,
   PlanDetail,
   PlanSummary,
   Progress,
@@ -183,6 +185,33 @@ export const previewResult = (text: string): SchedulePreview => ({
   proposed: { finishDate: '2026-11-23', warnings: [], blocks: [] },
 });
 
+export const openTasks = (overrides: Partial<OpenTasks> = {}): OpenTasks => ({
+  today: '2026-11-10',
+  weekStart: '2026-11-08',
+  weekEnd: '2026-11-14',
+  tasks: [],
+  ...overrides,
+});
+
+export const dayState = (overrides: Partial<DayState> = {}): DayState => ({
+  date: '2026-11-10',
+  status: 'not_started',
+  startedAt: null,
+  endedAt: null,
+  frozen: null,
+  ...overrides,
+});
+
+/** A day that answers "not started" with nothing frozen, whatever the date. */
+export function dayRoutes(
+  state: (date: string) => DayState = (date) => dayState({ date }),
+): Record<string, (request: Request) => Response> {
+  const date = (request: Request) => new URL(request.url).pathname.split('/').at(-1)!;
+  return {
+    [`GET /api/v1/plans/${PLAN_ID}/days/2026-11-10`]: (r) => json(state(date(r))),
+  };
+}
+
 /** Routes for a signed-in person with one plan; pass overrides to change single answers. */
 export function planRoutes(
   extra: Record<string, (request: Request) => Response | Promise<Response>> = {},
@@ -207,6 +236,9 @@ export function planRoutes(
     [`GET /api/v1/plans/${PLAN_ID}/schedule`]: () => json(schedule()),
     [`GET /api/v1/plans/${PLAN_ID}/tasks`]: () => json({ tasks: TASKS }),
     [`GET /api/v1/plans/${PLAN_ID}/progress`]: () => json(progress()),
+    [`GET /api/v1/plans/${PLAN_ID}/logs`]: () => json({ logs: [] }),
+    [`GET /api/v1/plans/${PLAN_ID}/open-tasks`]: () => json(openTasks()),
+    ...dayRoutes(),
     ...extra,
   };
 }
