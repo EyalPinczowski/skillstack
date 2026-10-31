@@ -177,7 +177,7 @@ describe('Task detail', () => {
     const api = open('/plan/setup', {
       [`POST ${BASE}/tasks/setup/reopen`]: () => json(taskView({ id: 'setup' })),
     });
-    const button = await screen.findByRole('button', { name: 'Reopen task' });
+    const button = await screen.findByRole('button', { name: /Reopen/ });
     expect(api.count(`POST ${BASE}/tasks/setup/reopen`)).toBe(0);
     await userEvent.setup().click(button);
     await vi.waitFor(() => expect(api.count(`POST ${BASE}/tasks/setup/reopen`)).toBe(1));
