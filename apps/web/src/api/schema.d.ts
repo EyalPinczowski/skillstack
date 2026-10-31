@@ -3082,6 +3082,1517 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plans/{planId}/days/{date}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The review of one day
+         * @description 404 when the day has no review.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    date: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            date: string;
+                            difficulty: number;
+                            density: number;
+                            energy: number;
+                            note: string;
+                            outcomes: {
+                                taskId: string;
+                                /** @enum {string} */
+                                outcome: "done" | "partial" | "not_done";
+                                hours?: number;
+                                reason?: string;
+                            }[];
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        /**
+         * Submit or re-save the end-of-day review (idempotent)
+         * @description The body is the review (`date` must equal the URL date). Allowed for today (in the plan’s time zone) or an earlier date of the plan that was a study day or has logged work or a started session; a future date answers 422, and so does an outcome that names a task of another plan. 201 when the review was stored now, 200 when it already existed: the same content changes nothing, other content re-saves it, which is allowed only on the review’s day and the day after (409 later). Writes `review.submitted` (first save) or `review.updated` (a real change) events. The review never logs hours and never marks a task done: `missingLogs` and `notMarkedDone` tell the client what the user may still do. `suggestions` are the open adjustment suggestions after this review; nothing is saved for them until the user decides.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    date: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        date: string;
+                        difficulty: number;
+                        density: number;
+                        energy: number;
+                        /** @default  */
+                        note?: string;
+                        /** @default [] */
+                        outcomes?: {
+                            taskId: string;
+                            /** @enum {string} */
+                            outcome: "done" | "partial" | "not_done";
+                            hours?: number;
+                            reason?: string;
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            review: {
+                                date: string;
+                                difficulty: number;
+                                density: number;
+                                energy: number;
+                                note: string;
+                                outcomes: {
+                                    taskId: string;
+                                    /** @enum {string} */
+                                    outcome: "done" | "partial" | "not_done";
+                                    hours?: number;
+                                    reason?: string;
+                                }[];
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                            };
+                            created: boolean;
+                            missingLogs: {
+                                taskId: string;
+                                reportedHours: number;
+                                loggedHours: number;
+                                missingHours: number;
+                            }[];
+                            notMarkedDone: string[];
+                            suggestions: {
+                                id: string;
+                                /** @enum {string} */
+                                rule: "density_too_high" | "density_too_low" | "estimate_drift" | "difficulty_practice";
+                                key: string;
+                                title: string;
+                                explanation: string;
+                                proposedChange: {
+                                    /** @enum {string} */
+                                    kind: "capacityDelta";
+                                    scope: {
+                                        /** @enum {string} */
+                                        type: "weekdays";
+                                        weekdays: number[];
+                                    } | {
+                                        /** @enum {string} */
+                                        type: "dateRange";
+                                        from: string;
+                                        to: string;
+                                    };
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "estimateUpdate";
+                                    /** @enum {string} */
+                                    taskType: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                    factor: number;
+                                    taskIds: string[];
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "extraPractice";
+                                    afterTaskId: string;
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "pullForward";
+                                    date: string;
+                                    hours: number;
+                                };
+                                alternatives: ({
+                                    /** @enum {string} */
+                                    kind: "capacityDelta";
+                                    scope: {
+                                        /** @enum {string} */
+                                        type: "weekdays";
+                                        weekdays: number[];
+                                    } | {
+                                        /** @enum {string} */
+                                        type: "dateRange";
+                                        from: string;
+                                        to: string;
+                                    };
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "estimateUpdate";
+                                    /** @enum {string} */
+                                    taskType: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                    factor: number;
+                                    taskIds: string[];
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "extraPractice";
+                                    afterTaskId: string;
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "pullForward";
+                                    date: string;
+                                    hours: number;
+                                })[];
+                                evidence: {
+                                    reviewDates: string[];
+                                    taskIds: string[];
+                                };
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            review: {
+                                date: string;
+                                difficulty: number;
+                                density: number;
+                                energy: number;
+                                note: string;
+                                outcomes: {
+                                    taskId: string;
+                                    /** @enum {string} */
+                                    outcome: "done" | "partial" | "not_done";
+                                    hours?: number;
+                                    reason?: string;
+                                }[];
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                            };
+                            created: boolean;
+                            missingLogs: {
+                                taskId: string;
+                                reportedHours: number;
+                                loggedHours: number;
+                                missingHours: number;
+                            }[];
+                            notMarkedDone: string[];
+                            suggestions: {
+                                id: string;
+                                /** @enum {string} */
+                                rule: "density_too_high" | "density_too_low" | "estimate_drift" | "difficulty_practice";
+                                key: string;
+                                title: string;
+                                explanation: string;
+                                proposedChange: {
+                                    /** @enum {string} */
+                                    kind: "capacityDelta";
+                                    scope: {
+                                        /** @enum {string} */
+                                        type: "weekdays";
+                                        weekdays: number[];
+                                    } | {
+                                        /** @enum {string} */
+                                        type: "dateRange";
+                                        from: string;
+                                        to: string;
+                                    };
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "estimateUpdate";
+                                    /** @enum {string} */
+                                    taskType: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                    factor: number;
+                                    taskIds: string[];
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "extraPractice";
+                                    afterTaskId: string;
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "pullForward";
+                                    date: string;
+                                    hours: number;
+                                };
+                                alternatives: ({
+                                    /** @enum {string} */
+                                    kind: "capacityDelta";
+                                    scope: {
+                                        /** @enum {string} */
+                                        type: "weekdays";
+                                        weekdays: number[];
+                                    } | {
+                                        /** @enum {string} */
+                                        type: "dateRange";
+                                        from: string;
+                                        to: string;
+                                    };
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "estimateUpdate";
+                                    /** @enum {string} */
+                                    taskType: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                    factor: number;
+                                    taskIds: string[];
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "extraPractice";
+                                    afterTaskId: string;
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "pullForward";
+                                    date: string;
+                                    hours: number;
+                                })[];
+                                evidence: {
+                                    reviewDates: string[];
+                                    taskIds: string[];
+                                };
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rating history for the trend charts (difficulty, density, energy per day)
+         * @description Oldest first, optionally limited to `from`..`to` (inclusive). At most the latest 366 days. Notes and outcomes are not part of the history; read one day for those.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                };
+                header?: never;
+                path: {
+                    planId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            reviews: {
+                                date: string;
+                                difficulty: number;
+                                density: number;
+                                energy: number;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The open adjustment suggestions, recomputed from the plan’s current state
+         * @description Transparent rules (spec 3.4) applied to reviews, logs and tasks. Nothing is stored for a suggestion until it is accepted or rejected; ids are stable for the same evidence, and new evidence gives a new id.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            today: string;
+                            suggestions: {
+                                id: string;
+                                /** @enum {string} */
+                                rule: "density_too_high" | "density_too_low" | "estimate_drift" | "difficulty_practice";
+                                key: string;
+                                title: string;
+                                explanation: string;
+                                proposedChange: {
+                                    /** @enum {string} */
+                                    kind: "capacityDelta";
+                                    scope: {
+                                        /** @enum {string} */
+                                        type: "weekdays";
+                                        weekdays: number[];
+                                    } | {
+                                        /** @enum {string} */
+                                        type: "dateRange";
+                                        from: string;
+                                        to: string;
+                                    };
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "estimateUpdate";
+                                    /** @enum {string} */
+                                    taskType: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                    factor: number;
+                                    taskIds: string[];
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "extraPractice";
+                                    afterTaskId: string;
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "pullForward";
+                                    date: string;
+                                    hours: number;
+                                };
+                                alternatives: ({
+                                    /** @enum {string} */
+                                    kind: "capacityDelta";
+                                    scope: {
+                                        /** @enum {string} */
+                                        type: "weekdays";
+                                        weekdays: number[];
+                                    } | {
+                                        /** @enum {string} */
+                                        type: "dateRange";
+                                        from: string;
+                                        to: string;
+                                    };
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "estimateUpdate";
+                                    /** @enum {string} */
+                                    taskType: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                    factor: number;
+                                    taskIds: string[];
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "extraPractice";
+                                    afterTaskId: string;
+                                    hours: number;
+                                } | {
+                                    /** @enum {string} */
+                                    kind: "pullForward";
+                                    date: string;
+                                    hours: number;
+                                })[];
+                                evidence: {
+                                    reviewDates: string[];
+                                    taskIds: string[];
+                                };
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/suggestions/{id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * What accepting a suggestion option would do, without saving it
+         * @description Applies option `option` (0 = the recommended change) to a copy of the plan, schedules both and returns the change summary and the new finish date. 409 when the suggestion is not open any more; 422 for an option it does not have.
+         */
+        post: {
+            parameters: {
+                query?: {
+                    option?: number;
+                };
+                header?: never;
+                path: {
+                    planId: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            suggestionId: string;
+                            option: number;
+                            change: {
+                                /** @enum {string} */
+                                kind: "capacityDelta";
+                                scope: {
+                                    /** @enum {string} */
+                                    type: "weekdays";
+                                    weekdays: number[];
+                                } | {
+                                    /** @enum {string} */
+                                    type: "dateRange";
+                                    from: string;
+                                    to: string;
+                                };
+                                hours: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "estimateUpdate";
+                                /** @enum {string} */
+                                taskType: "course" | "cert_exam" | "practice" | "admin" | "cv_update";
+                                factor: number;
+                                taskIds: string[];
+                            } | {
+                                /** @enum {string} */
+                                kind: "extraPractice";
+                                afterTaskId: string;
+                                hours: number;
+                            } | {
+                                /** @enum {string} */
+                                kind: "pullForward";
+                                date: string;
+                                hours: number;
+                            };
+                            summary: {
+                                movedTaskIds: string[];
+                                finishBefore: string | null;
+                                finishAfter: string | null;
+                                finishChanged: boolean;
+                                finishShiftStudyDays: number;
+                                newAnchorRisks: string[];
+                                text: string;
+                            };
+                            currentFinishDate: string | null;
+                            proposedFinishDate: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/suggestions/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept a suggestion option (idempotent on the suggestion id)
+         * @description The body holds only `option` (default 0); a proposed change is never accepted from the client (400 for any other key). The suggestion is recomputed from the stored state, applied in one transaction (week pattern, day overrides, task estimates or a new practice task), stored as an adjustment with its evidence, and a `schedule.changed` event is written. 201 when applied now; 200 with the stored result when this id was already accepted with the same option; 409 when it was rejected, accepted with another option, or is not open any more (stale evidence or unknown id).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @default 0 */
+                        option?: number;
+                    } | null;
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            adjustment: {
+                                suggestionId: string;
+                                /** @enum {string} */
+                                rule: "density_too_high" | "density_too_low" | "estimate_drift" | "difficulty_practice";
+                                /** @enum {string} */
+                                status: "accepted" | "rejected";
+                                option: number | null;
+                                /** Format: date-time */
+                                decidedAt: string;
+                            };
+                            summary: {
+                                movedTaskIds: string[];
+                                finishBefore: string | null;
+                                finishAfter: string | null;
+                                finishChanged: boolean;
+                                finishShiftStudyDays: number;
+                                newAnchorRisks: string[];
+                                text: string;
+                            } | null;
+                            replayed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            adjustment: {
+                                suggestionId: string;
+                                /** @enum {string} */
+                                rule: "density_too_high" | "density_too_low" | "estimate_drift" | "difficulty_practice";
+                                /** @enum {string} */
+                                status: "accepted" | "rejected";
+                                option: number | null;
+                                /** Format: date-time */
+                                decidedAt: string;
+                            };
+                            summary: {
+                                movedTaskIds: string[];
+                                finishBefore: string | null;
+                                finishAfter: string | null;
+                                finishChanged: boolean;
+                                finishShiftStudyDays: number;
+                                newAnchorRisks: string[];
+                                text: string;
+                            } | null;
+                            replayed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/suggestions/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject a suggestion so it is not offered again (idempotent)
+         * @description Stores the rejection with its evidence. The same evidence is not offered again; new evidence gives a new suggestion. 201 when stored now, 200 when it was already rejected, 409 when it was accepted or is not open any more.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": Record<string, never> | null;
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            adjustment: {
+                                suggestionId: string;
+                                /** @enum {string} */
+                                rule: "density_too_high" | "density_too_low" | "estimate_drift" | "difficulty_practice";
+                                /** @enum {string} */
+                                status: "accepted" | "rejected";
+                                option: number | null;
+                                /** Format: date-time */
+                                decidedAt: string;
+                            };
+                            summary: {
+                                movedTaskIds: string[];
+                                finishBefore: string | null;
+                                finishAfter: string | null;
+                                finishChanged: boolean;
+                                finishShiftStudyDays: number;
+                                newAnchorRisks: string[];
+                                text: string;
+                            } | null;
+                            replayed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            adjustment: {
+                                suggestionId: string;
+                                /** @enum {string} */
+                                rule: "density_too_high" | "density_too_low" | "estimate_drift" | "difficulty_practice";
+                                /** @enum {string} */
+                                status: "accepted" | "rejected";
+                                option: number | null;
+                                /** Format: date-time */
+                                decidedAt: string;
+                            };
+                            summary: {
+                                movedTaskIds: string[];
+                                finishBefore: string | null;
+                                finishAfter: string | null;
+                                finishChanged: boolean;
+                                finishShiftStudyDays: number;
+                                newAnchorRisks: string[];
+                                text: string;
+                            } | null;
+                            replayed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plans/{planId}/tasks": {
         parameters: {
             query?: never;

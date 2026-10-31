@@ -431,6 +431,45 @@ export async function insertEvent(
   );
 }
 
+/** Locks the plan row against other writers of the same plan; false when it is not the user's. */
+export async function lockPlan(ctx: UserContext, userId: string, planId: string): Promise<boolean> {
+  // NO KEY UPDATE conflicts with itself but not with the key-share lock a log insert takes on
+  // the plan row, so a log being written never waits on (or deadlocks with) a review or an accept.
+  const { rowCount } = await ctx.client.query(
+    `select 1 from ${ctx.schema}.plans where user_id = $1 and id = $2 for no key update`,
+    [userId, planId],
+  );
+  return rowCount === 1;
+}
+
+export async function updateTaskEstimate(
+  ctx: UserContext,
+  userId: string,
+  planId: string,
+  taskId: string,
+  estHours: number,
+): Promise<void> {
+  await ctx.client.query(
+    `update ${ctx.schema}.tasks set est_hours = $4, updated_at = now()
+     where user_id = $1 and plan_id = $2 and id = $3`,
+    [userId, planId, taskId, estHours],
+  );
+}
+
+export async function updateTaskOrder(
+  ctx: UserContext,
+  userId: string,
+  planId: string,
+  taskId: string,
+  order: number,
+): Promise<void> {
+  await ctx.client.query(
+    `update ${ctx.schema}.tasks set sort_order = $4, updated_at = now()
+     where user_id = $1 and plan_id = $2 and id = $3`,
+    [userId, planId, taskId, order],
+  );
+}
+
 /** The content hash recorded when the plan was imported, or null if it was not imported. */
 export async function importHashOf(
   ctx: UserContext,

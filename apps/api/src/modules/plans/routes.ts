@@ -11,6 +11,8 @@ import { briefingRoutes } from '../briefing/routes';
 import { createBriefingService } from '../briefing/service';
 import { daysRoutes } from '../days/routes';
 import { createDaysService } from '../days/service';
+import { reviewRoutes } from '../reviews/routes';
+import { createReviewService } from '../reviews/service';
 import { schedulingRoutes } from '../scheduling/routes';
 import { createSchedulingService } from '../scheduling/service';
 import { validateImport } from './import';
@@ -186,4 +188,5 @@ export const planRoutes: FastifyPluginAsyncZod<PlanRoutesOptions> = async (
   app.register(schedulingRoutes, { service: scheduling, userId });
   app.register(briefingRoutes, { service: createBriefingService(scheduling), userId });
   app.register(daysRoutes, { service: days, userId });
+  app.register(reviewRoutes, { service: createReviewService(db!, days, scheduling), userId });
 };
