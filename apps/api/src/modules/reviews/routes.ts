@@ -1,4 +1,3 @@
-import { DayReviewInputSchema } from '@skillstack/shared';
 import type { FastifyRequest } from 'fastify';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { errorResponseSchema } from '../../errors';
@@ -8,6 +7,7 @@ import {
   historyQuery,
   plansParams,
   previewQuery,
+  putReviewBody,
   putReviewResult,
   rejectBody,
   reviewHistory,
@@ -53,7 +53,7 @@ export const reviewRoutes: FastifyPluginAsyncZod<ReviewRoutesOptions> = async (
           'The body is the review (`date` must equal the URL date). Allowed for today (in the plan’s time zone) or an earlier date of the plan that was a study day or has logged work or a started session; a future date answers 422, and so does an outcome that names a task of another plan. 201 when the review was stored now, 200 when it already existed: the same content changes nothing, other content re-saves it, which is allowed only on the review’s day and the day after (409 later). Writes `review.submitted` (first save) or `review.updated` (a real change) events. The review never logs hours and never marks a task done: `missingLogs` and `notMarkedDone` tell the client what the user may still do. `suggestions` are the open adjustment suggestions after this review; nothing is saved for them until the user decides.',
         security,
         params: reviewParams,
-        body: DayReviewInputSchema,
+        body: putReviewBody,
         response: { 200: putReviewResult, 201: putReviewResult, ...errors },
       },
     },

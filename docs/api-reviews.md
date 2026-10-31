@@ -1,6 +1,6 @@
 # Day review and adjustment suggestions API (v1)
 
-Spec 3.4. Base path `/api/v1/plans/:planId`. The same rules as the other plan routes: a bearer token, the user is the token's `sub`, a `user_id` or `plan_id` in a body or query is never read, another user's plan answers 404 exactly like a missing one, and every error has the shape `{ "error": { "code", "message", "requestId" } }`. The live contract is `GET /api/v1/openapi.json`.
+Spec 3.4. Base path `/api/v1/plans/:planId`. Every route sits behind the Terms guard (403 `terms_not_accepted` until the current terms and privacy are accepted). The same rules as the other plan routes: a bearer token, the user is the token's `sub`, a `user_id` or `plan_id` in a body or query is never read, another user's plan answers 404 exactly like a missing one, and every error has the shape `{ "error": { "code", "message", "requestId" } }`. The live contract is `GET /api/v1/openapi.json`.
 
 | Method and path                       | What it does                                                                                       | Success | Errors             |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------- | ------- | ------------------ |
@@ -46,4 +46,4 @@ Tests: `apps/api/test/reviews.test.ts` (real Postgres) and `packages/db/test/dat
 
 - The web screens (end-of-day window, suggestion cards, trend charts).
 - A catalog-based "area" for the difficulty rule: without catalog skills the area of a task is its practice kind, else its provider, else its type.
-- A NUL-character check on free text: it belongs to the validation hardening branch. Free text is bounded by length only (note 2000, reason 500); a NUL byte in a note currently ends in a 500 from the database.
+- Free text is checked with the shared `noNulCharacters` helper (422 for U+0000 in the note, a reason or a task id) and bounded by length (note 2000, reason 500).

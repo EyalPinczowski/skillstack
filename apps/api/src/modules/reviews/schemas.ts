@@ -1,11 +1,13 @@
 import {
   AdjustmentRuleSchema,
+  DayReviewInputSchema,
   LocalDateSchema,
   ProposedChangeSchema,
   SuggestionSchema,
   TaskOutcomeSchema,
 } from '@skillstack/shared';
 import { z } from 'zod';
+import { noNulCharacters } from '../../validation';
 
 export const reviewParams = z.object({ planId: z.uuid(), date: LocalDateSchema });
 export const plansParams = z.object({ planId: z.uuid() });
@@ -27,8 +29,13 @@ const optionSchema = z.coerce.number().int().min(0).max(MAX_OPTION);
 
 /** Preview and accept choose an option by number; the change itself is always computed here. */
 export const previewQuery = z.object({ option: optionSchema.default(0) });
-export const acceptBody = z.strictObject({ option: optionSchema.default(0) }).nullish();
-export const rejectBody = z.strictObject({}).nullish();
+export const acceptBody = noNulCharacters(
+  z.strictObject({ option: optionSchema.default(0) }),
+).nullish();
+export const rejectBody = noNulCharacters(z.strictObject({})).nullish();
+
+/** The review body: the shared schema plus the NUL check on the note, reasons and task ids. */
+export const putReviewBody = noNulCharacters(DayReviewInputSchema);
 
 export const historyQuery = z
   .object({ from: LocalDateSchema.optional(), to: LocalDateSchema.optional() })

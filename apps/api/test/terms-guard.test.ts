@@ -99,6 +99,13 @@ describe.skipIf(!dbAvailable)('terms and privacy must be accepted (real Postgres
         'POST /api/v1/plans/:planId/days/:date/start',
         'POST /api/v1/plans/:planId/days/:date/end',
         'GET /api/v1/plans/:planId/days/:date',
+        'PUT /api/v1/plans/:planId/days/:date/review',
+        'GET /api/v1/plans/:planId/days/:date/review',
+        'GET /api/v1/plans/:planId/reviews',
+        'GET /api/v1/plans/:planId/suggestions',
+        'POST /api/v1/plans/:planId/suggestions/:id/preview',
+        'POST /api/v1/plans/:planId/suggestions/:id/accept',
+        'POST /api/v1/plans/:planId/suggestions/:id/reject',
       ]),
     );
     expect(signedIn.length).toBeGreaterThanOrEqual(15);
@@ -118,6 +125,26 @@ describe.skipIf(!dbAvailable)('terms and privacy must be accepted (real Postgres
       const body = errorResponseSchema.parse(res.json());
       expect(body.error.code, exemptKey(op)).toBe('terms_not_accepted');
       expect(body.error.requestId).toBe(res.headers['x-request-id']);
+    }
+  });
+
+  it('blocks each review and suggestion route by name until accepted', async () => {
+    const names = [
+      'PUT /api/v1/plans/:planId/days/:date/review',
+      'GET /api/v1/plans/:planId/days/:date/review',
+      'GET /api/v1/plans/:planId/reviews',
+      'GET /api/v1/plans/:planId/suggestions',
+      'POST /api/v1/plans/:planId/suggestions/:id/preview',
+      'POST /api/v1/plans/:planId/suggestions/:id/accept',
+      'POST /api/v1/plans/:planId/suggestions/:id/reject',
+    ];
+    const byName = new Map(blocked().map((op) => [exemptKey(op), op]));
+    for (const name of names) {
+      const op = byName.get(name);
+      expect(op, name).toBeDefined();
+      const res = await send(op!);
+      expect(res.statusCode, name).toBe(403);
+      expect(res.json().error.code, name).toBe('terms_not_accepted');
     }
   });
 

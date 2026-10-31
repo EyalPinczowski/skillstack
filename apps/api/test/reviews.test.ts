@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app';
 import { createDatabase, type Database } from '../src/db/database';
 import { createSupabaseVerifier } from '../src/modules/accounts/token-verifier';
-import { dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
+import { acceptCurrentLegal, dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
 import { testConfig } from './helpers';
 import { ISSUER, makeTestKeys, type TestKeys } from './tokens';
 
@@ -76,6 +76,7 @@ describe.skipIf(!dbAvailable)('day review and adjustment suggestions (real Postg
         `insert into rnd.app_users (id, email) values ($1, 'a@example.com'), ($2, 'b@example.com')`,
         [A, B],
       );
+      await acceptCurrentLegal(c, [A, B]);
       const plan = async (user: string, id: string) => {
         await c.query(
           `insert into rnd.plans (user_id, id, created_from, name, status, start_date, created_at)
@@ -332,6 +333,25 @@ describe.skipIf(!dbAvailable)('day review and adjustment suggestions (real Postg
         expect(res.statusCode, JSON.stringify(bad)).toBe(400);
       }
       expect(await rows('select 1 from rnd.day_reviews')).toEqual([]);
+    });
+
+    it('refuses a NUL character in the note, an outcome reason or a task id with 422, not 500', async () => {
+      for (const over of [
+        { note: 'a\u0000b' },
+        { outcomes: [{ taskId: 'c1', outcome: 'not_done', reason: 'x\u0000y' }] },
+        { outcomes: [{ taskId: 'c\u00001', outcome: 'done' }] },
+      ]) {
+        const res = await putReview(SUN, over);
+        expect(res.statusCode, JSON.stringify(over)).toBe(422);
+      }
+      expect(await rows('select 1 from rnd.day_reviews')).toEqual([]);
+    });
+
+    it('refuses a refused-NUL decision body with 422 too', async () => {
+      const suggestion = await heavyDays();
+      const res = await call('POST', sug(suggestion.id, 'reject'), await asA(), { 'a\u0000': 1 });
+      expect([400, 422]).toContain(res.statusCode);
+      expect(await adjustmentRows()).toEqual([]);
     });
 
     it('refuses a future date with 422 (plan-local, so just after midnight in Jerusalem counts)', async () => {
