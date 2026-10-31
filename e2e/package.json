@@ -1,0 +1,22 @@
+{
+  "name": "@skillstack/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "End-to-end tests of the core flows against the real stack (test-only auth, throwaway Postgres).",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@skillstack/db": "workspace:*",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.63.0",
+    "@types/pg": "^8.23.1",
+    "jose": "^6.2.14",
+    "playwright-core": "1.63.0"
+  }
+}
