@@ -10,8 +10,8 @@ Playwright tests of the core flows (spec section 9) against the **real stack**, 
 | File                                | Flow                                                                                                                                          |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `tests/flow-1-first-run.spec.ts`    | Sign in, accept the Terms, load the demo plan, see Today with blocks and the progress bar.                                                    |
-| `tests/flow-2-daily-loop.spec.ts`   | Start the day, log time, "reached the estimate" prompt without auto-complete, mark done explicitly, end the day.                              |
-| `tests/flow-3-review-adjust.spec.ts`| Two heavy days, preview the capacity reduction, accept, the finish date moves. The review screen part is `test.fixme` until PR #40 is merged. |
+| `tests/flow-2-daily-loop.spec.ts`   | Open the briefing, start the day from it, log time, "reached the estimate" prompt without auto-complete, mark done explicitly, end the day.                              |
+| `tests/flow-3-review-adjust.spec.ts`| Two heavy-day reviews through the review screen, the suggestion (Accept disabled until Preview), accept, the finish date moves; API calls cross-check. |
 
 Every screen of every flow is also checked with axe-core (WCAG 2.x A and AA), and every test fails on a console error, an uncaught page error or a Content-Security-Policy violation.
 

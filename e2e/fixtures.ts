@@ -46,8 +46,28 @@ export const test = base.extend<Fixtures>({
   pageProblems: [
     async ({ page }, use) => {
       const problems: string[] = [];
+      // The API answers 404 for "no review saved yet for this date" (docs/api-reviews.md) and the
+      // browser logs every failed request as a console error. Only that one case is allowed, and
+      // only as many times as the API really answered it.
+      let allowed404 = 0;
+      page.on('response', (response) => {
+        const url = new URL(response.url());
+        if (
+          response.status() === 404 &&
+          response.request().method() === 'GET' &&
+          /^\/api\/v1\/plans\/[^/]+\/days\/[\d-]+\/review$/.test(url.pathname)
+        ) {
+          allowed404 += 1;
+        }
+      });
       page.on('console', (message) => {
-        if (message.type() === 'error') problems.push(`console error: ${message.text()}`);
+        if (message.type() !== 'error') return;
+        const text = message.text();
+        if (text.startsWith('Failed to load resource') && text.includes('404') && allowed404 > 0) {
+          allowed404 -= 1;
+          return;
+        }
+        problems.push(`console error: ${text}`);
       });
       page.on('pageerror', (error) => problems.push(`page error: ${error.message}`));
       // A violation of the app's Content-Security-Policy, reported with where it came from. (A
