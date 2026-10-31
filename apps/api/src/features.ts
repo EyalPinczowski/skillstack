@@ -1,7 +1,13 @@
 import { z } from 'zod';
 
 /** Feature flags (spec 12.3). Everything ships off; an env var can only turn a flag on. */
-export const featureNames = ['notifications', 'sharing', 'offline', 'pushNotifications'] as const;
+export const featureNames = [
+  'notifications',
+  'sharing',
+  'offline',
+  'pushNotifications',
+  'aiOverview',
+] as const;
 
 export type FeatureName = (typeof featureNames)[number];
 export type Features = Record<FeatureName, boolean>;
@@ -18,6 +24,8 @@ export const featureEnvShape = {
   FEATURE_SHARING: booleanString('false'),
   FEATURE_OFFLINE: booleanString('false'),
   FEATURE_PUSH_NOTIFICATIONS: booleanString('false'),
+  /** Model-written day overview (v0.3). In v0.2 the overview is always the template. */
+  FEATURE_AI_OVERVIEW: booleanString('false'),
 };
 
 export function toFeatures(e: z.infer<z.ZodObject<typeof featureEnvShape>>): Features {
@@ -26,5 +34,6 @@ export function toFeatures(e: z.infer<z.ZodObject<typeof featureEnvShape>>): Fea
     sharing: e.FEATURE_SHARING,
     offline: e.FEATURE_OFFLINE,
     pushNotifications: e.FEATURE_PUSH_NOTIFICATIONS,
+    aiOverview: e.FEATURE_AI_OVERVIEW,
   };
 }
