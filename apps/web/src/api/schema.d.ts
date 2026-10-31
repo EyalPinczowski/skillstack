@@ -148,7 +148,7 @@ export interface paths {
         post?: never;
         /**
          * Delete the account and all its data
-         * @description The body must contain {"confirmation": "delete my account"}.
+         * @description The body must contain {"confirmation": "delete my account"}. Deletes the Skillstack data and the Supabase Auth user together; if the Auth user cannot be deleted, nothing is deleted (502) and the request can be retried.
          */
         delete: {
             parameters: {
@@ -221,6 +221,21 @@ export interface paths {
                 };
                 /** @description Default Response */
                 429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                502: {
                     headers: {
                         [name: string]: unknown;
                     };
