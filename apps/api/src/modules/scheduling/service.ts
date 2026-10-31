@@ -12,6 +12,7 @@ import {
   type WeekPattern,
 } from '@skillstack/shared';
 import type { Database } from '../../db/database';
+import { HttpError } from '../../errors';
 import type { DayContext, DaysService } from '../days/service';
 import type { PlanDetail } from '../plans/schemas';
 
@@ -21,6 +22,24 @@ export interface ScheduleView {
   finishDate: string | null;
   blocks: ScheduleResult['blocks'];
   warnings: ScheduleResult['warnings'];
+}
+
+/** Everything the day briefing needs about one day, from one consistent read. */
+export interface DayPlanView {
+  date: string;
+  /** True when the blocks are the stored snapshot of a frozen day. */
+  frozen: boolean;
+  /** The blocks planned for `date`. */
+  blocks: ScheduleResult['blocks'];
+  /** Frozen blocks of the days before `date`. */
+  earlierBlocks: ScheduleResult['blocks'];
+  /** Engine warnings; empty for a frozen day (its plan is no longer being computed). */
+  warnings: ScheduleResult['warnings'];
+  finishDate: string | null;
+  /** The tasks as they stood at the start of `date`. */
+  tasks: Task[];
+  pattern: WeekPattern;
+  overrides: DayOverride[];
 }
 
 export interface PreviewChanges {
@@ -137,6 +156,51 @@ export function createSchedulingService(db: Database, days: DaysService) {
           finishDate: result.finishDate,
           blocks: result.blocks,
           warnings: result.warnings,
+        };
+      });
+    },
+
+    /**
+     * The plan for one day, as it was or is: a frozen day (ended, or rolled over) gives its
+     * stored blocks; today gives the engine's blocks and warnings, planned from the tasks as
+     * they stood at the start of the day (the same input that freezes the day later). A future
+     * date, a date before the plan began or a past date with no stored snapshot answers 422.
+     * Saves nothing but the automatic freezing of days that have passed.
+     */
+    async dayPlan(userId: string, planId: string, date: string): Promise<DayPlanView> {
+      return db.withUser(userId, async (ctx) => {
+        const c = await days.open(ctx, userId, planId);
+        if (compareDates(date, c.today) > 0) {
+          throw new HttpError(422, 'unprocessable', 'A future day has no briefing yet.');
+        }
+        if (compareDates(date, c.firstDay) < 0) {
+          throw new HttpError(422, 'unprocessable', 'A day before the plan began has no briefing.');
+        }
+        const tasks = await days.tasksAt(ctx, userId, c, date);
+        const earlierBlocks = c.snapshots
+          .filter((s) => compareDates(s.date, date) < 0)
+          .flatMap((s) => s.blocks);
+        const base = {
+          date,
+          tasks,
+          earlierBlocks,
+          pattern: c.pattern,
+          overrides: c.plan.overrides,
+        };
+        const snap = c.snapshots.find((s) => s.date === date);
+        if (snap) {
+          return { ...base, frozen: true, blocks: snap.blocks, warnings: [], finishDate: null };
+        }
+        if (date !== c.today) {
+          throw new HttpError(422, 'unprocessable', 'That day is no longer stored.');
+        }
+        const result = run(c, c.pattern, c.plan.overrides, date, tasks);
+        return {
+          ...base,
+          frozen: false,
+          blocks: result.blocks.filter((b) => b.date === date),
+          warnings: result.warnings,
+          finishDate: result.finishDate,
         };
       });
     },

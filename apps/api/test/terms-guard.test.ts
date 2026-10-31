@@ -99,6 +99,7 @@ describe.skipIf(!dbAvailable)('terms and privacy must be accepted (real Postgres
         'POST /api/v1/plans/:planId/days/:date/start',
         'POST /api/v1/plans/:planId/days/:date/end',
         'GET /api/v1/plans/:planId/days/:date',
+        'GET /api/v1/plans/:planId/days/:date/briefing',
         'PUT /api/v1/plans/:planId/days/:date/review',
         'GET /api/v1/plans/:planId/days/:date/review',
         'GET /api/v1/plans/:planId/reviews',

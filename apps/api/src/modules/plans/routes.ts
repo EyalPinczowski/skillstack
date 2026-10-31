@@ -7,6 +7,8 @@ import { errorResponseSchema } from '../../errors';
 import { installAccountGuard } from '../accounts/guard';
 import { createAccountService } from '../accounts/service';
 import type { TokenVerifier } from '../accounts/token-verifier';
+import { briefingRoutes } from '../briefing/routes';
+import { createBriefingService } from '../briefing/service';
 import { daysRoutes } from '../days/routes';
 import { createDaysService } from '../days/service';
 import { reviewRoutes } from '../reviews/routes';
@@ -184,6 +186,7 @@ export const planRoutes: FastifyPluginAsyncZod<PlanRoutesOptions> = async (
   const days = createDaysService(db!, now);
   const scheduling = createSchedulingService(db!, days);
   app.register(schedulingRoutes, { service: scheduling, userId });
+  app.register(briefingRoutes, { service: createBriefingService(scheduling), userId });
   app.register(daysRoutes, { service: days, userId });
   app.register(reviewRoutes, { service: createReviewService(db!, days, scheduling), userId });
 };
