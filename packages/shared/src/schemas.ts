@@ -178,6 +178,137 @@ export const PlanFileSchema = z.object({
   tasks: z.array(TaskSchema).min(1),
 });
 
+/** Outcome of one task at the end of a day (spec 3.4): done, partial (with hours) or not done. */
+export const TaskOutcomeKindSchema = z.enum(['done', 'partial', 'not_done']);
+
+export const TaskOutcomeSchema = z
+  .object({
+    taskId: z.string().min(1).max(200),
+    outcome: TaskOutcomeKindSchema,
+    /** Hours spent today. Required for `partial`. */
+    hours: z.number().positive().max(24).optional(),
+    /** Optional short reason, mostly for `not_done`. */
+    reason: z.string().max(500).optional(),
+  })
+  .superRefine((o, ctx) => {
+    if (o.outcome === 'partial' && o.hours === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'A partial outcome needs the hours spent',
+        path: ['hours'],
+      });
+    }
+    if (o.outcome === 'not_done' && o.hours !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'A not_done outcome has no hours',
+        path: ['hours'],
+      });
+    }
+  });
+
+const ScaleSchema = z.number().int().min(1).max(5);
+
+/**
+ * The end-of-day review as the client sends it (spec 3.4). The API takes the user and plan from
+ * the session and the URL, never from this body.
+ * Density: 1 = too light, 3 = just right, 5 = too much.
+ */
+export const DayReviewInputSchema = z
+  .object({
+    date: LocalDateSchema,
+    difficulty: ScaleSchema,
+    density: ScaleSchema,
+    energy: ScaleSchema,
+    note: z.string().max(2000).default(''),
+    outcomes: z.array(TaskOutcomeSchema).max(200).default([]),
+  })
+  .superRefine((r, ctx) => {
+    const seen = new Set<string>();
+    r.outcomes.forEach((o, i) => {
+      if (seen.has(o.taskId)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Each task appears once per review',
+          path: ['outcomes', i, 'taskId'],
+        });
+      }
+      seen.add(o.taskId);
+    });
+  });
+
+/** The four transparent adjustment rules (spec 3.4). */
+export const AdjustmentRuleSchema = z.enum([
+  'density_too_high',
+  'density_too_low',
+  'estimate_drift',
+  'difficulty_practice',
+]);
+
+const WeekdayListSchema = z.array(WeekdaySchema).min(1).max(7);
+
+/** What a suggestion would change. Applied by `applySuggestion` (no scheduling happens there). */
+export const ProposedChangeSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('capacityDelta'),
+    scope: z.discriminatedUnion('type', [
+      z.object({ type: z.literal('weekdays'), weekdays: WeekdayListSchema }),
+      z.object({ type: z.literal('dateRange'), from: LocalDateSchema, to: LocalDateSchema }),
+    ]),
+    /** Hours added to (positive) or taken from (negative) each affected day. */
+    hours: z.number().min(-24).max(24),
+  }),
+  z.object({
+    kind: z.literal('estimateUpdate'),
+    taskType: TaskTypeSchema,
+    /** Multiplier for the estimates of `taskIds`, e.g. 1.3 = 30% longer. */
+    factor: z.number().positive().max(10),
+    taskIds: z.array(z.string().min(1)).min(1),
+  }),
+  z.object({
+    kind: z.literal('extraPractice'),
+    /** The new practice task goes right after this task. */
+    afterTaskId: z.string().min(1),
+    hours: z.number().positive().max(24),
+  }),
+  z.object({
+    kind: z.literal('pullForward'),
+    /** The study day that gets the extra hours, so later tasks move up. */
+    date: LocalDateSchema,
+    hours: z.number().positive().max(24),
+  }),
+]);
+
+export const SuggestionEvidenceSchema = z.object({
+  reviewDates: z.array(LocalDateSchema),
+  taskIds: z.array(z.string().min(1)),
+});
+
+export const SuggestionSchema = z.object({
+  /** Deterministic hash of `rule` and `key`. */
+  id: z.string().min(1),
+  rule: AdjustmentRuleSchema,
+  /** Identifies the evidence; a new key means new evidence. */
+  key: z.string().min(1),
+  title: z.string().min(1),
+  explanation: z.string().min(1),
+  /** The recommended change. */
+  proposedChange: ProposedChangeSchema,
+  /** Other ways to act on the same suggestion (the user picks one). */
+  alternatives: z.array(ProposedChangeSchema),
+  evidence: SuggestionEvidenceSchema,
+});
+
+export const SuggestionDecisionSchema = z.enum(['accepted', 'rejected']);
+
+/** A suggestion the user already decided on (the `Adjustment` record, spec 4). */
+export const DecidedSuggestionSchema = z.object({
+  rule: AdjustmentRuleSchema,
+  key: z.string().min(1),
+  decision: SuggestionDecisionSchema,
+  evidence: SuggestionEvidenceSchema.optional(),
+});
+
 export type TaskType = z.infer<typeof TaskTypeSchema>;
 export type TaskStatus = z.infer<typeof TaskStatusSchema>;
 export type Lesson = z.infer<typeof LessonSchema>;
@@ -207,3 +338,14 @@ export function parsePlanFile(input: unknown): PlanFile {
   }
   return plan;
 }
+
+export type TaskOutcomeKind = z.infer<typeof TaskOutcomeKindSchema>;
+export type TaskOutcome = z.infer<typeof TaskOutcomeSchema>;
+export type DayReviewInput = z.input<typeof DayReviewInputSchema>;
+export type DayReview = z.infer<typeof DayReviewInputSchema>;
+export type AdjustmentRule = z.infer<typeof AdjustmentRuleSchema>;
+export type ProposedChange = z.infer<typeof ProposedChangeSchema>;
+export type SuggestionEvidence = z.infer<typeof SuggestionEvidenceSchema>;
+export type Suggestion = z.infer<typeof SuggestionSchema>;
+export type SuggestionDecision = z.infer<typeof SuggestionDecisionSchema>;
+export type DecidedSuggestion = z.infer<typeof DecidedSuggestionSchema>;

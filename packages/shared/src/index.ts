@@ -9,5 +9,6 @@ export * from './scheduling/capacity';
 export * from './scheduling/engine';
 export * from './scheduling/changes';
 export * from './scheduling/cv';
+export * from './scheduling/adjustments';
 export * from './export/ics';
 export * from './export/printable';
