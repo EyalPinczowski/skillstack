@@ -1,5 +1,6 @@
 import { buildApp } from './app';
 import { ConfigError, loadConfig } from './config';
+import { testClockFromEnv } from './test-clock';
 
 let config;
 try {
@@ -12,7 +13,8 @@ try {
   throw err;
 }
 
-const app = buildApp(config);
+// TEST-ONLY: a fixed clock for the e2e suite; undefined (the real clock) in production.
+const app = buildApp(config, { now: testClockFromEnv(process.env) });
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.on(signal, () => {
