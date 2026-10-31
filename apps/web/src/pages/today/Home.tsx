@@ -11,12 +11,10 @@ import {
   useTasks,
 } from '../../api/hooks';
 import { QueryView } from '../../components/QueryView';
-import { TaskStatusLabel, TaskTypeChip } from '../../components/TaskChips';
 import { Button, ErrorText, linkClass } from '../../components/ui';
 import { dayHours } from '../../lib/day-hours';
 import { dayOfPlan, formatDate, formatHours } from '../../lib/format';
 import { describeError } from '../../lib/messages';
-import { TASK_TYPE_META } from '../../lib/task-types';
 import { PlanSwitcher } from '../../plan/PlanGate';
 import { BlockItem } from './BlockItem';
 import { DayControls } from './DayControls';
@@ -26,6 +24,7 @@ import { PastDayView } from './PastDayView';
 import { UpcomingDays } from './UpcomingDays';
 import { useDayRollover } from './use-day-rollover';
 import { WarningsNotice } from './WarningsNotice';
+import { WorkedOnItem } from './WorkedOnItem';
 
 type Notice = { tone: 'ok'; text: string; undoTaskId?: string } | { tone: 'error'; text: string };
 
@@ -298,25 +297,28 @@ function TodayView({
           <h2 id="worked-heading">Worked on today</h2>
           <ul className="space-y-3">
             {workedOn.map((task) => (
-              <li
+              <WorkedOnItem
                 key={task.id}
-                className={`space-y-1 rounded-md border border-l-4 border-border bg-surface p-4 ${TASK_TYPE_META[task.type].strip}`}
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <TaskTypeChip type={task.type} />
-                  <TaskStatusLabel status={task.status} />
-                </div>
-                <h3 className="text-lg font-bold">{task.title}</h3>
-                <p className="text-muted tabular-nums">
-                  Today {formatHours(loggedToday(task.id))} · Estimated {formatHours(task.estHours)}{' '}
-                  · Actual {formatHours(task.doneHours)}
-                </p>
-                {task.status === 'done' || task.status === 'skipped' ? (
-                  <Button onClick={() => reopenTask(task)} disabled={busyId === task.id}>
-                    Reopen<span className="sr-only">: {task.title}</span>
-                  </Button>
-                ) : null}
-              </li>
+                planId={plan.id}
+                task={task}
+                today={schedule.today}
+                loggedToday={loggedToday(task.id)}
+                busy={busyId === task.id}
+                onLogged={onLogged}
+                onDone={() =>
+                  act(
+                    complete,
+                    task,
+                    `Marked ${task.title} as done.`,
+                    'Could not mark the task as done.',
+                    true,
+                  )
+                }
+                onSkip={() =>
+                  act(skip, task, `Skipped ${task.title}.`, 'Could not skip the task.', true)
+                }
+                onReopen={() => reopenTask(task)}
+              />
             ))}
           </ul>
         </section>

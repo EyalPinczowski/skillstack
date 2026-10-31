@@ -2,10 +2,10 @@ import { useState } from 'react';
 import type { Block, LogResult, Task } from '../../api/client';
 import { TaskStatusLabel, TaskTypeChip } from '../../components/TaskChips';
 import { PinIcon } from '../../components/icons';
-import { Button } from '../../components/ui';
 import { formatHours, minutesToHours } from '../../lib/format';
 import { TASK_TYPE_META } from '../../lib/task-types';
 import { LogTimeForm } from './LogTimeForm';
+import { TaskActions } from './TaskActions';
 
 /** One block of today's schedule: what, when, how long, and the actions the person may choose. */
 export function BlockItem({
@@ -33,8 +33,6 @@ export function BlockItem({
   const [logging, setLogging] = useState(false);
   const blockHours = minutesToHours(block.minutes);
   const fixed = block.kind !== 'study';
-  // A finished or skipped task (seen on a frozen day) can only be reopened, never logged against.
-  const closed = task.status === 'done' || task.status === 'skipped';
   return (
     <li
       className={`space-y-3 rounded-md border border-l-4 border-border bg-surface p-4 ${TASK_TYPE_META[task.type].strip}`}
@@ -62,25 +60,15 @@ export function BlockItem({
           Estimated {formatHours(task.estHours)} · Actual {formatHours(task.doneHours)}
         </p>
       </div>
-      {closed ? (
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={onReopen} disabled={busy}>
-            Reopen<span className="sr-only">: {task.title}</span>
-          </Button>
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-3">
-          <Button variant="primary" onClick={() => setLogging(true)} disabled={logging || busy}>
-            Log time<span className="sr-only">: {task.title}</span>
-          </Button>
-          <Button onClick={onDone} disabled={busy}>
-            Mark done<span className="sr-only">: {task.title}</span>
-          </Button>
-          <Button onClick={onSkip} disabled={busy}>
-            Skip<span className="sr-only">: {task.title}</span>
-          </Button>
-        </div>
-      )}
+      <TaskActions
+        task={task}
+        busy={busy}
+        logging={logging}
+        onLog={() => setLogging(true)}
+        onDone={onDone}
+        onSkip={onSkip}
+        onReopen={onReopen}
+      />
       {logging ? (
         <LogTimeForm
           planId={planId}

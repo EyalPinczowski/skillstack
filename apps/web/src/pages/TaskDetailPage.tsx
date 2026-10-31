@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
 import type { Task, TaskPatch } from '../api/client';
-import { usePatchTask, useTaskAction, useTasks } from '../api/hooks';
+import { usePatchTask, useSchedule, useTaskAction, useTasks } from '../api/hooks';
 import { QueryView } from '../components/QueryView';
 import { TaskStatusLabel, TaskTypeChip } from '../components/TaskChips';
 import { Button, ErrorText, linkClass, TextAreaField, TextField } from '../components/ui';
@@ -10,6 +10,8 @@ import { safeWebUrl } from '../lib/links';
 import { describeError } from '../lib/messages';
 import { anchorText, dependencyText } from '../lib/task-text';
 import { PlanGate } from '../plan/PlanGate';
+import { LogTimeForm } from './today/LogTimeForm';
+import { TaskActions } from './today/TaskActions';
 
 function ExternalLink({ href, children }: { href: string; children: string }) {
   return (
@@ -87,16 +89,68 @@ function EditForm({ planId, task }: { planId: string; task: Task }) {
   );
 }
 
-function ReopenButton({ planId, task }: { planId: string; task: Task }) {
+/**
+ * The explicit actions on this task, by status. Always available while the task is open, so
+ * finishing or skipping it never depends on a prompt or on a block today.
+ */
+function TaskPageActions({ planId, task }: { planId: string; task: Task }) {
+  const schedule = useSchedule(planId);
+  const complete = useTaskAction(planId, 'complete');
+  const skip = useTaskAction(planId, 'skip');
   const reopen = useTaskAction(planId, 'reopen');
-  if (task.status !== 'done' && task.status !== 'skipped') return null;
+  const [logging, setLogging] = useState(false);
+  const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  // The pressed button is replaced after the action, so focus moves to the result message.
+  const noticeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (notice) noticeRef.current?.focus();
+  }, [notice]);
+  const busy = complete.isPending || skip.isPending || reopen.isPending;
+  const today = schedule.data?.today;
+  const remaining = task.estHours - task.doneHours;
+
+  function act(mutation: typeof complete, success: string, failure: string) {
+    if (busy) return;
+    setNotice(null);
+    mutation.mutate(task.id, {
+      onSuccess: () => setNotice({ tone: 'ok', text: success }),
+      onError: (error) => setNotice({ tone: 'error', text: describeError(error, failure) }),
+    });
+  }
+
   return (
-    <div className="space-y-2">
-      <Button onClick={() => reopen.mutate(task.id)} disabled={reopen.isPending}>
-        Reopen task
-      </Button>
-      {reopen.isError ? (
-        <ErrorText>{describeError(reopen.error, 'The task could not be reopened.')}</ErrorText>
+    <div className="space-y-3">
+      <TaskActions
+        task={task}
+        busy={busy}
+        // Logging needs today's date from the schedule; marking done or skipping does not.
+        logging={logging || !today}
+        onLog={() => setLogging(true)}
+        onDone={() =>
+          act(complete, `Marked ${task.title} as done.`, 'Could not mark the task as done.')
+        }
+        onSkip={() => act(skip, `Skipped ${task.title}.`, 'Could not skip the task.')}
+        onReopen={() => act(reopen, `Reopened ${task.title}.`, 'Could not reopen the task.')}
+      />
+      <div ref={noticeRef} tabIndex={-1} aria-live="polite" aria-atomic="true">
+        {notice?.tone === 'ok' ? <p className="font-bold text-ok">{notice.text}</p> : null}
+        {notice?.tone === 'error' ? <ErrorText>{notice.text}</ErrorText> : null}
+      </div>
+      {logging && today ? (
+        <LogTimeForm
+          planId={planId}
+          task={task}
+          date={today}
+          defaultHours={remaining > 0 ? remaining : 1}
+          onLogged={(result) => {
+            setLogging(false);
+            setNotice({
+              tone: 'ok',
+              text: `Logged ${formatHours(result.log.hours)} on ${task.title}. ${formatHours(result.task.doneHours)} of ${formatHours(result.task.estHours)} done.`,
+            });
+          }}
+          onCancel={() => setLogging(false)}
+        />
       ) : null}
     </div>
   );
@@ -138,7 +192,7 @@ function Detail({
         ) : null}
       </div>
 
-      <ReopenButton planId={planId} task={task} />
+      <TaskPageActions planId={planId} task={task} />
 
       {task.howToSteps.length ? (
         <section aria-labelledby="steps-heading" className="space-y-2">

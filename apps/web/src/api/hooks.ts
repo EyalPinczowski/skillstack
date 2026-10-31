@@ -205,7 +205,9 @@ export function useTaskAction(planId: string, action: 'complete' | 'skip' | 'reo
         : action === 'skip'
           ? api.skipTask(planId, taskId)
           : api.reopenTask(planId, taskId),
-    onSuccess: () => void invalidate(planId),
+    // Returned, so the action stays pending until the lists show the new status. A second click
+    // in between would otherwise repeat the call on a button that is about to change.
+    onSuccess: () => invalidate(planId),
   });
 }
 
