@@ -58,13 +58,14 @@ const envSchema = z.object({
     .refine((v) => Number(v) <= MAX_TRUST_PROXY, `must be at most ${MAX_TRUST_PROXY}`)
     .default('0')
     .transform(Number),
-  // Accounts (spec 3.A). All three are required when NODE_ENV=production (see loadConfig).
+  // Accounts (spec 3.A). The first three are required when NODE_ENV=production (see loadConfig).
   // Supabase Auth's JWKS endpoint, e.g. https://<project-ref>.supabase.co/auth/v1/.well-known/jwks.json
   SUPABASE_JWKS_URL: httpsUrl.optional(),
   // The `iss` of access tokens, e.g. https://<project-ref>.supabase.co/auth/v1
   SUPABASE_JWT_ISSUER: httpsUrl.optional(),
   // Project URL and the service-role (secret) key, used to delete the Supabase Auth user on
   // "Delete my account". The key is a server-only secret: never logged, returned or sent to the web.
+  // Operational API only (APP_ENV=operational): R&D shares the Auth project and must not hold it.
   SUPABASE_URL: httpsOrigin.optional(),
   SUPABASE_SERVICE_ROLE_KEY: serviceKey.optional(),
   // Connection string of the app_<schema> login (not the admin). Never logged.
@@ -82,8 +83,9 @@ export interface Config {
   /** Null when not configured: sign-in then rejects every token (fail closed). */
   supabase: { jwksUrl: string; issuer: string } | null;
   /**
-   * Null when not configured: account deletion then fails closed (502) because the Auth user
-   * could not be removed. Holds a secret: never log or serialise `serviceRoleKey`.
+   * Operational only. Null when not configured (development, tests): account deletion then fails
+   * closed (502) because the Auth user could not be removed. Always null on R&D, where deletion
+   * touches only R&D data. Holds a secret: never log or serialise `serviceRoleKey`.
    */
   supabaseAdmin: { url: string; serviceRoleKey: string } | null;
   /** Null when not configured: account routes answer 503. */
@@ -123,9 +125,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       throw new ConfigError(missing.map((name) => `${name}: required when NODE_ENV=production`));
     }
   }
-  // Production always has sign-in verification (checked above), so deleting an account must be
-  // able to remove the Auth user too: refuse to start without the key rather than fail later.
-  if (e.NODE_ENV === 'production') {
+  // R&D and Operational share ONE Supabase Auth project. Only the operational API may hold the
+  // service key and delete the Auth user; R&D deletes only its own data. A key on an R&D service
+  // is refused at startup so a misconfigured deploy fails loudly and the key cannot leak there.
+  const holdsAdminKey = e.APP_ENV === 'operational';
+  if (!holdsAdminKey && e.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new ConfigError([
+      'SUPABASE_SERVICE_ROLE_KEY: must not be set when APP_ENV=rnd (R&D shares Supabase Auth with the live app; only the operational API may hold the key)',
+    ]);
+  }
+  // Production operational always has sign-in verification (checked above), so deleting an
+  // account must be able to remove the Auth user too: refuse to start without the key.
+  if (e.NODE_ENV === 'production' && holdsAdminKey) {
     const missing = (['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] as const).filter(
       (name) => !e[name],
     );
@@ -133,7 +144,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
       throw new ConfigError(missing.map((name) => `${name}: required when NODE_ENV=production`));
     }
   }
-  if (Boolean(e.SUPABASE_URL) !== Boolean(e.SUPABASE_SERVICE_ROLE_KEY)) {
+  if (holdsAdminKey && Boolean(e.SUPABASE_URL) !== Boolean(e.SUPABASE_SERVICE_ROLE_KEY)) {
     throw new ConfigError(['SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY: set both or neither']);
   }
   if (Boolean(e.SUPABASE_JWKS_URL) !== Boolean(e.SUPABASE_JWT_ISSUER)) {
@@ -146,7 +157,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
         ? { jwksUrl: e.SUPABASE_JWKS_URL, issuer: e.SUPABASE_JWT_ISSUER }
         : null,
     supabaseAdmin:
-      e.SUPABASE_URL && e.SUPABASE_SERVICE_ROLE_KEY
+      holdsAdminKey && e.SUPABASE_URL && e.SUPABASE_SERVICE_ROLE_KEY
         ? { url: e.SUPABASE_URL, serviceRoleKey: e.SUPABASE_SERVICE_ROLE_KEY }
         : null,
     databaseUrl: e.DATABASE_URL ?? null,

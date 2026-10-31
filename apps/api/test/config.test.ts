@@ -177,6 +177,42 @@ describe('sign-in and database settings', () => {
     }
   });
 
+  describe('R&D shares the Auth project, so it never holds the service key', () => {
+    const withoutKey: Record<string, string> = { ...full };
+    delete withoutKey.SUPABASE_SERVICE_ROLE_KEY;
+
+    it('starts in production on rnd without the service key and has no admin access', () => {
+      const config = loadConfig({ NODE_ENV: 'production', APP_ENV: 'rnd', ...withoutKey });
+      expect(config.supabaseAdmin).toBeNull();
+      // The project URL is not a secret and may stay (for example for the JWKS settings).
+      const bare = { ...withoutKey };
+      delete bare.SUPABASE_URL;
+      expect(() => loadConfig({ NODE_ENV: 'production', APP_ENV: 'rnd', ...bare })).not.toThrow();
+    });
+
+    it.each(['production', 'development', 'test'])(
+      'refuses a service key on rnd (NODE_ENV=%s) without echoing it',
+      (nodeEnv) => {
+        try {
+          loadConfig({ NODE_ENV: nodeEnv, APP_ENV: 'rnd', ...full });
+          expect.unreachable();
+        } catch (err) {
+          const message = (err as ConfigError).message;
+          expect((err as ConfigError).problems).toEqual([
+            'SUPABASE_SERVICE_ROLE_KEY: must not be set when APP_ENV=rnd (R&D shares Supabase Auth with the live app; only the operational API may hold the key)',
+          ]);
+          expect(message).not.toContain(full.SUPABASE_SERVICE_ROLE_KEY);
+        }
+      },
+    );
+
+    it('still requires the key on the operational API in production', () => {
+      expect(() =>
+        loadConfig({ NODE_ENV: 'production', APP_ENV: 'operational', ...withoutKey }),
+      ).toThrow(/SUPABASE_SERVICE_ROLE_KEY: required/);
+    });
+  });
+
   it('parses the service key settings into supabaseAdmin', () => {
     expect(loadConfig(full).supabaseAdmin).toEqual({
       url: full.SUPABASE_URL,

@@ -111,7 +111,7 @@ export const accountRoutes: FastifyPluginAsyncZod<AccountRoutesOptions> = async 
       schema: {
         tags: ['accounts'],
         summary: 'Delete the account and all its data',
-        description: `The body must contain {"confirmation": "${DELETE_CONFIRMATION}"}. Deletes the Skillstack data and the Supabase Auth user together; if the Auth user cannot be deleted, nothing is deleted (502) and the request can be retried.`,
+        description: `The body must contain {"confirmation": "${DELETE_CONFIRMATION}"}. Deletes the Skillstack data and, on the operational API, the Supabase Auth user together; if the Auth user cannot be deleted, nothing is deleted (502) and the request can be retried. The R&D API shares the Auth project, so it deletes only its own data and never the Auth user.`,
         security: [{ bearerAuth: [] }],
         body: deleteMeBody,
         response: {

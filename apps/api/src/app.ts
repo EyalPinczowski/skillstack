@@ -16,6 +16,7 @@ import { createDatabase, type Database } from './db/database';
 import { installErrorHandling } from './errors';
 import {
   createSupabaseAuthAdmin,
+  noopAuthAdminForRnd,
   unconfiguredAuthAdmin,
   type AuthAdmin,
 } from './modules/accounts/auth-admin';
@@ -49,7 +50,7 @@ export interface AppDeps {
   db?: Database | null;
   /** The clock for plan-local dates (day start/end, rollover). Defaults to the system time. */
   now?: () => Date;
-  /** Defaults to Supabase from config (service key), or to failing closed when unconfigured. */
+  /** Defaults to Supabase from config on operational (fails closed without a key), and to a no-op on R&D. */
   authAdmin?: AuthAdmin;
   /** Tests only: where log lines go, so they can be inspected. Defaults to stdout. */
   logStream?: { write(line: string): void };
@@ -62,12 +63,15 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
     (config.supabase ? createSupabaseVerifierFromUrl(config.supabase) : rejectAllVerifier);
   const authAdmin =
     deps.authAdmin ??
-    (config.supabaseAdmin
-      ? createSupabaseAuthAdmin({
-          baseUrl: config.supabaseAdmin.url,
-          serviceRoleKey: config.supabaseAdmin.serviceRoleKey,
-        })
-      : unconfiguredAuthAdmin);
+    (config.appEnv === 'rnd'
+      ? // Shared Auth: R&D never calls the admin API, even if a key were passed in by mistake.
+        noopAuthAdminForRnd
+      : config.supabaseAdmin
+        ? createSupabaseAuthAdmin({
+            baseUrl: config.supabaseAdmin.url,
+            serviceRoleKey: config.supabaseAdmin.serviceRoleKey,
+          })
+        : unconfiguredAuthAdmin);
   const db =
     deps.db !== undefined
       ? deps.db

@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { isApiError } from '../api/errors';
 import { useDeleteAccount, useExportData, useMe, useUpdateDisplayName } from '../api/hooks';
 import { useAuth } from '../auth/AuthProvider';
+import type { AppEnv } from '../env';
 import { Button, ErrorText, linkClass, TextField } from '../components/ui';
 import { DELETE_PHRASE, EXPORT_FILENAME } from '../lib/account';
 import { downloadJson } from '../lib/download';
@@ -186,7 +187,7 @@ function SignOutSection() {
   );
 }
 
-function DeleteSection() {
+function DeleteSection({ appEnv }: { appEnv: AppEnv }) {
   const { signOut } = useAuth();
   const remove = useDeleteAccount();
   const [typed, setTyped] = useState('');
@@ -217,11 +218,19 @@ function DeleteSection() {
 
   return (
     <Section id="delete-heading" title="Delete my account">
-      <p>
-        This permanently deletes your account and everything in it: your plans, progress, settings
-        and sign-in record (your email). It can’t be undone. Download your data first if you want a
-        copy.
-      </p>
+      {appEnv === 'rnd' ? (
+        <p>
+          This permanently deletes your plans, progress and settings in this test environment. It
+          can’t be undone. R&D test account: your sign-in record stays because it is shared with the
+          live app. Download your data first if you want a copy.
+        </p>
+      ) : (
+        <p>
+          This permanently deletes your account and everything in it: your plans, progress, settings
+          and sign-in record (your email). It can’t be undone. Download your data first if you want
+          a copy.
+        </p>
+      )}
       <form onSubmit={onSubmit} noValidate className="space-y-3">
         <TextField
           label={`Type “${DELETE_PHRASE}” to confirm`}
@@ -246,7 +255,7 @@ function DeleteSection() {
   );
 }
 
-export function SettingsPage() {
+export function SettingsPage({ appEnv = 'operational' }: { appEnv?: AppEnv }) {
   return (
     <div className="space-y-6">
       <h1>Settings</h1>
@@ -255,7 +264,7 @@ export function SettingsPage() {
       <AppearanceSection />
       <DataSection />
       <SignOutSection />
-      <DeleteSection />
+      <DeleteSection appEnv={appEnv} />
       <nav aria-label="Legal" className="flex flex-wrap gap-x-4 gap-y-1">
         {Object.values(LEGAL_PAGES).map((page) => (
           <Link key={page.slug} className={linkClass} to={page.path}>

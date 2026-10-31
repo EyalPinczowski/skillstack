@@ -68,7 +68,7 @@ export function App({
                   </Route>
                   <Route path="briefing/:date" element={<BriefingPage />} />
                   <Route path="review/:date" element={<ReviewPage />} />
-                  <Route path="settings" element={<SettingsPage />} />
+                  <Route path="settings" element={<SettingsPage appEnv={env.appEnv} />} />
                 </Route>
               </Route>
             </Route>

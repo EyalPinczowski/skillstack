@@ -22,6 +22,17 @@ export const unconfiguredAuthAdmin: AuthAdmin = {
   },
 };
 
+/**
+ * R&D: the Auth project is shared with the live app, so the R&D API never touches it. Deleting an
+ * R&D account removes R&D data only; the sign-in record and the Operational data stay. This is a
+ * deliberate "nothing to do here", not a failure, and it makes no network call at all.
+ */
+export const noopAuthAdminForRnd: AuthAdmin = {
+  async deleteUser() {
+    // Intentionally empty (see above).
+  },
+};
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULT_TIMEOUT_MS = 8000;
 

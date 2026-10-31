@@ -33,16 +33,21 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
     testDb = await prepareDatabase();
     keys = await makeTestKeys();
     db = createDatabase({ connectionString: testDb.appUrl('rnd'), appEnv: 'rnd' });
-    app = buildApp(testConfig({ appEnv: 'rnd', rateLimitPerMinute: 10_000, logLevel: 'info' }), {
-      verifier: createSupabaseVerifier({ issuer: ISSUER, keys: keys.keys }),
-      db,
-      authAdmin: createSupabaseAuthAdmin({
-        baseUrl: fake.baseUrl,
-        serviceRoleKey: FAKE_SERVICE_KEY,
-        timeoutMs: 2000,
-      }),
-      logStream: { write: (line) => void logLines.push(line) },
-    });
+    // The tests run against the rnd schema, but this app plays the OPERATIONAL API: the one that
+    // holds the service key and deletes the Auth user (see 'R&D API' below for the other case).
+    app = buildApp(
+      testConfig({ appEnv: 'operational', rateLimitPerMinute: 10_000, logLevel: 'info' }),
+      {
+        verifier: createSupabaseVerifier({ issuer: ISSUER, keys: keys.keys }),
+        db,
+        authAdmin: createSupabaseAuthAdmin({
+          baseUrl: fake.baseUrl,
+          serviceRoleKey: FAKE_SERVICE_KEY,
+          timeoutMs: 2000,
+        }),
+        logStream: { write: (line) => void logLines.push(line) },
+      },
+    );
     await app.ready();
   });
 
@@ -576,7 +581,7 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
       });
 
       it('fails closed (502, data kept) when no service key is configured', async () => {
-        const noKey = buildApp(testConfig({ appEnv: 'rnd', rateLimitPerMinute: 10_000 }), {
+        const noKey = buildApp(testConfig({ appEnv: 'operational', rateLimitPerMinute: 10_000 }), {
           verifier: createSupabaseVerifier({ issuer: ISSUER, keys: keys.keys }),
           db,
         });
@@ -607,6 +612,54 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
         expect(everything).not.toContain(FAKE_SERVICE_KEY);
         expect(everything).not.toContain('fake response');
         expect(logLines.some((l) => l.includes('auth user deletion failed'))).toBe(true);
+      });
+    });
+
+    describe('R&D API (shares the Auth project with Operational)', () => {
+      it.each([
+        ['with admin settings in the config (a mistake)', true],
+        ['without any admin settings (the real R&D setup)', false],
+      ])('deletes only R&D data, answers 204, no admin call: %s', async (_label, withAdmin) => {
+        // Even a config that (wrongly) carries admin settings must not reach the admin API on R&D.
+        const rnd = buildApp(
+          testConfig({
+            appEnv: 'rnd',
+            rateLimitPerMinute: 10_000,
+            supabaseAdmin: withAdmin
+              ? { url: fake.baseUrl, serviceRoleKey: FAKE_SERVICE_KEY }
+              : null,
+          }),
+          { verifier: createSupabaseVerifier({ issuer: ISSUER, keys: keys.keys }), db },
+        );
+        await rnd.ready();
+        const headers = await asA();
+        await rnd.inject({ method: 'GET', url: '/api/v1/me', headers });
+        await rnd.inject({ method: 'GET', url: '/api/v1/me', headers: await asB() });
+        await seedPlan(A, PLAN_A, 'Plan of A');
+        await seedPlan(B, PLAN_B, 'Plan of B');
+
+        const res = await rnd.inject({
+          method: 'DELETE',
+          url: '/api/v1/me',
+          headers,
+          payload: { confirmation: 'delete my account' },
+        });
+        expect(res.statusCode).toBe(204);
+        expect(fake.requests).toHaveLength(0);
+        for (const table of ['plans', 'tasks', 'logs', 'events']) {
+          expect(
+            await count(`select count(*)::int as n from rnd.${table} where user_id = $1`, [A]),
+            table,
+          ).toBe(0);
+          expect(
+            await count(`select count(*)::int as n from rnd.${table} where user_id = $1`, [B]),
+            table,
+          ).toBeGreaterThan(0);
+        }
+        expect(await count('select count(*)::int as n from rnd.app_users where id = $1', [A])).toBe(
+          0,
+        );
+        await rnd.close();
       });
     });
   });
