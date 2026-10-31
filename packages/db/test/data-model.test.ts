@@ -103,6 +103,24 @@ const TABLES: UserTable[] = [
        values ('${u}', gen_random_uuid(), '${PLAN_B}', 't1', '2026-01-05', 1)`,
   },
   {
+    name: 'day_sessions',
+    ownerColumn: 'user_id',
+    // The app may change only ended_at (column grant); no deletes.
+    update: `ended_at = now()`,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.day_sessions (user_id, plan_id, date) values ('${u}', '${PLAN_B}', '2026-01-07')`,
+  },
+  {
+    name: 'schedule_days',
+    ownerColumn: 'user_id',
+    update: null,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.schedule_days (user_id, plan_id, date, blocks, source)
+       values ('${u}', '${PLAN_B}', '2026-01-07', '[]', 'day_end')`,
+  },
+  {
     name: 'events',
     ownerColumn: 'user_id',
     update: null,
@@ -145,6 +163,12 @@ async function seed(client: pg.Client): Promise<void> {
       insert into rnd.events (user_id, id, plan_id, type) values
         ('${USER_A}', '${EVENT_A}', '${PLAN_A}', 'task.logged'),
         ('${USER_B}', '${EVENT_B}', '${PLAN_B}', 'task.logged');
+      insert into rnd.day_sessions (user_id, plan_id, date, started_at) values
+        ('${USER_A}', '${PLAN_A}', '2026-01-05', '2026-01-05 07:00+00'),
+        ('${USER_B}', '${PLAN_B}', '2026-01-05', '2026-01-05 07:00+00');
+      insert into rnd.schedule_days (user_id, plan_id, date, blocks, source) values
+        ('${USER_A}', '${PLAN_A}', '2026-01-05', '[]', 'day_end'),
+        ('${USER_B}', '${PLAN_B}', '2026-01-05', '[]', 'auto_rollover');
       insert into rnd.app_settings (key, value, is_public) values ('secret.key', '"x"', false);
     `);
     await client.query('commit');
@@ -268,6 +292,93 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
       ),
     );
     expect(rows.map((r) => r.relname).sort()).toEqual([...ALL_TABLE_NAMES].sort());
+  });
+
+  describe('schedule_days is append-only and day_sessions only ends', () => {
+    it('denies UPDATE and DELETE on schedule_days, even on the user’s own rows', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        for (const sql of [
+          `update rnd.schedule_days set blocks = '[1]' where user_id = '${USER_A}'`,
+          `delete from rnd.schedule_days where user_id = '${USER_A}'`,
+        ]) {
+          await expect(asUser(client, 'rnd', USER_A, () => client.query(sql))).rejects.toThrow(
+            NO_PRIVILEGE,
+          );
+        }
+      });
+    });
+
+    it('has only INSERT and SELECT policies on schedule_days for the app role', async () => {
+      await withClient(TEST_SUPERUSER_URL!, async (client) => {
+        const { rows } = await client.query<{ polcmd: string }>(
+          `select p.polcmd from pg_policy p
+            where p.polrelid = 'rnd.schedule_days'::regclass
+              and 'app_rnd_user'::regrole::oid = any (p.polroles)
+            order by 1`,
+        );
+        expect(rows.map((r) => r.polcmd)).toEqual(['a', 'r']);
+      });
+    });
+
+    it('lets the app change ended_at but no other column of day_sessions', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(`update rnd.day_sessions set started_at = now() where user_id = $1`, [
+              USER_A,
+            ]),
+          ),
+        ).rejects.toThrow(NO_PRIVILEGE);
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(`update rnd.day_sessions set date = '2026-02-02' where user_id = $1`, [
+              USER_A,
+            ]),
+          ),
+        ).rejects.toThrow(NO_PRIVILEGE);
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(`delete from rnd.day_sessions where user_id = $1`, [USER_A]),
+          ),
+        ).rejects.toThrow(NO_PRIVILEGE);
+      });
+    });
+
+    it('refuses a non-array blocks value, an unknown source and a second row for a date', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        for (const bad of [
+          `insert into rnd.schedule_days (user_id, plan_id, date, blocks, source)
+           values ('${USER_A}', '${PLAN_A}', '2026-03-01', '{}', 'day_end')`,
+          `insert into rnd.schedule_days (user_id, plan_id, date, blocks, source)
+           values ('${USER_A}', '${PLAN_A}', '2026-03-01', '[]', 'manual')`,
+        ]) {
+          await expect(asUser(client, 'rnd', USER_A, () => client.query(bad))).rejects.toThrow(
+            /violates check constraint/,
+          );
+        }
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(
+              `insert into rnd.schedule_days (user_id, plan_id, date, blocks, source)
+               values ('${USER_A}', '${PLAN_A}', '2026-01-05', '[]', 'day_end')`,
+            ),
+          ),
+        ).rejects.toThrow(/duplicate key/);
+      });
+    });
+
+    it('refuses to attach a row to another user’s plan (composite foreign key)', async () => {
+      await withClient(env.appUrl('rnd'), async (client) => {
+        await expect(
+          asUser(client, 'rnd', USER_A, () =>
+            client.query(
+              `insert into rnd.schedule_days (user_id, plan_id, date, blocks, source)
+               values ('${USER_A}', '${PLAN_B}', '2026-03-02', '[]', 'day_end')`,
+            ),
+          ),
+        ).rejects.toThrow(/violates foreign key constraint/);
+      });
+    });
   });
 
   describe('events are append-only', () => {
@@ -705,7 +816,15 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
         await asUser(client, 'rnd', USER_A, async () => {
           const del = await client.query(`delete from rnd.plans where id = $1`, [PLAN_A]);
           expect(del.rowCount).toBe(1);
-          for (const table of ['tasks', 'logs', 'events', 'week_patterns', 'day_overrides']) {
+          for (const table of [
+            'tasks',
+            'logs',
+            'events',
+            'week_patterns',
+            'day_overrides',
+            'day_sessions',
+            'schedule_days',
+          ]) {
             const { rows } = await client.query(
               `select count(*)::int as n from rnd.${table} where plan_id = $1`,
               [PLAN_A],
