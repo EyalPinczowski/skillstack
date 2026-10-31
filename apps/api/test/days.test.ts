@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app';
 import { createDatabase, type Database } from '../src/db/database';
 import { createSupabaseVerifier } from '../src/modules/accounts/token-verifier';
-import { dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
+import { acceptCurrentLegal, dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
 import { testConfig } from './helpers';
 import { ISSUER, makeTestKeys, type TestKeys } from './tokens';
 
@@ -67,6 +67,7 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
         `insert into rnd.app_users (id, email) values ($1, 'a@example.com'), ($2, 'b@example.com')`,
         [A, B],
       );
+      await acceptCurrentLegal(c, [A, B]);
       const plan = async (user: string, id: string, start: string, created: string) => {
         await c.query(
           `insert into rnd.plans (user_id, id, created_from, name, status, start_date, created_at)

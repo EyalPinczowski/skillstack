@@ -103,6 +103,97 @@ describe('time settings', () => {
     });
   });
 
+  describe('hours on specific weekdays (spec 3.7)', () => {
+    const THURSDAY_5 = { ...WEEK_PATTERN, hoursByWeekday: { '4': 5 } };
+
+    it('offers one optional field per study weekday, empty by default', async () => {
+      open();
+      const form = await section();
+      const group = form.getByRole('group', { name: 'Hours on specific days (optional)' });
+      for (const day of ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']) {
+        const field = within(group).getByRole('spinbutton', { name: `${day} hours` });
+        expect(field).toHaveValue(null);
+        expect(field).toHaveAttribute('placeholder', '7');
+      }
+      expect(
+        within(group).queryByRole('spinbutton', { name: 'Friday hours' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('sets Thursday to 5 hours: preview first, then save the pattern on Approve', async () => {
+      const api = open({ [`PUT ${BASE}/week-pattern`]: () => json(THURSDAY_5) });
+      const form = await section();
+      const user = userEvent.setup();
+      await user.type(form.getByRole('spinbutton', { name: 'Thursday hours' }), '5');
+      await user.click(form.getByRole('button', { name: 'Preview the change' }));
+      await form.findByText(SUMMARY);
+      expect(await bodyOf(api.calls.find((c) => c.url.endsWith('/schedule/preview')))).toEqual({
+        pattern: THURSDAY_5,
+      });
+      expect(api.count(`PUT ${BASE}/week-pattern`)).toBe(0);
+      await user.click(form.getByRole('button', { name: 'Approve' }));
+      await form.findByText(/Saved\./);
+      expect(await bodyOf(api.calls.find((c) => c.method === 'PUT'))).toEqual(THURSDAY_5);
+    });
+
+    it('shows saved weekday hours, and clearing one removes it from the pattern', async () => {
+      const api = open({
+        [`GET ${BASE}`]: () => json(planDetail({ weekPattern: THURSDAY_5 })),
+      });
+      const form = await section();
+      const field = form.getByRole('spinbutton', { name: 'Thursday hours' });
+      expect(field).toHaveValue(5);
+      const user = userEvent.setup();
+      await user.clear(field);
+      await user.click(form.getByRole('button', { name: 'Preview the change' }));
+      await form.findByText(SUMMARY);
+      expect(await bodyOf(api.calls.find((c) => c.url.endsWith('/schedule/preview')))).toEqual({
+        pattern: { ...WEEK_PATTERN, hoursByWeekday: {} },
+      });
+    });
+
+    it('changing only the default hours keeps the saved weekday hours', async () => {
+      const api = open({
+        [`GET ${BASE}`]: () => json(planDetail({ weekPattern: THURSDAY_5 })),
+      });
+      const form = await section();
+      const user = await setHours(form, '6');
+      await user.click(form.getByRole('button', { name: 'Preview the change' }));
+      await form.findByText(SUMMARY);
+      expect(await bodyOf(api.calls.find((c) => c.url.endsWith('/schedule/preview')))).toEqual({
+        pattern: { ...THURSDAY_5, defaultHours: 6 },
+      });
+    });
+
+    it('adds a field when a weekday becomes a study day, and keeps hours of a day switched off', async () => {
+      const api = open({
+        [`GET ${BASE}`]: () => json(planDetail({ weekPattern: THURSDAY_5 })),
+      });
+      const form = await section();
+      const user = userEvent.setup();
+      await user.click(form.getByRole('checkbox', { name: 'Friday' }));
+      await user.type(form.getByRole('spinbutton', { name: 'Friday hours' }), '3.5');
+      await user.click(form.getByRole('checkbox', { name: 'Thursday' }));
+      expect(form.queryByRole('spinbutton', { name: 'Thursday hours' })).not.toBeInTheDocument();
+      await user.click(form.getByRole('button', { name: 'Preview the change' }));
+      await form.findByText(SUMMARY);
+      // Thursday's saved hours are not silently dropped just because the day is off for now.
+      expect(await bodyOf(api.calls.find((c) => c.url.endsWith('/schedule/preview')))).toEqual({
+        pattern: {
+          ...WEEK_PATTERN,
+          studyWeekdays: [0, 1, 2, 3, 5],
+          hoursByWeekday: { '4': 5, '5': 3.5 },
+        },
+      });
+    });
+
+    it('has no accessibility violations with weekday hours filled in', async () => {
+      open({ [`GET ${BASE}`]: () => json(planDetail({ weekPattern: THURSDAY_5 })) });
+      await section();
+      await expectNoAxeViolations();
+    });
+  });
+
   it('Cancel drops the preview and saves nothing', async () => {
     const api = open();
     const form = await section();

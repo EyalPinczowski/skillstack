@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { noNulCharacters } from '../../validation';
 import { LEGAL_DOCUMENTS } from './legal';
 
 const legalStatus = z.object({ currentVersion: z.string(), accepted: z.boolean() });
@@ -18,9 +19,11 @@ export const meSchema = z.object({
 });
 
 /** Strict: unknown keys (a `userId`, a `role`, ...) are rejected, never ignored silently. */
-export const updateMeBody = z.strictObject({
-  displayName: z.string().trim().min(1).max(80).nullable(),
-});
+export const updateMeBody = noNulCharacters(
+  z.strictObject({
+    displayName: z.string().trim().min(1).max(80).nullable(),
+  }),
+);
 
 export const acceptLegalBody = z.strictObject({
   document: z.enum(LEGAL_DOCUMENTS),
@@ -29,7 +32,7 @@ export const acceptLegalBody = z.strictObject({
 
 export const DELETE_CONFIRMATION = 'delete my account';
 
-export const deleteMeBody = z.strictObject({ confirmation: z.string().max(100) });
+export const deleteMeBody = noNulCharacters(z.strictObject({ confirmation: z.string().max(100) }));
 
 const rows = z.array(z.record(z.string(), z.unknown()));
 

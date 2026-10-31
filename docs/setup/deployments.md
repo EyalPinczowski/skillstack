@@ -39,6 +39,7 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
    - `VITE_API_URL`: the Render API base URL without trailing slash (Production: `skillstack-api`; Preview: `skillstack-api-rnd`).
    - `VITE_SUPABASE_URL`: the Supabase project URL, `https://<project-ref>.supabase.co`. One project serves both environments (ADR 003), so Production and Preview use the same value.
    - `VITE_SUPABASE_ANON_KEY`: the project's anon / publishable key (Supabase dashboard, Project Settings, API; exact menu name needs check). It is public by design because it ships in the browser bundle, but it still goes only into the Vercel settings and your own untracked `.env.local`, never into the repository. Vercel exposes only variables that start with `VITE_` to the build; tick Production and Preview (needs check: the exact checkboxes).
+   - **Content-Security-Policy.** The web build writes a CSP `<meta>` tag into `index.html` (`apps/web/src/build/csp.ts`). Its `connect-src` is `'self'` plus the origins of `VITE_API_URL` and `VITE_SUPABASE_URL`, read at build time, so there is nothing else to configure: set both variables for each Vercel environment and rebuild when one changes. Everything else is `'self'` (no inline script or style). A browser ignores `frame-ancestors` in a meta tag, so `vercel.json` sends `Content-Security-Policy: frame-ancestors 'none'` as a header (the two policies add up). If a deployment cannot reach the API or Supabase and the browser console names `connect-src`, the variable was wrong or missing at build time. The policy is applied by `vite build` only, not by `vite dev`.
    - The build fails to start in the browser with a readable message ("Skillstack could not start") if either Supabase variable is missing or the URL is not http(s).
 5. Production Branch is `main`. Deployments from the `rnd` branch are Preview deployments; assign them a stable alias if possible (needs check which stable preview URL Hobby offers for a branch).
 6. Deploy. Copy the resulting `*.vercel.app` URLs for the next section.
@@ -51,14 +52,14 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
    - `CORS_ORIGINS`: exact Vercel origin(s), comma separated, no wildcard. Production service gets the production Vercel URL; R&D service gets the preview URL.
    - `RATE_LIMIT_PER_MINUTE`: e.g. leave at the API default if blank is allowed (needs check) or set a number.
    - `TRUST_PROXY`: `0` until the hop count is verified.
-4. Wait for the first deploy. The health check is `GET /api/v1/health`.
+4. Wait for the first deploy. Render's health check is `GET /api/v1/health`. It answers 200 as long as the process runs, with a `database` field of `ok`, `unavailable` or `not_configured`, so a database blip (or a paused Supabase project) does not make Render mark the service unhealthy and restart it. `GET /api/v1/health/ready` answers 503 when the database is not usable; use it for your own monitoring, not as Render's health check path. Both are open (no sign-in); only `/health` is exempt from the rate limit, and the database check is cached for 5 seconds.
 5. Suspend or let `skillstack-api-rnd` sleep; only the production service should be kept awake (see the 750-hour budget above).
 6. Database and auth variables (Supabase) are added when the API starts using them; follow `docs/setup/supabase.md`. Never commit values.
 7. `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (both services; the production API refuses to start without them). The key lets the API delete the Supabase Auth user when someone deletes their account. It bypasses Row Level Security, so treat it like the database password: enter it only in the Render dashboard (`sync: false`), **never** in Vercel, in any `VITE_` variable, in the web app or in git. Where to find it and the exact menu names: `docs/setup/api-auth.md`, "Service key for account deletion".
 
 ## 3. Keep-warm GitHub Action
 
-`.github/workflows/wakeup.yml` pings the production API during study hours.
+`.github/workflows/wakeup.yml` pings the production API during study hours. The ping reaches the database too (the health route runs a `select 1`), so it also helps keep the free Supabase project from pausing (needs check: that this counts as activity, see `docs/setup/supabase.md`).
 
 1. Repository Settings > Secrets and variables > Actions > Variables > New repository variable: `API_HEALTH_URL` = `https://<your-skillstack-api>.onrender.com/api/v1/health`. (A secret with the same name also works; the workflow reads the variable first.)
 2. Leave it unset to disable pinging; the workflow then exits silently.
