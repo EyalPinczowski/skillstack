@@ -25,7 +25,7 @@ import { planRoutes } from './modules/plans/routes';
 import { taskRoutes } from './modules/tasks/routes';
 import { installIdempotency } from './plugins/idempotency';
 import { generateRequestId, installRequestId } from './plugins/request-id';
-import { installSecurityHeaders } from './plugins/security-headers';
+import { installSecurityHeaders, transformSwaggerCsp } from './plugins/security-headers';
 
 const HEALTH_URL = '/api/v1/health';
 
@@ -119,7 +119,11 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
     },
     transform: jsonSchemaTransform,
   });
-  app.register(swaggerUi, { routePrefix: '/api/v1/docs' });
+  app.register(swaggerUi, {
+    routePrefix: '/api/v1/docs',
+    staticCSP: true,
+    transformStaticCSP: transformSwaggerCsp,
+  });
 
   app.register(
     async (v1) => {
