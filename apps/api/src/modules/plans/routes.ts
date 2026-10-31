@@ -9,6 +9,8 @@ import { createAccountService } from '../accounts/service';
 import type { TokenVerifier } from '../accounts/token-verifier';
 import { daysRoutes } from '../days/routes';
 import { createDaysService } from '../days/service';
+import { reviewRoutes } from '../reviews/routes';
+import { createReviewService } from '../reviews/service';
 import { schedulingRoutes } from '../scheduling/routes';
 import { createSchedulingService } from '../scheduling/service';
 import { validateImport } from './import';
@@ -180,6 +182,8 @@ export const planRoutes: FastifyPluginAsyncZod<PlanRoutesOptions> = async (
 
   // Without a database the guard already answered 503, so these never run with `db` null.
   const days = createDaysService(db!, now);
-  app.register(schedulingRoutes, { service: createSchedulingService(db!, days), userId });
+  const scheduling = createSchedulingService(db!, days);
+  app.register(schedulingRoutes, { service: scheduling, userId });
   app.register(daysRoutes, { service: days, userId });
+  app.register(reviewRoutes, { service: createReviewService(db!, days, scheduling), userId });
 };

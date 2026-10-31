@@ -4,6 +4,7 @@ import {
   schedule,
   summarizeChanges,
   weekday,
+  type AdjustableInputs,
   type ChangeSummary,
   type DayOverride,
   type ScheduleResult,
@@ -78,9 +79,15 @@ export function createSchedulingService(db: Database, days: DaysService) {
     return day;
   };
 
-  const run = (c: DayContext, pattern: WeekPattern, overrides: DayOverride[], viewDay: string) =>
+  const run = (
+    c: DayContext,
+    pattern: WeekPattern,
+    overrides: DayOverride[],
+    viewDay: string,
+    tasks: Task[] = c.plan.tasks,
+  ) =>
     schedule({
-      tasks: c.plan.tasks,
+      tasks,
       pattern,
       overrides,
       today: engineToday(c, viewDay),
@@ -96,7 +103,29 @@ export function createSchedulingService(db: Database, days: DaysService) {
     ].sort((a, b) => compareDates(a.date, b.date));
   };
 
+  /**
+   * Pure: schedules the plan as it is and with the proposed inputs (same frozen days, same
+   * first date the engine may change) and compares them. Nothing is read or saved here.
+   */
+  const compareProposal = (c: DayContext, proposed: AdjustableInputs): PreviewView => {
+    const before = run(c, c.pattern, c.plan.overrides, c.today);
+    const after = run(c, proposed.pattern, proposed.overrides, c.today, proposed.tasks);
+    return {
+      today: c.today,
+      summary: summarizeChanges(before, after, {
+        today: engineToday(c, c.today),
+        pattern: proposed.pattern,
+        overrides: proposed.overrides,
+        tasks: proposed.tasks,
+      }),
+      current: { finishDate: before.finishDate, warnings: before.warnings },
+      proposed: { finishDate: after.finishDate, warnings: after.warnings, blocks: after.blocks },
+    };
+  };
+
   return {
+    compareProposal,
+
     async getSchedule(userId: string, planId: string, today?: string): Promise<ScheduleView> {
       return db.withUser(userId, async (ctx) => {
         const c = await days.open(ctx, userId, planId);
