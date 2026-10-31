@@ -74,8 +74,10 @@ describe('Start study day', () => {
     expect(screen.queryByRole('button', { name: 'Start study day' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'End day' })).toBeEnabled();
     expect(api.count(`POST ${BASE}/days/${TODAY}/start`)).toBe(1);
-    // The briefing screen is the next PR: only a clearly named placeholder, no navigation.
-    expect(screen.getByText(/day briefing opens here in the next update/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open the day briefing' })).toHaveAttribute(
+      'href',
+      `/briefing/${TODAY}`,
+    );
     // Today stays on screen with its blocks.
     expect(screen.getByRole('heading', { name: 'Today’s blocks' })).toBeInTheDocument();
   });
@@ -195,9 +197,10 @@ describe('End day', () => {
 
     expect(await screen.findByText('Day ended')).toBeInTheDocument();
     expect(screen.getByText(/This day is frozen/)).toBeInTheDocument();
-    expect(
-      screen.getByText(/end-of-day review opens here in the next update/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Review the day' })).toHaveAttribute(
+      'href',
+      `/review/${TODAY}`,
+    );
     expect(screen.queryByRole('button', { name: 'End day' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Start study day' })).not.toBeInTheDocument();
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
