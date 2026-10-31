@@ -1,4 +1,5 @@
 import type { Database, UserContext, UserRow } from '../../db/database';
+import { unconfiguredAuthAdmin, type AuthAdmin } from './auth-admin';
 import { CURRENT_LEGAL_VERSIONS, LEGAL_DOCUMENTS, type LegalDocument } from './legal';
 
 export interface MeView {
@@ -46,7 +47,7 @@ async function toMe(ctx: UserContext, user: UserRow): Promise<MeView> {
 }
 
 /** Account operations. Every query runs inside db.withUser, so row-level security applies. */
-export function createAccountService(db: Database) {
+export function createAccountService(db: Database, authAdmin: AuthAdmin = unconfiguredAuthAdmin) {
   return {
     /** First call creates the profile (allowlist and cap are enforced in the database). */
     provision: (userId: string, email: string | null) => db.provision(userId, email ?? ''),
@@ -109,12 +110,21 @@ export function createAccountService(db: Database) {
         };
       }),
 
-    /** delete_account() deletes only the user in the claims; cascades remove every owned row. */
+    /**
+     * Deletes the Skillstack rows, then the Supabase Auth user, in ONE transaction: if the Auth
+     * deletion fails the rows come back (rollback) and the whole request can simply be retried.
+     * The reverse needs no special case: if the Auth user is deleted but the commit then fails,
+     * the retry finds no Auth user (404 counts as success) and deletes the rows.
+     * Why not commit first: delete_account() also removes the email from the allowlist, so the
+     * guard answers 403 to a retry and the Auth user could never be removed afterwards.
+     * Only the verified user's own id is ever sent to Supabase.
+     */
     deleteAccount: (userId: string) =>
       db.withUser(userId, async (ctx) => {
         const { rows } = await ctx.client.query<{ ok: boolean }>(
           `select ${ctx.schema}.delete_account() as ok`,
         );
+        await authAdmin.deleteUser(userId);
         return rows[0]!.ok;
       }),
   };
