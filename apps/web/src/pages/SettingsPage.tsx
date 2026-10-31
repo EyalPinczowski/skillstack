@@ -218,8 +218,9 @@ function DeleteSection() {
   return (
     <Section id="delete-heading" title="Delete my account">
       <p>
-        This permanently deletes your account and everything in it: your plans, progress and
-        settings. It can’t be undone. Download your data first if you want a copy.
+        This permanently deletes your account and everything in it: your plans, progress, settings
+        and sign-in record (your email). It can’t be undone. Download your data first if you want a
+        copy.
       </p>
       <form onSubmit={onSubmit} noValidate className="space-y-3">
         <TextField

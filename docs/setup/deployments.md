@@ -54,6 +54,7 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 4. Wait for the first deploy. The health check is `GET /api/v1/health`.
 5. Suspend or let `skillstack-api-rnd` sleep; only the production service should be kept awake (see the 750-hour budget above).
 6. Database and auth variables (Supabase) are added when the API starts using them; follow `docs/setup/supabase.md`. Never commit values.
+7. `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (both services; the production API refuses to start without them). The key lets the API delete the Supabase Auth user when someone deletes their account. It bypasses Row Level Security, so treat it like the database password: enter it only in the Render dashboard (`sync: false`), **never** in Vercel, in any `VITE_` variable, in the web app or in git. Where to find it and the exact menu names: `docs/setup/api-auth.md`, "Service key for account deletion".
 
 ## 3. Keep-warm GitHub Action
 
@@ -69,7 +70,7 @@ Facts below were read from the official docs on 2026-10-30. Anything not stated 
 | Where  | Names                                                                                                       |
 | ------ | ----------------------------------------------------------------------------------------------------------- |
 | Vercel | `VITE_APP_ENV`, `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`                              |
-| Render | `NODE_VERSION`, `APP_ENV`, `HOST`, `CORS_ORIGINS`, `RATE_LIMIT_PER_MINUTE`, `TRUST_PROXY`, `NODE_ENV`, `SUPABASE_JWKS_URL`, `SUPABASE_JWT_ISSUER`, `DATABASE_URL` (see `docs/setup/api-auth.md`) (`PORT`: needs check whether Render injects it) |
+| Render | `NODE_VERSION`, `APP_ENV`, `HOST`, `CORS_ORIGINS`, `RATE_LIMIT_PER_MINUTE`, `TRUST_PROXY`, `NODE_ENV`, `SUPABASE_JWKS_URL`, `SUPABASE_JWT_ISSUER`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (secret, Render only), `DATABASE_URL` (see `docs/setup/api-auth.md`) (`PORT`: needs check whether Render injects it) |
 | GitHub | `API_HEALTH_URL` (repository variable or secret)                                                            |
 
 See `.env.example` and `apps/web/.env.example` for what each one means.

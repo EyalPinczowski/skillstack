@@ -21,4 +21,5 @@ Option 2.
 - The rules live in one place in the database and are tested against real Postgres, including that an unapproved email cannot create an account whatever the token says.
 - The earlier wall test that the login role has no schema `USAGE` was relaxed to "no table privilege"; the schema ACL test now lists `app_<schema>` as a grantee.
 - Supabase auth users can exist without an account here. That is harmless: every API call returns `403` for them.
+- Update (owner decision after the v0.1 review): `DELETE /me` also deletes the Supabase Auth user, inside the same transaction right after `delete_account()`, with a server-only service key (`docs/setup/api-auth.md`). An Auth failure rolls the transaction back (502, retryable): committing first would make a retry impossible because the guard answers 403 once the allowlist entry is gone. This is the only place the API holds the service key.
 - Needs check: that Supabase's admin role may create `SECURITY DEFINER` functions owned by `owner_<schema>` (the migration runs under `SET LOCAL ROLE owner_<schema>`, the same rights the earlier migrations already need).

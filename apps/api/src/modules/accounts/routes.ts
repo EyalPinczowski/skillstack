@@ -12,6 +12,7 @@ import {
   meSchema,
   updateMeBody,
 } from './schemas';
+import { AuthAdminError, type AuthAdmin } from './auth-admin';
 import { createAccountService } from './service';
 import { installAccountGuard } from './guard';
 import type { TokenVerifier } from './token-verifier';
@@ -20,6 +21,8 @@ export interface AccountRoutesOptions {
   verifier: TokenVerifier;
   /** Null when no database is configured: the routes then answer 503. */
   db: Database | null;
+  /** Removes the Supabase Auth user on account deletion. */
+  authAdmin: AuthAdmin;
 }
 
 const authErrors = {
@@ -30,9 +33,9 @@ const authErrors = {
 
 export const accountRoutes: FastifyPluginAsyncZod<AccountRoutesOptions> = async (
   app,
-  { verifier, db },
+  { verifier, db, authAdmin },
 ) => {
-  const service = db ? createAccountService(db) : null;
+  const service = db ? createAccountService(db, authAdmin) : null;
 
   installAccountGuard(app, verifier, service);
 
@@ -108,10 +111,15 @@ export const accountRoutes: FastifyPluginAsyncZod<AccountRoutesOptions> = async 
       schema: {
         tags: ['accounts'],
         summary: 'Delete the account and all its data',
-        description: `The body must contain {"confirmation": "${DELETE_CONFIRMATION}"}.`,
+        description: `The body must contain {"confirmation": "${DELETE_CONFIRMATION}"}. Deletes the Skillstack data and the Supabase Auth user together; if the Auth user cannot be deleted, nothing is deleted (502) and the request can be retried.`,
         security: [{ bearerAuth: [] }],
         body: deleteMeBody,
-        response: { 204: z.null(), 422: errorResponseSchema, ...authErrors },
+        response: {
+          204: z.null(),
+          422: errorResponseSchema,
+          502: errorResponseSchema,
+          ...authErrors,
+        },
       },
     },
     async (request, reply) => {
@@ -122,7 +130,23 @@ export const accountRoutes: FastifyPluginAsyncZod<AccountRoutesOptions> = async 
           `Type "${DELETE_CONFIRMATION}" to confirm the deletion.`,
         );
       }
-      await service!.deleteAccount(userId(request));
+      try {
+        await service!.deleteAccount(userId(request));
+      } catch (error) {
+        if (error instanceof AuthAdminError) {
+          // Nothing was deleted (rolled back). The message is fixed text: no key, URL or body.
+          request.log.error(
+            { reason: error.message, status: error.status },
+            'auth user deletion failed',
+          );
+          throw new HttpError(
+            502,
+            'auth_deletion_failed',
+            'We could not delete your sign-in record, so nothing was deleted. Try again.',
+          );
+        }
+        throw error;
+      }
       return reply.status(204).send(null);
     },
   );

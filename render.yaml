@@ -30,6 +30,10 @@ services:
         sync: false
       - key: SUPABASE_JWT_ISSUER
         sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY # server-only secret, never in Vercel or git
+        sync: false
       - key: DATABASE_URL
         sync: false
 
@@ -60,6 +64,10 @@ services:
       - key: SUPABASE_JWKS_URL
         sync: false
       - key: SUPABASE_JWT_ISSUER
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY # server-only secret, never in Vercel or git
         sync: false
       - key: DATABASE_URL
         sync: false
