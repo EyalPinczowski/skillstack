@@ -117,8 +117,9 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
   const rows = <R = Record<string, unknown>>(sql: string, params: unknown[] = []) =>
     testDb.admin(async (c) => (await c.query(sql, params)).rows as R[]);
   const eventCount = async (type: string) =>
-    (await rows<{ n: number }>(`select count(*)::int as n from rnd.events where type = $1`, [type]))[0]!
-      .n;
+    (
+      await rows<{ n: number }>(`select count(*)::int as n from rnd.events where type = $1`, [type])
+    )[0]!.n;
   const snapshotDates = async (plan = PLAN_A) =>
     (
       await rows<{ date: string }>(
@@ -155,7 +156,11 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
 
     it('answers 404, identical to a missing plan, when another user reads, starts or ends a day', async () => {
       clock = at(TUE);
-      const missing = await call('GET', DAY(MON, 'f0000000-0000-4000-8000-000000000009'), await asB());
+      const missing = await call(
+        'GET',
+        DAY(MON, 'f0000000-0000-4000-8000-000000000009'),
+        await asB(),
+      );
       expect(missing.statusCode).toBe(404);
       for (const [method, url] of [
         ['GET', DAY(MON)],
@@ -195,7 +200,12 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
     it('starts today once: 201, then 200 with the same state and a single event', async () => {
       const first = await call('POST', DAY(SUN) + '/start', await asA());
       expect(first.statusCode).toBe(201);
-      expect(first.json()).toMatchObject({ date: SUN, status: 'started', endedAt: null, frozen: null });
+      expect(first.json()).toMatchObject({
+        date: SUN,
+        status: 'started',
+        endedAt: null,
+        frozen: null,
+      });
       clock = at(SUN, '09:00');
       const retry = await call('POST', DAY(SUN) + '/start', await asA());
       expect(retry.statusCode).toBe(200);
@@ -289,9 +299,9 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
       // t1 (2 h) fills Sunday. Log all of it and finish the task, then end the day.
       const planned = blocksOn((await schedule()).blocks, SUN);
       await logWork(1, 't1', SUN, 2);
-      expect((await call('POST', `/plans/${PLAN_A}/tasks/t1/complete`, await asA())).statusCode).toBe(
-        200,
-      );
+      expect(
+        (await call('POST', `/plans/${PLAN_A}/tasks/t1/complete`, await asA())).statusCode,
+      ).toBe(200);
       const res = await call('POST', DAY(SUN) + '/end', await asA());
       expect(res.json().frozen.blocks).toEqual(planned);
     });
@@ -322,7 +332,9 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
       // Sunday to Wednesday have passed; Thursday is today.
       expect(await snapshotDates()).toEqual([SUN, MON, TUE, WED]);
       expect(await eventCount('day.rolled_over')).toBe(4);
-      const sources = await rows<{ source: string }>(`select distinct source from rnd.schedule_days`);
+      const sources = await rows<{ source: string }>(
+        `select distinct source from rnd.schedule_days`,
+      );
       expect(sources).toEqual([{ source: 'auto_rollover' }]);
     });
 
@@ -371,7 +383,9 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
       await call('POST', DAY(SUN) + '/end', await asA());
       clock = at(MON);
 
-      const patched = await call('PATCH', `/plans/${PLAN_A}/tasks/t1`, await asA(), { estHours: 9 });
+      const patched = await call('PATCH', `/plans/${PLAN_A}/tasks/t1`, await asA(), {
+        estHours: 9,
+      });
       expect(patched.statusCode).toBe(200);
       const pattern = await call('PUT', `/plans/${PLAN_A}/week-pattern`, await asA(), {
         studyWeekdays: [0, 1, 2, 3, 4, 5],
@@ -490,7 +504,9 @@ describe.skipIf(!dbAvailable)('day state: start, end, rollover (real Postgres)',
       const res = await call('GET', `/plans/${PLAN_DST}/schedule`, await asA());
       expect(res.json().today).toBe(local);
       // Today may be started; tomorrow may not.
-      expect((await call('POST', DAY(local, PLAN_DST) + '/start', await asA())).statusCode).toBe(201);
+      expect((await call('POST', DAY(local, PLAN_DST) + '/start', await asA())).statusCode).toBe(
+        201,
+      );
       const next = new Date(`${local}T00:00:00Z`);
       next.setUTCDate(next.getUTCDate() + 1);
       const tomorrow = next.toISOString().slice(0, 10);
