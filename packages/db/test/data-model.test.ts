@@ -22,6 +22,11 @@ const EVENT_A = 'a0000000-0000-4000-8000-0000000000e1';
 const EVENT_B = 'b0000000-0000-4000-8000-0000000000e2';
 const LOG_A = 'a0000000-0000-4000-8000-0000000000a1';
 const LOG_B = 'b0000000-0000-4000-8000-0000000000b1';
+const SESSION_A = 'a0000000-0000-4000-8000-0000000000c1';
+const SESSION_B = 'b0000000-0000-4000-8000-0000000000c2';
+/** A finished session of user B without feedback, so a feedback row can still be inserted. */
+const SESSION_B2 = 'b0000000-0000-4000-8000-0000000000c3';
+const HEX_KEY = (c: string) => c.repeat(64);
 
 const RLS_ERROR = /row-level security policy/;
 const NO_PRIVILEGE = /permission denied for table/;
@@ -147,10 +152,69 @@ const TABLES: UserTable[] = [
     insert: (u) =>
       `insert into rnd.events (user_id, plan_id, type) values ('${u}', '${PLAN_B}', 'task.started')`,
   },
+  {
+    name: 'practice_contexts',
+    ownerColumn: 'user_id',
+    update: `job_description = 'changed'`,
+    deletable: false,
+    // Plan B2 has no practice context in the seed.
+    insert: (u) =>
+      `insert into rnd.practice_contexts (user_id, plan_id, job_description)
+       values ('${u}', '${PLAN_B2}', 'a job')`,
+  },
+  {
+    name: 'practice_sessions',
+    ownerColumn: 'user_id',
+    update: `providers_used = '{x}'`,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.practice_sessions (user_id, id, plan_id, task_id, practice_kind, persona,
+         channel, planned_minutes, prompt_used)
+       values ('${u}', gen_random_uuid(), '${PLAN_B}', 't1', 'mock_interview', 'interviewer',
+         'self', 30, 'p')`,
+  },
+  {
+    name: 'practice_messages',
+    ownerColumn: 'user_id',
+    update: null,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.practice_messages (user_id, session_id, id, seq, role, content)
+       values ('${u}', '${SESSION_B}', gen_random_uuid(), 9, 'user', 'hi')`,
+  },
+  {
+    name: 'practice_feedback',
+    ownerColumn: 'user_id',
+    update: null,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.practice_feedback (user_id, session_id, source, score)
+       values ('${u}', '${SESSION_B2}', 'self_rubric', 5)`,
+  },
+  {
+    name: 'ai_usage_daily',
+    ownerColumn: 'user_id',
+    update: `requests = requests + 1`,
+    deletable: false,
+    insert: (u) =>
+      `insert into rnd.ai_usage_daily (user_id, day, purpose, requests)
+       values ('${u}', '2026-01-09', 'day_overview', 1)`,
+  },
+  {
+    name: 'ai_cache',
+    ownerColumn: 'user_id',
+    update: `text = 'changed'`,
+    deletable: true,
+    insert: (u) =>
+      `insert into rnd.ai_cache (user_id, key, purpose, text, expires_at)
+       values ('${u}', '${HEX_KEY('c')}', 'practice_feedback', 't', now() + interval '1 day')`,
+  },
 ];
 
 /** Tables with a user_id column the app writes; app_settings is global and tested on its own. */
 const ALL_TABLE_NAMES = [...TABLES.map((t) => t.name), 'app_settings'];
+/** Plus the environment-wide counter, which no user owns and the app cannot touch directly. */
+const READABLE_BY_BACKUP = [...ALL_TABLE_NAMES, 'ai_provider_usage'];
 
 async function seed(client: pg.Client): Promise<void> {
   await client.query('begin');
@@ -194,6 +258,29 @@ async function seed(client: pg.Client): Promise<void> {
       insert into rnd.adjustments (user_id, plan_id, suggestion_id, rule, key, evidence, status) values
         ('${USER_A}', '${PLAN_A}', 'sg_a1', 'density_too_low', '2026-01-05', '{}', 'rejected'),
         ('${USER_B}', '${PLAN_B}', 'sg_b1', 'density_too_low', '2026-01-05', '{}', 'rejected');
+      insert into rnd.practice_contexts (user_id, plan_id, job_description) values
+        ('${USER_A}', '${PLAN_A}', 'job of A'), ('${USER_B}', '${PLAN_B}', 'job of B');
+      insert into rnd.practice_sessions (user_id, id, plan_id, task_id, practice_kind, persona,
+        channel, status, planned_minutes, ended_at, prompt_used) values
+        ('${USER_A}', '${SESSION_A}', '${PLAN_A}', 't1', 'mock_interview', 'interviewer',
+          'in_app', 'finished', 30, now(), 'prompt A'),
+        ('${USER_B}', '${SESSION_B}', '${PLAN_B}', 't1', 'mock_interview', 'interviewer',
+          'in_app', 'finished', 30, now(), 'prompt B'),
+        ('${USER_B}', '${SESSION_B2}', '${PLAN_B}', 't1', 'mock_interview', 'interviewer',
+          'self', 'finished', 30, now(), 'prompt B2');
+      insert into rnd.practice_messages (user_id, session_id, id, seq, role, content) values
+        ('${USER_A}', '${SESSION_A}', gen_random_uuid(), 0, 'user', 'hello A'),
+        ('${USER_B}', '${SESSION_B}', gen_random_uuid(), 0, 'user', 'hello B');
+      insert into rnd.practice_feedback (user_id, session_id, source, score) values
+        ('${USER_A}', '${SESSION_A}', 'model_json', 7),
+        ('${USER_B}', '${SESSION_B}', 'pasted_block', 6);
+      insert into rnd.ai_usage_daily (user_id, day, purpose, requests, avoided) values
+        ('${USER_A}', '2026-01-05', 'practice_message', 3, 1),
+        ('${USER_B}', '2026-01-05', 'practice_message', 2, 0);
+      insert into rnd.ai_cache (user_id, key, purpose, text, expires_at) values
+        ('${USER_A}', '${HEX_KEY('a')}', 'day_overview', 'cached A', now() + interval '1 day'),
+        ('${USER_B}', '${HEX_KEY('b')}', 'day_overview', 'cached B', now() + interval '1 day');
+      insert into rnd.ai_provider_usage (day, provider_id, requests) values ('2026-01-05', 'fake', 4);
       insert into rnd.app_settings (key, value, is_public) values ('secret.key', '"x"', false);
     `);
     await client.query('commit');
@@ -313,7 +400,8 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
       client.query<{ relname: string }>(
         `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
           where n.nspname = 'rnd' and c.relkind = 'r'
-            and c.relname not in ('environment_info', 'schema_migrations', 'allowed_emails')`,
+            and c.relname not in ('environment_info', 'schema_migrations', 'allowed_emails',
+                                'ai_provider_usage')`,
       ),
     );
     expect(rows.map((r) => r.relname).sort()).toEqual([...ALL_TABLE_NAMES].sort());
@@ -976,10 +1064,20 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
             'schedule_days',
             'day_reviews',
             'adjustments',
+            'practice_contexts',
+            'practice_sessions',
           ]) {
             const { rows } = await client.query(
               `select count(*)::int as n from rnd.${table} where plan_id = $1`,
               [PLAN_A],
+            );
+            expect(rows[0].n, table).toBe(0);
+          }
+          // Messages and feedback have no plan_id: they go with their session.
+          for (const table of ['practice_messages', 'practice_feedback']) {
+            const { rows } = await client.query(
+              `select count(*)::int as n from rnd.${table} where user_id = $1`,
+              [USER_A],
             );
             expect(rows[0].n, table).toBe(0);
           }
@@ -991,7 +1089,7 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
   describe('backup role', () => {
     it('reads every row of every table and writes nothing', async () => {
       await withClient(env.backupUrl('rnd'), async (client) => {
-        for (const name of ALL_TABLE_NAMES) {
+        for (const name of READABLE_BY_BACKUP) {
           const { rows } = await client.query(`select count(*)::int as n from rnd.${name}`);
           expect(rows[0].n, name).toBeGreaterThan(0);
         }
@@ -1006,7 +1104,7 @@ describe.skipIf(!dbAvailable)('data model: row-level security (rnd)', () => {
   });
 
   describe('the wall between prod and rnd', () => {
-    it.each(ALL_TABLE_NAMES)(
+    it.each(READABLE_BY_BACKUP)(
       'app_prod cannot touch rnd.%s, and app_rnd cannot touch prod',
       async (name) => {
         await withClient(env.appUrl('prod'), async (client) => {

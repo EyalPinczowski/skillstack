@@ -39,6 +39,9 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
         );
         expect(rows.map((r) => r.relname).sort()).toEqual([
           'adjustments',
+          'ai_cache',
+          'ai_provider_usage',
+          'ai_usage_daily',
           'allowed_emails',
           'app_settings',
           'app_users',
@@ -50,6 +53,10 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
           'legal_acceptances',
           'logs',
           'plans',
+          'practice_contexts',
+          'practice_feedback',
+          'practice_messages',
+          'practice_sessions',
           'schedule_days',
           'schema_migrations',
           'tasks',
@@ -87,7 +94,12 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
           [schema],
         );
         // A new SECURITY DEFINER function must be reviewed and added here on purpose.
-        expect(rows.map((r) => r.name)).toEqual(['delete_account', 'provision_user']);
+        expect(rows.map((r) => r.name)).toEqual([
+          'ai_provider_usage_today',
+          'ai_reserve_provider',
+          'delete_account',
+          'provision_user',
+        ]);
         for (const row of rows) {
           expect(row.config ?? [], `${row.name} search_path`).toContain(
             `search_path=${schema}, pg_temp`,

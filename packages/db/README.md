@@ -11,13 +11,15 @@ Database environments (`prod`, `rnd`) and the migration runner. Background: ADR 
 5. Migrations are additive, named `NNNN_name.sql`, never edited after they were applied (the runner compares checksums and fails naming the file).
 6. `findConventionViolations(client, schema)` (exported from `src/`) checks convention 2; call it in the tests of every migration branch.
 
-## Data model (migrations 0002-0008)
+## Data model (migrations 0002-0010)
 
 `current_user_id()` (0002); `app_users`, `app_settings`, `legal_acceptances` (0003); `plans`, `week_patterns`, `day_overrides`, `tasks`, `logs` (0004); `events` (0005, append-only). Client-generated ids are unique per user (composite keys with `user_id`), and child rows reference `(user_id, plan_id)` so they cannot point at another user's plan. RLS is enabled, not forced: the NOLOGIN owner role is the admin/background path (creating users, changing `role`/`status`, account deletion). The app role cannot insert or delete `app_users` rows or write `app_settings`, and cannot update or delete `events` or `legal_acceptances`. Tests: `test/data-model.test.ts`.
 
 Migration 0006 (ADR 011) adds `allowed_emails` (no app privilege) and two `SECURITY DEFINER` functions: `provision_user(id, email)` (allowlist and `user_cap` checked; `EXECUTE` only for `app_<s>`, which for this holds `USAGE` on its schema and nothing on any table) and `delete_account()` (deletes only the claimed user; `EXECUTE` only for `app_<s>_user`). Tests: `test/accounts-admin.test.ts`.
 
 Migration 0007 adds `day_sessions` and `schedule_days` (frozen past days, append-only). Migration 0008 adds `day_reviews` (one per plan and date; the app may re-save only the ratings, note and outcomes, never delete) and `adjustments` (the user's accepted or rejected suggestions with their evidence; insert and select only). See `docs/api-reviews.md`.
+
+Migration 0009 (practice): `practice_contexts` (job description per plan; no delete), `practice_sessions` (the app can change only `status`, `ended_at`, `pending_turn_id`, `pending_since`, `providers_used`; one active session per task), `practice_messages` and `practice_feedback` (append-only). Migration 0010 (AI usage): `ai_usage_daily` (per-user counters, atomic reserve with `ON CONFLICT ... WHERE requests < cap`), `ai_cache` (per user; the user may prune their own rows) and `ai_provider_usage` (environment-wide, no user, no app privilege and no policy for the app). Two more `SECURITY DEFINER` functions, both `EXECUTE` only for `app_<s>_user`, `search_path` pinned, no dynamic SQL, and both returning nothing without a signed-in user: `ai_reserve_provider(provider, day, budget)` (counts one call and returns true while fewer than `budget` were counted; day within one day of UTC today, budget 1..1000000) and `ai_provider_usage_today()` (today's counters, read only). No provider name appears in any constraint: provider ids are free-text slugs checked in the API. Tests: `test/practice-schema.test.ts` (both schemas) and the parametrised cases in `test/data-model.test.ts`. The account export and deletion cover every table with a `user_id` column; `apps/api/test/accounts.test.ts` fails if one is missing.
 
 SQL tokens: `{{schema}} {{owner}} {{app}} {{app_user}} {{backup}}`. Anything else in `{{ }}` is an error.
 
