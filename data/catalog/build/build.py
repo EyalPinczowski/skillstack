@@ -46,7 +46,8 @@ for r in ROLES:
 def cost_text(i):
     if i["cost_type"]=="free": return "Free"
     if i["cost_type"]=="free_audit": return f"Free to audit; certificate about ${i['certificate_price']}" if i["certificate_price"] else "Free to audit; certificate paid"
-    if i["cost_type"]=="subscription": return f"${i['price']}/{i['subscription_period']} subscription"
+    if i["cost_type"]=="subscription":
+        return f"${i['price']}/{i['subscription_period']} subscription" if i["price"] is not None else "Subscription (price varies – check)"
     return f"${i['price']}" if i["price"] is not None else "Paid (price varies – check)"
 skill_name={s["id"]:s["name"] for s in skills}
 role_title={r["id"]:r["title"] for r in ROLES}
