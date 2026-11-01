@@ -17,6 +17,7 @@ The single list of deferred ideas, each with the seam it will use (spec sections
 | General AI assistant | Keeps the free quota for practice | `AIProvider` |
 | Paid AI providers | The $0 rule | `costTier` guard |
 | Import a profile from a CV or LinkedIn export | Needs file parsing and careful privacy | `ProfileSource` (never scraping) |
+| Automatic LinkedIn updates on progress | LinkedIn API access, OAuth and consent flow not checked (needs check); posting is outward-facing | `NotificationChannel` or a `ProgressPublisher` fed by the event log; every post is user-approved and previewed first (never automatic without consent; no personal data from practice sessions) |
 
 ## Infrastructure and product follow-ups
 
