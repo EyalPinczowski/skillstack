@@ -1,8 +1,10 @@
+import { createHash, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app';
 import { createDatabase, type Database } from '../src/db/database';
 import { errorResponseSchema } from '../src/errors';
 import { createSupabaseAuthAdmin } from '../src/modules/accounts/auth-admin';
+import { EXPORT_SECTIONS } from '../src/modules/accounts/service';
 import { createSupabaseVerifier } from '../src/modules/accounts/token-verifier';
 import { acceptCurrentLegal, dbAvailable, prepareDatabase, type TestDb } from './db-helpers';
 import { FAKE_SERVICE_KEY, startFakeSupabase, type FakeSupabase } from './fake-supabase';
@@ -125,8 +127,73 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
         `insert into rnd.events (user_id, plan_id, type) values ($1, $2, 'task.started')`,
         [userId, planId],
       );
+      // Every other user-owned table (v0.2 day state and reviews, v0.3 practice and AI usage).
+      await c.query(
+        `insert into rnd.day_sessions (user_id, plan_id, date) values ($1, $2, '2026-11-03')`,
+        [userId, planId],
+      );
+      await c.query(
+        `insert into rnd.schedule_days (user_id, plan_id, date, blocks, source)
+         values ($1, $2, '2026-11-03', '[]', 'day_end')`,
+        [userId, planId],
+      );
+      await c.query(
+        `insert into rnd.day_reviews (user_id, plan_id, date, difficulty, density, energy)
+         values ($1, $2, '2026-11-03', 3, 3, 3)`,
+        [userId, planId],
+      );
+      await c.query(
+        `insert into rnd.adjustments (user_id, plan_id, suggestion_id, rule, key, evidence, status)
+         values ($1, $2, 'sg1', 'density_too_low', 'k', '{}', 'rejected')`,
+        [userId, planId],
+      );
+      await c.query(
+        `insert into rnd.practice_contexts (user_id, plan_id, job_description)
+         values ($1, $2, 'a job')`,
+        [userId, planId],
+      );
+      const sessionId = randomUUID();
+      await c.query(
+        `insert into rnd.practice_sessions (user_id, id, plan_id, task_id, practice_kind, persona,
+           channel, status, planned_minutes, ended_at, prompt_used)
+         values ($1, $2, $3, 't1', 'mock_interview', 'interviewer', 'in_app', 'finished', 30, now(), 'p')`,
+        [userId, sessionId, planId],
+      );
+      await c.query(
+        `insert into rnd.practice_messages (user_id, session_id, id, seq, role, content)
+         values ($1, $2, gen_random_uuid(), 0, 'user', 'hello')`,
+        [userId, sessionId],
+      );
+      await c.query(
+        `insert into rnd.practice_feedback (user_id, session_id, source, score)
+         values ($1, $2, 'pasted_block', 7)`,
+        [userId, sessionId],
+      );
+      await c.query(
+        `insert into rnd.ai_usage_daily (user_id, day, purpose, requests, avoided)
+         values ($1, '2026-11-03', 'practice_message', 2, 1)`,
+        [userId],
+      );
+      await c.query(
+        `insert into rnd.ai_cache (user_id, key, purpose, text, expires_at)
+         values ($1, $2, 'day_overview', 'cached', now() + interval '1 day')`,
+        [userId, createHash('sha256').update(userId).digest('hex')],
+      );
     });
   }
+
+  /** Every base table of the rnd schema that has a user_id column, read from the database. */
+  const userTables = () =>
+    testDb.admin(async (c) => {
+      const { rows } = await c.query<{ table_name: string }>(
+        `select c.table_name from information_schema.columns c
+           join information_schema.tables t
+             on t.table_schema = c.table_schema and t.table_name = c.table_name
+          where c.table_schema = 'rnd' and c.column_name = 'user_id' and t.table_type = 'BASE TABLE'
+          order by 1`,
+      );
+      return rows.map((r) => r.table_name);
+    });
 
   describe('authentication (401)', () => {
     const routes: Array<['GET' | 'PATCH' | 'POST' | 'DELETE', string, unknown?]> = [
@@ -401,6 +468,37 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
       expect(JSON.stringify(body)).not.toContain('b@example.com');
     });
 
+    it('exports every table that has a user_id column, so a new table cannot be forgotten', async () => {
+      await call('GET', '/me', await asA());
+      await call('GET', '/me', await asB());
+      await seedPlan(A, PLAN_A, 'Plan of A');
+      await seedPlan(B, PLAN_B, 'Plan of B');
+      for (const who of [asA, asB]) {
+        await call('POST', '/me/legal-acceptances', await who(), {
+          document: 'terms',
+          version: '0.1',
+        });
+      }
+
+      // The tables of the database (plus app_users, exported as `user`) against the export list.
+      const tables = await userTables();
+      expect(tables.length).toBeGreaterThanOrEqual(17);
+      expect(tables).toEqual(
+        Object.values(EXPORT_SECTIONS)
+          .map((s) => s.table)
+          .sort(),
+      );
+
+      // And the response really carries a non-empty section for each of them, A's rows only.
+      const body = (await call('GET', '/me/export', await asA())).json();
+      for (const [key, { table }] of Object.entries(EXPORT_SECTIONS)) {
+        expect(Array.isArray(body[key]), key).toBe(true);
+        expect(body[key].length, `${key} (${table}) has rows`).toBeGreaterThan(0);
+        for (const row of body[key]) expect(row.user_id, key).toBe(A);
+      }
+      expect(JSON.stringify(body)).not.toContain('Plan of B');
+    });
+
     it('does not let a second user read the first user data, even by asking for it', async () => {
       await call('GET', '/me', await asA());
       await call('GET', '/me', await asB());
@@ -475,6 +573,40 @@ describe.skipIf(!dbAvailable)('accounts (real Postgres, locally signed tokens)',
       expect(await count('select count(*)::int as n from rnd.app_users where id = $1', [B])).toBe(
         1,
       );
+    });
+
+    it('removes the rows of every table that has a user_id column, and keeps the other user’s', async () => {
+      await call('GET', '/me', await asA());
+      await call('GET', '/me', await asB());
+      await seedPlan(A, PLAN_A, 'Plan of A');
+      await seedPlan(B, PLAN_B, 'Plan of B');
+      for (const who of [asA, asB]) {
+        await call('POST', '/me/legal-acceptances', await who(), {
+          document: 'terms',
+          version: '0.1',
+        });
+      }
+      const tables = await userTables();
+      // Seeded for both users first, so a table that is not covered cannot pass by being empty.
+      for (const table of tables) {
+        expect(
+          await count(`select count(*)::int as n from rnd.${table} where user_id = $1`, [A]),
+          `${table} seeded for A`,
+        ).toBeGreaterThan(0);
+      }
+
+      expect((await del(await asA(), 'delete my account')).statusCode).toBe(204);
+
+      for (const table of tables) {
+        expect(
+          await count(`select count(*)::int as n from rnd.${table} where user_id = $1`, [A]),
+          `${table} after delete (A)`,
+        ).toBe(0);
+        expect(
+          await count(`select count(*)::int as n from rnd.${table} where user_id = $1`, [B]),
+          `${table} after delete (B)`,
+        ).toBeGreaterThan(0);
+      }
     });
 
     it('cannot be undone by the same token: the email leaves the allowlist', async () => {

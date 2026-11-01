@@ -46,6 +46,32 @@ async function toMe(ctx: UserContext, user: UserRow): Promise<MeView> {
   };
 }
 
+/**
+ * Every table with a `user_id` column, as an export section (key in the JSON, table, order).
+ * app_users is exported as `user`. A test (accounts.test.ts) compares this list with the tables
+ * of the database, so a new user-owned table cannot be left out of the export.
+ */
+export const EXPORT_SECTIONS = {
+  legalAcceptances: { table: 'legal_acceptances', order: 'accepted_at, document' },
+  plans: { table: 'plans', order: 'created_at, id' },
+  weekPatterns: { table: 'week_patterns', order: 'plan_id' },
+  dayOverrides: { table: 'day_overrides', order: 'plan_id, date' },
+  tasks: { table: 'tasks', order: 'plan_id, sort_order' },
+  logs: { table: 'logs', order: 'date, created_at, id' },
+  events: { table: 'events', order: 'created_at, id' },
+  daySessions: { table: 'day_sessions', order: 'date, plan_id' },
+  scheduleDays: { table: 'schedule_days', order: 'date, plan_id' },
+  dayReviews: { table: 'day_reviews', order: 'date, plan_id' },
+  adjustments: { table: 'adjustments', order: 'decided_at, suggestion_id' },
+  practiceContexts: { table: 'practice_contexts', order: 'plan_id' },
+  practiceSessions: { table: 'practice_sessions', order: 'started_at, id' },
+  practiceMessages: { table: 'practice_messages', order: 'session_id, seq' },
+  practiceFeedback: { table: 'practice_feedback', order: 'created_at, session_id' },
+  aiUsageDaily: { table: 'ai_usage_daily', order: 'day, purpose' },
+  aiCache: { table: 'ai_cache', order: 'created_at, key' },
+} as const;
+export type ExportSectionKey = keyof typeof EXPORT_SECTIONS;
+
 /** Account operations. Every query runs inside db.withUser, so row-level security applies. */
 export function createAccountService(db: Database, authAdmin: AuthAdmin = unconfiguredAuthAdmin) {
   return {
@@ -100,17 +126,15 @@ export function createAccountService(db: Database, authAdmin: AuthAdmin = unconf
           return rows as Record<string, unknown>[];
         };
         const user = (await select('app_users', 'id', 'id'))[0]!;
+        const sections: Record<string, Record<string, unknown>[]> = {};
+        for (const [key, { table, order }] of Object.entries(EXPORT_SECTIONS)) {
+          sections[key] = await select(table, 'user_id', order);
+        }
         return {
           exportedAt: new Date().toISOString(),
           formatVersion: 1 as const,
           user,
-          legalAcceptances: await select('legal_acceptances', 'user_id', 'accepted_at, document'),
-          plans: await select('plans', 'user_id', 'created_at, id'),
-          weekPatterns: await select('week_patterns', 'user_id', 'plan_id'),
-          dayOverrides: await select('day_overrides', 'user_id', 'plan_id, date'),
-          tasks: await select('tasks', 'user_id', 'plan_id, sort_order'),
-          logs: await select('logs', 'user_id', 'date, created_at, id'),
-          events: await select('events', 'user_id', 'created_at, id'),
+          ...(sections as Record<ExportSectionKey, Record<string, unknown>[]>),
         };
       }),
 
