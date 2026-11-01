@@ -180,6 +180,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -195,6 +196,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -210,6 +212,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -257,6 +260,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -272,6 +276,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -287,6 +292,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -302,6 +308,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -317,6 +324,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -383,6 +391,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -398,6 +407,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -413,6 +423,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -490,6 +501,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -505,6 +517,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -520,6 +533,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -535,6 +549,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -643,6 +658,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -658,6 +674,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -673,6 +690,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -939,6 +957,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -954,6 +973,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -969,6 +989,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -984,6 +1005,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -999,6 +1021,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1014,6 +1037,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1029,6 +1053,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1044,6 +1069,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1111,6 +1137,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1126,6 +1153,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1141,6 +1169,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1156,6 +1185,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1171,6 +1201,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1186,6 +1217,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1334,6 +1366,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1349,6 +1382,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1364,6 +1398,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1379,6 +1414,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1394,6 +1430,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1409,6 +1446,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1449,6 +1487,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1464,6 +1503,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1479,6 +1519,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1494,6 +1535,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1509,6 +1551,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1524,6 +1567,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1618,6 +1662,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1633,6 +1678,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1648,6 +1694,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1663,6 +1710,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1678,6 +1726,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1693,6 +1742,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1758,6 +1808,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1773,6 +1824,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1788,6 +1840,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1803,6 +1856,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1818,6 +1872,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1833,6 +1888,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1873,6 +1929,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1888,6 +1945,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1903,6 +1961,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1918,6 +1977,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1933,6 +1993,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -1948,6 +2009,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2021,6 +2083,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2036,6 +2099,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2051,6 +2115,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2066,6 +2131,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2081,6 +2147,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2096,6 +2163,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2221,6 +2289,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2236,6 +2305,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2251,6 +2321,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2266,6 +2337,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2281,6 +2353,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2296,6 +2369,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2368,6 +2442,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2383,6 +2458,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2398,6 +2474,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2413,6 +2490,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2428,6 +2506,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2443,6 +2522,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2545,6 +2625,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2560,6 +2641,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2575,6 +2657,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2590,6 +2673,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2605,6 +2689,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2620,6 +2705,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2728,6 +2814,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2743,6 +2830,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2758,6 +2846,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2773,6 +2862,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2788,6 +2878,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2803,6 +2894,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2880,6 +2972,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2895,6 +2988,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2910,6 +3004,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2925,6 +3020,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2940,6 +3036,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -2955,6 +3052,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3030,6 +3128,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3045,6 +3144,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3060,6 +3160,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3075,6 +3176,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3090,6 +3192,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3105,6 +3208,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3179,6 +3283,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3194,6 +3299,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3209,6 +3315,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3224,6 +3331,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3239,6 +3347,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3254,6 +3363,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3269,6 +3379,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3545,6 +3656,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3560,6 +3672,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3575,6 +3688,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3590,6 +3704,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3605,6 +3720,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3620,6 +3736,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3635,6 +3752,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3700,6 +3818,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3715,6 +3834,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3730,6 +3850,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3745,6 +3866,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3760,6 +3882,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3775,6 +3898,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3790,6 +3914,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3924,6 +4049,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3939,6 +4065,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3954,6 +4081,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3969,6 +4097,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3984,6 +4113,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -3999,6 +4129,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4014,6 +4145,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4121,6 +4253,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4136,6 +4269,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4151,6 +4285,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4166,6 +4301,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4181,6 +4317,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4196,6 +4333,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4211,6 +4349,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4326,6 +4465,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4341,6 +4481,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4356,6 +4497,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4371,6 +4513,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4386,6 +4529,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4401,6 +4545,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4416,6 +4561,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4528,6 +4674,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4543,6 +4690,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4558,6 +4706,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4573,6 +4722,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4588,6 +4738,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4603,6 +4754,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -4618,6 +4770,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6635,6 +6788,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6650,6 +6804,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6665,6 +6820,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6680,6 +6836,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6695,6 +6852,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6799,6 +6957,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6814,6 +6973,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6829,6 +6989,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6844,6 +7005,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6859,6 +7021,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6984,6 +7147,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -6999,6 +7163,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7014,6 +7179,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7029,6 +7195,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7044,6 +7211,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7059,6 +7227,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7267,6 +7436,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7282,6 +7452,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7297,6 +7468,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7312,6 +7484,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7327,6 +7500,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7342,6 +7516,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7449,6 +7624,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7464,6 +7640,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7479,6 +7656,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7494,6 +7672,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7509,6 +7688,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7524,6 +7704,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7631,6 +7812,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7646,6 +7828,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7661,6 +7844,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7676,6 +7860,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7691,6 +7876,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7706,6 +7892,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7813,6 +8000,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7828,6 +8016,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7843,6 +8032,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7858,6 +8048,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7873,6 +8064,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7888,6 +8080,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7967,6 +8160,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7982,6 +8176,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -7997,6 +8192,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -8012,6 +8208,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -8027,6 +8224,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -8098,6 +8296,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -8113,6 +8312,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -8128,6 +8328,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -8143,6 +8344,7 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
@@ -8158,6 +8360,138 @@ export interface paths {
                                 code: string;
                                 message: string;
                                 requestId: string;
+                                fallbacks?: string[];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ai/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Today’s AI usage for the signed-in user and for this environment
+         * @description Shows this environment’s own budget per provider (calls reserved today, UTC), not a quota claimed by the provider. With no provider configured, `configured` is false and the lists are empty. `avoidedToday` counts calls that were not needed (cache, template, rubric).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            day: string;
+                            resetsAt: string;
+                            configured: boolean;
+                            user: {
+                                practiceMessages: {
+                                    used: number;
+                                    cap: number;
+                                };
+                                practiceFeedback: {
+                                    used: number;
+                                    cap: number;
+                                };
+                                dayOverview: {
+                                    used: number;
+                                    cap: number;
+                                };
+                            };
+                            avoidedToday: number;
+                            providers: {
+                                id: string;
+                                label: string;
+                                configured: boolean;
+                                available: boolean;
+                                cooldownUntil: string | null;
+                                usedToday: number;
+                                budget: number | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                                fallbacks?: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                                fallbacks?: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                                fallbacks?: string[];
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                                fallbacks?: string[];
                             };
                         };
                     };
