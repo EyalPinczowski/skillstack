@@ -565,8 +565,11 @@ for it in ITEMS:
 # ---------- structure fields (added after the 2026-11-01 verification) ----------
 # Coursera Plus: every monthly Coursera subscription item shares one subscription, so a plan
 # pays for each month once, not once per item.
+from urllib.parse import urlparse
+def _host(url):
+    return (urlparse(url or "").hostname or "").lower()
 for it in ITEMS:
-    if it["cost_type"] == "subscription" and it["subscription_period"] == "month" and "coursera.org" in (it["url"] or ""):
+    if it["cost_type"] == "subscription" and it["subscription_period"] == "month" and _host(it["url"]) in ("coursera.org", "www.coursera.org"):
         it["subscription_group"] = "coursera-plus"
 
 # Items whose url_verified=true comes from the 2026-11-01 link check. The date records that
