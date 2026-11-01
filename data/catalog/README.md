@@ -8,11 +8,11 @@ Researched on 2026-10-29. Put this folder in the repo as `data/catalog/`.
 
 | File | What it is |
 |---|---|
-| `catalog.json` | 122 learning items: 96 courses / certificate exams + 26 practice templates. Cost model, certificate type, recognition, hours, skills, roles, prerequisites, free alternatives, and verification flags. |
-| `roles.json` | 19 target roles with aliases (job titles), summary, weighted skills (1–5), job-description keywords, and an auto-ranked suggested path (`core`, `optional`, `practice`, `free_only`). |
-| `skills.json` | 41 skills in 13 categories, each with synonyms/keywords. This is the shared vocabulary for tagging courses, matching job descriptions and (later) reading a CV. |
+| `catalog.json` | 180 learning items: 153 courses / certificate exams + 27 practice templates. Cost model, certificate type, recognition, hours, skills, roles, prerequisites, free alternatives, and verification flags. |
+| `roles.json` | 27 target roles with aliases (job titles), summary, weighted skills (1–5), job-description keywords, and an auto-ranked suggested path (`core`, `optional`, `practice`, `free_only`). Roles added on 2026-11-01 also carry `sources` (O*NET / ESCO occupations, see Attribution) and an `overlap_note`. |
+| `skills.json` | 59 skills in 14 categories, each with synonyms/keywords. This is the shared vocabulary for tagging courses, matching job descriptions and (later) reading a CV. |
 | `questions.json` | The guided intake: 28 questions in 7 stages (goal, role discovery, background, skill check, time, budget, learning style), each with a "why we ask" hint, branching (`show_if`), and the field it fills (`maps_to`), plus 5 follow-up rules for conflicting answers. Discovery options map interests to roles. |
-| `documents.jsonl` | 182 retrieval documents (one per item, role and skill), written as natural-language text ready to embed, with filterable metadata. |
+| `documents.jsonl` | 266 retrieval documents (one per item, role and skill), written as natural-language text ready to embed, with filterable metadata. |
 | `schema.sql` | Postgres/Supabase schema: taxonomy, catalog, links, `rag_documents` with a pgvector column + HNSW index, keyword search (tsvector), and `match_catalog()` with budget / free-only / recognition filters. |
 | `seed.sql` | Loads all of the above into the schema (idempotent – safe to re-run). |
 | `catalog.csv` | The catalog as a spreadsheet, for quick review. |
@@ -25,8 +25,9 @@ Researched on 2026-10-29. Put this folder in the repo as `data/catalog/`.
 **Technical:** Technical Operations / Support · QA Tester · Junior Cybersecurity / SOC Analyst · IT Support / Junior Sysadmin
 **AI & automation:** AI Implementation / Deployment Specialist · No-code / AI Automation Specialist
 **Customer-facing:** Customer Success · Sales Development (SDR/BDR) · Solutions Engineer / Pre-sales · Growth / Digital Marketing
+**Added 2026-11-01 (batch 3, from O*NET / ESCO occupations):** Customer Support Specialist · Technical Support Specialist · Administrative Coordinator · Bookkeeper / AP-AR Clerk · Procurement Specialist · Marketing Coordinator · Technical Writer · Learning & Development Coordinator
 
-Every role now has at least 6 core items, a free-only path and 4 practice templates. The smallest pools are SOC Analyst and Supply Chain Analyst – the next candidates to extend.
+The 19 original roles have at least 6 core items, a free-only path and 4 practice templates. The 8 roles added in batch 3 have no practice templates of their own yet (they get up to 3 shared ones), and three have thin pools: Bookkeeper has 3 core items, Technical Writer and Learning & Development Coordinator 2 each. They are the next candidates to extend (new items or re-tagging existing ones). Several new roles overlap existing ones; each `overlap_note` says how to tell them apart and flags the open owner decisions (for example, whether Technical Support Specialist should merge into IT Support / Junior Sysadmin).
 
 ## How retrieval works (RAG)
 
@@ -39,12 +40,13 @@ Every role now has at least 6 core items, a free-only path and 4 practice templa
 
 ## Data quality – read before using
 
-- `url_verified` / `price_verified` = `true` means the URL or price was confirmed in a source found during research. After the 2026-11-01 link check, **80 of 96** item URLs and **62 of 96** prices are verified; the rest follow the provider's known URL pattern but must be checked. A price is only marked verified when it is stated on the official page; a price that could not be confirmed keeps its earlier value with `price_verified: false` (notes say "Price unverified" where needed). `price: null` is used only where the price varies by country or is not known (9 of 96); price-cap filters exclude those items. The app should show unverified items with a "needs check" badge until the weekly link checker confirms them.
+- `url_verified` / `price_verified` = `true` means the URL or price was confirmed in a source found during research. After the 2026-11-01 link check and the batch 3 additions, **130 of 153** item URLs and **73 of 153** prices are verified; the rest follow the provider's known URL pattern but must be checked. A price is only marked verified when it is stated on the official page; a price that could not be confirmed keeps its earlier value with `price_verified: false` (notes say "Price unverified" where needed). `price: null` is used only where the price varies by country or is not known (13 of 153: the 9 earlier items plus the SC-900, CompTIA A+, AIPB and Asana certification fees, whose amounts no opened official page states); price-cap filters exclude those items. The app should show unverified items with a "needs check" badge until the weekly link checker confirms them.
 - Prices change often (exams, subscriptions, Udemy sales). `price: null` means it varies by country – show "check price".
 - `ai-900` is **superseded** by `ai-901`. The official certification page (checked 2026-11-01) lists AI-901 as the required exam and does not name AI-900, so the replacement is inferred. `ai-900` stays in the catalog but no role points to it; `ai-901` has `price: null` (varies by country) and its hours and recognition are Skillstack estimates carried over from `ai-900`.
-- `scrum-open` and `power-bi-learn-path` are prerequisites whose pages could not be reached on 2026-11-01. They are kept, stay `url_verified: false` and say `UNVERIFIED` in their notes; any plan that includes them must show "needs check". Replacement items are not part of this data yet.
+- `scrum-open` and `power-bi-learn-path` are prerequisites whose pages could not be reached on 2026-11-01. They are kept, stay `url_verified: false` and say `UNVERIFIED` in their notes; any plan that includes them must show "needs check". `ms-learn-data-analytics-microsoft` (batch 3) is a candidate replacement for `power-bi-learn-path`, but the prerequisite edges were not changed; the owner decides.
 - **Subscriptions** (`cost_type: subscription`, e.g. Coursera Plus at $59/month) are stored as a monthly price. The plan builder must compute the real cost from how many months the plan uses them; `match_catalog`'s `max_price` filter compares the monthly price only.
 - The `suggested_path` per role is generated by a simple score (skill weight + role tag + recognition). Each of the 6 best-scoring items brings its transitive **required** prerequisites into `core` as a bundle, prerequisites first, so `core` can hold more than 6 ids. It's a sensible starting point, not a curated career plan – review it per role.
+- **Batch 3 items (58, added 2026-11-01).** 51 have `url_verified: true` (the official page was opened that day; for 6 of them the fetch returned only a title, so the details in their notes are unconfirmed) and 7 have `url: null` and `url_verified: false` (page blocked or never found: `splunk-intro-to-splunk-elearning`, `opensap-building-tomorrows-erp`, `tableau-free-training-videos`, `tryhackme-soc-level-1`, `servicenow-welcome-to-servicenow` (reported retired), `futurelearn-understanding-gdpr`, `google-digital-garage-digital-marketing`). Only 11 prices are verified (all free, stated on the page) plus the free SC-900 practice assessment. Items on Coursera show "Included with Coursera Plus" but no price, so they are stored in the `coursera-plus` group at the group price with `price_verified: false`; whether they can be audited is unconfirmed, so do not treat them as free. Other vendor items whose page states no price are stored as free (0) with `price_verified: false`. 27 items state no duration; their hours are Skillstack estimates (the note says so). `recognition` is `low` unless noted (SC-900 and CompTIA A+ are `medium`): no source states it. Every item that is not fully verified says "needs check" in its notes, and the lint requires that for a missing url.
 - Hour estimates are approximate and should be recalibrated from users' actual hours (spec 3.4).
 
 ## Structure fields and lint
@@ -53,9 +55,9 @@ Added to every item (all additive; defaults mean "not set"):
 
 | Field | Meaning |
 |---|---|
-| `prerequisite_kinds` | One entry per id in `prerequisites`: `required` (a plan must include it first) or `recommended` (order it first if both are in the plan, never add it on its own). All current prerequisites are `required`. In Postgres: `item_links.prerequisite_kind`. |
-| `last_verified_at` | `YYYY-MM-DD` of the link check that confirmed `url_verified`, or `null`. Set to `2026-11-01` for the 41 items confirmed in that check; `null` for items verified only in the earlier research pass and for unverified items. In Postgres: `catalog_items.last_verified_at date`. |
-| `subscription_group` | Items that share one subscription (currently `coursera-plus`, 12 items). A plan pays for each month of a group once, not once per item. Members must agree on period and price. In Postgres: `catalog_items.subscription_group`. |
+| `prerequisite_kinds` | One entry per id in `prerequisites`: `required` (a plan must include it first) or `recommended` (order it first if both are in the plan, never add it on its own). Almost all prerequisites are `required`; three batch 3 order hints are `recommended` (`sc-900-practice-assessment` after `sc-900`, `google-technical-writing-two` after `google-tech-writing`, `sap-learning-sourcing-procurement` after `rutgers-procurement-basics`). In Postgres: `item_links.prerequisite_kind`. |
+| `last_verified_at` | `YYYY-MM-DD` of the link check that confirmed `url_verified`, or `null`. Set to `2026-11-01` for the 92 items confirmed in that check (41 earlier items and 51 batch 3 items); `null` for items verified only in the earlier research pass and for unverified items. In Postgres: `catalog_items.last_verified_at date`. |
+| `subscription_group` | Items that share one subscription (currently `coursera-plus`, 31 items). A plan pays for each month of a group once, not once per item. Members must agree on period and price. In Postgres: `catalog_items.subscription_group`. |
 | `skill_depth` | Optional map of skill id to `beginner`, `intermediate` or `advanced`: how far the item takes that skill. Empty for every item; only the field and its validation exist. In Postgres: `item_skills.depth`. |
 
 Learn-before-practice ordering for the same skill is a planner rule; this data only provides the prerequisite edges.
@@ -106,3 +108,36 @@ Learn-before-practice ordering for the same skill is a planner rule; this data o
 - CFI FMVA price (Oct 2026) – onlinecourseing.com/cfi-fmva-certification-cost
 - QuickBooks ProAdvisor and Xero Advisor – capterra.com (2017 article – verify)
 - Apollo Academy courses – apollo.io/academy/guides
+- Batch 3 (2026-11-01): the official provider pages named in each item's `url` (Microsoft Learn, HubSpot Academy, Zendesk, Salesforce Trailhead, Asana, Atlassian, Coursera, CompTIA, The Open University, Google, Semrush, Odoo, SAP Learning, Kaggle, Cisco Networking Academy, AIPB), plus the O*NET and ESCO occupation pages in the Attribution section.
+
+## Attribution
+
+Batch 3 (18 skills, 8 roles, 2026-11-01) was derived from public occupation data. Only short occupation titles, codes and paraphrased task themes were used; no O*NET text was copied.
+
+- **O\*NET.** This work adapts information from the O\*NET 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). Used under the CC BY 4.0 license. O\*NET is a trademark of USDOL/ETA. Skillstack has modified all information adapted from O\*NET (mapped to Skillstack skills and weights); USDOL/ETA has not approved, endorsed, or tested these modifications. (The release number 31.0 comes from earlier research and was not re-checked: needs check.) Pages: `https://www.onetonline.org/link/details/<code>` for 43-4051.00, 43-6014.00, 43-3031.00, 13-1023.00, 13-1161.00, 27-3042.00, 13-1151.00, 13-1081.00, 15-1244.00, 15-1232.00, 15-1212.00, 13-1082.00, 15-2051.01, 13-1111.00.
+- **ESCO.** This service uses the ESCO classification of the European Commission. ESCO-derived mappings here are adapted by Skillstack and are marked as modified. ESCO occupations were read through the public ESCO web API; preferred labels appear unchanged in the `sources` of each new role.
+- Each new role lists its occupations in `roles.json` under `sources`. The role weights and aliases are Skillstack's mapping from those occupations and need an owner review against real job postings; `jd_keywords` are Skillstack wording.
+- Where a source is an O\*NET page, the data derived from it is CC BY 4.0 and not MIT: keep this notice with any copy of the new roles and skills.
+
+New skills and the occupations that support them (all occupation pages were opened on 2026-11-01):
+
+| Skill | Main source occupations |
+|---|---|
+| `erp-systems` | O*NET 13-1081.00, 13-1023.00, 13-1111.00, 43-3031.00; ESCO project manager, supply chain manager |
+| `customer-service` | O*NET 43-4051.00; ESCO customer service representative, call centre agent, ICT help desk agent |
+| `ticketing-helpdesk` | O*NET 15-1232.00; ESCO ICT help desk agent |
+| `office-administration` | O*NET 43-6014.00; ESCO administrative assistant |
+| `bookkeeping-accounting` | O*NET 43-3031.00; ESCO bookkeeper, billing clerk |
+| `procurement-sourcing` | O*NET 13-1023.00; ESCO purchasing manager, supply chain manager |
+| `demand-inventory-planning` | O*NET 13-1081.00; ESCO supply chain manager, logistics and distribution manager |
+| `data-privacy-confidentiality` | ESCO call centre agent, ICT help desk agent, administrative assistant, recruitment consultant, human resources assistant, data entry clerk (inferred from several occupations: needs check) |
+| `change-management` | O*NET 13-1111.00, 13-1082.00; ESCO ICT business analyst, ICT project manager, project manager, supply chain manager (no role or item uses it yet) |
+| `stakeholder-management` | O*NET 13-1082.00, 13-1111.00; ESCO project manager, ICT business analyst |
+| `work-management-tools` | O*NET 13-1082.00, 13-1161.00, 43-6014.00 |
+| `windows-m365-admin` | O*NET 15-1244.00, 15-1232.00; ESCO ICT security administrator, ICT system administrator |
+| `security-monitoring-siem` | O*NET 15-1212.00; ESCO ICT security administrator |
+| `content-social-marketing` | O*NET 13-1161.00; ESCO online community manager, marketeer |
+| `market-research` | O*NET 13-1161.00; ESCO market research analyst |
+| `data-cleaning-etl` | O*NET 15-2051.01; ESCO data entry clerk |
+| `negotiation` | O*NET 13-1023.00; ESCO purchasing manager, project manager (the sales-side use is not backed by a sales occupation page: needs check) |
+| `training-facilitation` | O*NET 13-1151.00; ESCO corporate training manager |
