@@ -4,3 +4,4 @@ export * from './migrate';
 export * from './passwords';
 export * from './conventions';
 export * from './admin';
+export * from './connection';

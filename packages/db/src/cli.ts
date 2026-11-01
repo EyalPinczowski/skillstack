@@ -3,6 +3,7 @@ import { ENVIRONMENTS, InvalidSchemaError, parseEnvironment } from './names';
 import { migrate, migrationStatus } from './migrate';
 import { setPasswords } from './passwords';
 import { InvalidEmailError, promoteAdmin } from './admin';
+import { formatError } from './connection';
 
 const USAGE = `Usage:
   migrate --schema <${ENVIRONMENTS.join('|')}> [--dry-run]
@@ -21,15 +22,6 @@ Environment:
 const EXIT_USAGE = 2;
 
 class UsageError extends Error {}
-
-/** Removes the connection string, its password, any URL-looking text and given secrets. */
-function redact(text: string, secrets: Array<string | undefined>): string {
-  let result = text;
-  for (const secret of secrets) {
-    if (secret) result = result.split(secret).join('[redacted]');
-  }
-  return result.replace(/[a-z][a-z0-9+.-]*:\/\/\S+/gi, '[redacted-url]');
-}
 
 function passwordOf(connectionString: string | undefined): string | undefined {
   if (!connectionString) return undefined;
@@ -155,7 +147,7 @@ run(process.argv.slice(2), env).catch((error: unknown) => {
     env.APP_PASSWORD,
     env.BACKUP_PASSWORD,
   ];
-  const message = redact(error instanceof Error ? error.message : 'Unknown error.', secrets);
+  const message = formatError(error, secrets);
   console.error(`Error: ${message}`);
   process.exitCode = error instanceof UsageError ? EXIT_USAGE : 1;
 });

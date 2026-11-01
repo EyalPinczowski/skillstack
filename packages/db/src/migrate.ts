@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import pg from 'pg';
+import type pg from 'pg';
+import { createClient } from './connection';
 import { environmentNames, parseEnvironment, type EnvironmentNames } from './names';
 import { renderSql } from './render';
 
@@ -78,7 +79,7 @@ async function withClient<T>(
 ): Promise<T> {
   if (options.client) return work(options.client);
   if (!options.connectionString) throw new Error('Either connectionString or client is required.');
-  const client = new pg.Client({ connectionString: options.connectionString });
+  const client = createClient(options.connectionString);
   await client.connect();
   try {
     return await work(client);
