@@ -198,14 +198,16 @@ export const abandonResult = z.object({ session: sessionView });
 // History and trends
 // ---------------------------------------------------------------------------
 
-export const historyQuery = z
-  .object({
-    kind: z.string().min(1).max(100).optional(),
-    from: LocalDateSchema.optional(),
-    to: LocalDateSchema.optional(),
-    limit: z.coerce.number().int().min(1).max(HISTORY_MAX_LIMIT).default(HISTORY_DEFAULT_LIMIT),
-  })
-  .refine((q) => !q.from || !q.to || q.from <= q.to, { message: 'from must not be after to' });
+export const historyQuery = noNulCharacters(
+  z
+    .object({
+      kind: z.string().min(1).max(100).optional(),
+      from: LocalDateSchema.optional(),
+      to: LocalDateSchema.optional(),
+      limit: z.coerce.number().int().min(1).max(HISTORY_MAX_LIMIT).default(HISTORY_DEFAULT_LIMIT),
+    })
+    .refine((q) => !q.from || !q.to || q.from <= q.to, { message: 'from must not be after to' }),
+);
 
 export const historyView = z.object({
   sessions: z.array(

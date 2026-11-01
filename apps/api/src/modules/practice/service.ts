@@ -66,8 +66,8 @@ const minutesBetween = (a: Date, b: Date) =>
 
 /**
  * A stable uuid for the one log a session writes, so a retried finish cannot log twice. It is a
- * hash of the session id, not the session id itself, so it can never collide with a log id the
- * client chose for something else.
+ * hash of the session id, not the session id itself, so it does not collide with a log id the
+ * client chose (only a deliberate SHA-256 match could; not by accident).
  */
 export function sessionLogId(sessionId: string): string {
   const h = createHash('sha256').update(`practice-log:${sessionId}`).digest('hex');
@@ -357,13 +357,14 @@ export function createPracticeService(
   }
 
   /**
-   * Finishes a session. The order is deliberate and every step is safe to repeat:
-   * 1. the task effects, through the tasks service: the hours log (a fixed id per session) and,
-   *    only with `markDone`, `completeTask`;
-   * 2. in one transaction: the feedback, the session's end and the `practice.finished` event.
-   * The session turning `finished` is the commit point. If the process dies between 1 and 2 the
-   * session is still active and the user retries; the log id and `completeTask` make that a
-   * no-op. Feedback never marks anything done by itself.
+   * Finishes a session in ONE transaction, so a finish either happens completely or not at all:
+   * 1. lock the session row and confirm it is still active (a racing abandon or second finish
+   *    waits here, then sees the final status);
+   * 2. through the tasks service, inside this same transaction: the hours log (a fixed id per
+   *    session) and, only with `markDone`, `completeTask`;
+   * 3. the feedback, the session's end and the `practice.finished` event.
+   * Any failure, including a 409 for a conflicting repeat, rolls back every step: no log, no
+   * status change, no event. Feedback never marks anything done by itself.
    */
   async function complete(
     userId: string,
@@ -371,13 +372,14 @@ export function createPracticeService(
     sessionId: string,
     prepare: (task: TaskView) => FinishRequest,
   ): Promise<FinishResult> {
-    const session = await db.withUser(userId, async (ctx) => {
+    // Only to read the task's steps for a rubric; the facts that decide anything are re-read
+    // under the lock below.
+    const taskId = await db.withUser(userId, async (ctx) => {
       const found = await repo.getSession(ctx, userId, planId, sessionId);
       if (!found) throw notFound();
-      return found;
+      return found.taskId;
     });
-    const task = await tasks.getTask(userId, planId, session.taskId);
-    const request = prepare(task);
+    const request = prepare(await tasks.getTask(userId, planId, taskId));
     const hours = request.logHours && request.logHours > 0 ? request.logHours : null;
     const result = (r: Omit<FinishResult, 'task'>, t: TaskView): FinishResult => ({
       ...r,
@@ -385,37 +387,31 @@ export function createPracticeService(
       ...(request.parsed === undefined ? {} : { parsed: request.parsed }),
     });
 
-    if (session.status === 'abandoned') throw conflict('This practice was abandoned.');
-    if (session.status === 'finished') {
-      const r = await db.withUser(userId, (ctx) => replay(ctx, userId, session, request));
-      return result(r, task);
-    }
-    if (request.markDone && task.status === 'skipped') {
-      throw conflict('Reopen the task before marking it done.');
-    }
-
-    // 1. Task effects, each through the tasks service.
-    let current = task;
-    if (hours !== null) {
-      const timezone =
-        (await db.withUser(userId, (ctx) => plansRepo.planTimezone(ctx, userId, planId))) ?? 'UTC';
-      const logged = await tasks.addLog(userId, planId, session.taskId, {
-        id: sessionLogId(session.id),
-        date: localDateOf(session.startedAt, timezone),
-        hours,
-      });
-      current = logged.task;
-    }
-    if (request.markDone) current = await tasks.completeTask(userId, planId, session.taskId);
-
-    // 2. Feedback, the end of the session and the event, together.
-    const outcome = await db.withUser(userId, async (ctx) => {
-      const locked = await repo.getSession(ctx, userId, planId, sessionId, true);
-      if (!locked) throw notFound();
-      if (locked.status === 'abandoned') throw conflict('This practice was abandoned.');
-      if (locked.status === 'finished') {
-        return { ...(await replay(ctx, userId, locked, request)) };
+    return db.withUser(userId, async (ctx) => {
+      const session = await repo.getSession(ctx, userId, planId, sessionId, true);
+      if (!session) throw notFound();
+      if (session.status === 'abandoned') throw conflict('This practice was abandoned.');
+      let current = await tasks.getTaskIn(ctx, userId, planId, session.taskId);
+      if (session.status === 'finished') {
+        return result(await replay(ctx, userId, session, request), current);
       }
+      if (request.markDone && current.status === 'skipped') {
+        throw conflict('Reopen the task before marking it done.');
+      }
+
+      if (hours !== null) {
+        const timezone = (await plansRepo.planTimezone(ctx, userId, planId)) ?? 'UTC';
+        const logged = await tasks.addLogIn(ctx, userId, planId, session.taskId, {
+          id: sessionLogId(session.id),
+          date: localDateOf(session.startedAt, timezone),
+          hours,
+        });
+        current = logged.task;
+      }
+      if (request.markDone) {
+        current = await tasks.completeTaskIn(ctx, userId, planId, session.taskId);
+      }
+
       const endedAt = now();
       const feedback = request.feedback
         ? await repo.insertFeedback(ctx, userId, sessionId, request.feedback, endedAt)
@@ -431,14 +427,16 @@ export function createPracticeService(
         markedDone: request.markDone,
         loggedHours: hours,
       });
-      return {
-        session: toSessionView(ended),
-        feedback: feedback ? toFeedbackView(feedback) : null,
-        loggedHours: hours,
-        replayed: false,
-      };
+      return result(
+        {
+          session: toSessionView(ended),
+          feedback: feedback ? toFeedbackView(feedback) : null,
+          loggedHours: hours,
+          replayed: false,
+        },
+        current,
+      );
     });
-    return result(outcome, current);
   }
 
   return {
@@ -540,18 +538,30 @@ export function createPracticeService(
           jobDescriptionIncluded: g.jobDescription.length > 0,
           redactions: stored.redactions,
         };
-        const created = await repo.insertSession(ctx, userId, {
-          id: input.id,
-          planId,
-          taskId,
-          kind,
-          persona: stored.personaId,
-          channel: input.channel,
-          plannedMinutes: Math.min(1440, Math.max(1, Math.round(task.estHours * 60))),
-          startedAt: now(),
-          prompt: stored.copyText,
-          inputs,
-        });
+        const created = await repo
+          .insertSession(ctx, userId, {
+            id: input.id,
+            planId,
+            taskId,
+            kind,
+            persona: stored.personaId,
+            channel: input.channel,
+            plannedMinutes: Math.min(1440, Math.max(1, Math.round(task.estHours * 60))),
+            startedAt: now(),
+            prompt: stored.copyText,
+            inputs,
+          })
+          .catch((error: unknown) => {
+            // The plan lock above makes this unreachable; the unique index is the backstop.
+            const pg = error as { code?: string; constraint?: string };
+            if (pg.code === '23505' && pg.constraint === 'practice_sessions_one_active_idx') {
+              throw conflict(
+                'This task already has an active practice session.',
+                'practice_session_active',
+              );
+            }
+            throw error;
+          });
         await plansRepo.insertEvent(ctx, userId, planId, 'practice.started', {
           sessionId: created.id,
           taskId,

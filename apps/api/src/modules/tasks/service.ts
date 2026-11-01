@@ -200,7 +200,139 @@ async function planLocalToday(
 export function createTaskService(db: Database, now: () => Date = () => new Date()) {
   const run = <T>(userId: string, fn: (ctx: UserContext) => Promise<T>) => db.withUser(userId, fn);
 
+  /**
+   * Transaction-scoped variants: the caller owns the transaction (db.withUser), so it can
+   * combine them with its own writes atomically. Same rules and events as addLog / completeTask.
+   */
+  const inCtx = {
+    getTaskIn: async (ctx: UserContext, userId: string, planId: string, taskId: string) => {
+      const { rows } = await ctx.client.query<TaskRow>(
+        `select ${TASK_COLUMNS} from ${ctx.schema}.tasks
+         where user_id = $1 and plan_id = $2 and id = $3`,
+        [userId, planId, taskId],
+      );
+      if (!rows[0]) throw notFound();
+      return toTaskView(rows[0]);
+    },
+
+    addLogIn: async (
+      ctx: UserContext,
+      userId: string,
+      planId: string,
+      taskId: string,
+      input: LogBody,
+    ) => {
+      const before = await lockTask(ctx, userId, planId, taskId);
+
+      const inserted = await ctx.client.query<LogRow>(
+        `insert into ${ctx.schema}.logs (user_id, id, plan_id, task_id, date, hours, result, score, note)
+           values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+           on conflict (user_id, id) do nothing
+           returning ${LOG_COLUMNS}`,
+        [
+          userId,
+          input.id,
+          planId,
+          taskId,
+          input.date,
+          input.hours,
+          input.result ?? null,
+          input.score ?? null,
+          input.note ?? null,
+        ],
+      );
+
+      if (!inserted.rows[0]) {
+        // A retry: the same id must carry the same payload, otherwise it is a different request.
+        const { rows } = await ctx.client.query<LogRow>(
+          `select ${LOG_COLUMNS} from ${ctx.schema}.logs where user_id = $1 and id = $2`,
+          [userId, input.id],
+        );
+        const existing = rows[0]!;
+        const same =
+          existing.plan_id === planId &&
+          existing.task_id === taskId &&
+          existing.date === input.date &&
+          existing.hours === input.hours &&
+          existing.result === (input.result ?? null) &&
+          existing.score === (input.score ?? null) &&
+          existing.note === (input.note ?? null);
+        if (!same) {
+          throw new HttpError(409, 'conflict', 'This log id was already used for different data.');
+        }
+        const task = toTaskView(before);
+        return { replayed: true, log: toLogView(existing), task, suggestDone: suggestDone(task) };
+      }
+
+      // Added to the stored value (under the row lock), not recomputed from the logs: an
+      // imported plan can carry doneHours that have no log rows, and those must not be lost.
+      const { rows } = await ctx.client.query<TaskRow>(
+        `update ${ctx.schema}.tasks set
+             done_hours = done_hours + $4::numeric,
+             status = case when status = 'pending' then 'in_progress' else status end,
+             updated_at = now()
+           where user_id = $1 and plan_id = $2 and id = $3
+           returning ${TASK_COLUMNS}`,
+        [userId, planId, taskId, input.hours],
+      );
+      const task = toTaskView(rows[0]!);
+      if (before.status === 'pending' && task.status === 'in_progress') {
+        await writeEvent(ctx, userId, planId, 'task.started', { taskId, logId: input.id });
+      }
+      await writeEvent(ctx, userId, planId, 'task.logged', {
+        taskId,
+        logId: input.id,
+        date: input.date,
+        hours: input.hours,
+        doneHours: task.doneHours,
+      });
+      return {
+        replayed: false,
+        log: toLogView(inserted.rows[0]),
+        task,
+        suggestDone: suggestDone(task),
+      };
+    },
+    /** Explicit user action. Idempotent: completing a done task changes and writes nothing. */
+    completeTaskIn: async (ctx: UserContext, userId: string, planId: string, taskId: string) => {
+      const before = await lockTask(ctx, userId, planId, taskId);
+      if (before.status === 'done') return toTaskView(before);
+      const { rows } = await ctx.client.query<TaskRow>(
+        `update ${ctx.schema}.tasks set status = 'done', updated_at = now()
+           where user_id = $1 and plan_id = $2 and id = $3 returning ${TASK_COLUMNS}`,
+        [userId, planId, taskId],
+      );
+      const task = toTaskView(rows[0]!);
+      await writeEvent(ctx, userId, planId, 'task.completed', {
+        taskId,
+        doneHours: task.doneHours,
+        date: await planLocalToday(ctx, userId, planId, now),
+      });
+      if (task.isCertificate) {
+        // A reopened and re-completed certificate is still one certificate.
+        const earned = await ctx.client.query(
+          `select 1 from ${ctx.schema}.events
+             where user_id = $1 and plan_id = $2 and type = 'certificate.earned'
+               and payload ->> 'taskId' = $3`,
+          [userId, planId, taskId],
+        );
+        if (earned.rows.length === 0) {
+          await writeEvent(ctx, userId, planId, 'certificate.earned', {
+            taskId,
+            certificateName: task.certificateName ?? null,
+          });
+        }
+      }
+      return task;
+    },
+  };
+
   return {
+    ...inCtx,
+    addLog: (userId: string, planId: string, taskId: string, input: LogBody) =>
+      run(userId, (ctx) => inCtx.addLogIn(ctx, userId, planId, taskId, input)),
+    completeTask: (userId: string, planId: string, taskId: string) =>
+      run(userId, (ctx) => inCtx.completeTaskIn(ctx, userId, planId, taskId)),
     listTasks: (userId: string, planId: string) =>
       run(userId, async (ctx) => {
         await requirePlan(ctx, userId, planId);
@@ -213,15 +345,7 @@ export function createTaskService(db: Database, now: () => Date = () => new Date
       }),
 
     getTask: (userId: string, planId: string, taskId: string) =>
-      run(userId, async (ctx) => {
-        const { rows } = await ctx.client.query<TaskRow>(
-          `select ${TASK_COLUMNS} from ${ctx.schema}.tasks
-           where user_id = $1 and plan_id = $2 and id = $3`,
-          [userId, planId, taskId],
-        );
-        if (!rows[0]) throw notFound();
-        return toTaskView(rows[0]);
-      }),
+      run(userId, (ctx) => inCtx.getTaskIn(ctx, userId, planId, taskId)),
 
     /** The user's own explicit edit. Status, done hours and ownership are not editable here. */
     patchTask: (userId: string, planId: string, taskId: string, patch: PatchTaskBody) =>
@@ -280,117 +404,6 @@ export function createTaskService(db: Database, now: () => Date = () => new Date
      * Adds a log in one transaction: the log, done_hours raised by its hours, pending to
      * in_progress on the first log, and the events. Never closes the task by itself.
      */
-    addLog: (userId: string, planId: string, taskId: string, input: LogBody) =>
-      run(userId, async (ctx) => {
-        const before = await lockTask(ctx, userId, planId, taskId);
-
-        const inserted = await ctx.client.query<LogRow>(
-          `insert into ${ctx.schema}.logs (user_id, id, plan_id, task_id, date, hours, result, score, note)
-           values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-           on conflict (user_id, id) do nothing
-           returning ${LOG_COLUMNS}`,
-          [
-            userId,
-            input.id,
-            planId,
-            taskId,
-            input.date,
-            input.hours,
-            input.result ?? null,
-            input.score ?? null,
-            input.note ?? null,
-          ],
-        );
-
-        if (!inserted.rows[0]) {
-          // A retry: the same id must carry the same payload, otherwise it is a different request.
-          const { rows } = await ctx.client.query<LogRow>(
-            `select ${LOG_COLUMNS} from ${ctx.schema}.logs where user_id = $1 and id = $2`,
-            [userId, input.id],
-          );
-          const existing = rows[0]!;
-          const same =
-            existing.plan_id === planId &&
-            existing.task_id === taskId &&
-            existing.date === input.date &&
-            existing.hours === input.hours &&
-            existing.result === (input.result ?? null) &&
-            existing.score === (input.score ?? null) &&
-            existing.note === (input.note ?? null);
-          if (!same) {
-            throw new HttpError(
-              409,
-              'conflict',
-              'This log id was already used for different data.',
-            );
-          }
-          const task = toTaskView(before);
-          return { replayed: true, log: toLogView(existing), task, suggestDone: suggestDone(task) };
-        }
-
-        // Added to the stored value (under the row lock), not recomputed from the logs: an
-        // imported plan can carry doneHours that have no log rows, and those must not be lost.
-        const { rows } = await ctx.client.query<TaskRow>(
-          `update ${ctx.schema}.tasks set
-             done_hours = done_hours + $4::numeric,
-             status = case when status = 'pending' then 'in_progress' else status end,
-             updated_at = now()
-           where user_id = $1 and plan_id = $2 and id = $3
-           returning ${TASK_COLUMNS}`,
-          [userId, planId, taskId, input.hours],
-        );
-        const task = toTaskView(rows[0]!);
-        if (before.status === 'pending' && task.status === 'in_progress') {
-          await writeEvent(ctx, userId, planId, 'task.started', { taskId, logId: input.id });
-        }
-        await writeEvent(ctx, userId, planId, 'task.logged', {
-          taskId,
-          logId: input.id,
-          date: input.date,
-          hours: input.hours,
-          doneHours: task.doneHours,
-        });
-        return {
-          replayed: false,
-          log: toLogView(inserted.rows[0]),
-          task,
-          suggestDone: suggestDone(task),
-        };
-      }),
-
-    /** Explicit user action. Idempotent: completing a done task changes and writes nothing. */
-    completeTask: (userId: string, planId: string, taskId: string) =>
-      run(userId, async (ctx) => {
-        const before = await lockTask(ctx, userId, planId, taskId);
-        if (before.status === 'done') return toTaskView(before);
-        const { rows } = await ctx.client.query<TaskRow>(
-          `update ${ctx.schema}.tasks set status = 'done', updated_at = now()
-           where user_id = $1 and plan_id = $2 and id = $3 returning ${TASK_COLUMNS}`,
-          [userId, planId, taskId],
-        );
-        const task = toTaskView(rows[0]!);
-        await writeEvent(ctx, userId, planId, 'task.completed', {
-          taskId,
-          doneHours: task.doneHours,
-          date: await planLocalToday(ctx, userId, planId, now),
-        });
-        if (task.isCertificate) {
-          // A reopened and re-completed certificate is still one certificate.
-          const earned = await ctx.client.query(
-            `select 1 from ${ctx.schema}.events
-             where user_id = $1 and plan_id = $2 and type = 'certificate.earned'
-               and payload ->> 'taskId' = $3`,
-            [userId, planId, taskId],
-          );
-          if (earned.rows.length === 0) {
-            await writeEvent(ctx, userId, planId, 'certificate.earned', {
-              taskId,
-              certificateName: task.certificateName ?? null,
-            });
-          }
-        }
-        return task;
-      }),
 
     /** Back to in_progress when hours were logged, otherwise pending. Idempotent. */
     reopenTask: (userId: string, planId: string, taskId: string) =>

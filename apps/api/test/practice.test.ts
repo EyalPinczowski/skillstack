@@ -111,6 +111,7 @@ describe.skipIf(!dbAvailable)('practice sessions without a model (real Postgres)
       await task(A, PLAN_A, 'p4', 3, { kind: null, steps: [] });
       await task(A, PLAN_A, 'c1', 4, { type: 'course', kind: null });
       await task(A, PLAN_A2, 'other', 0);
+      await task(A, PLAN_A2, 'q1', 1);
       await task(B, PLAN_B, 'p1', 0);
     });
   });
@@ -891,6 +892,249 @@ describe.skipIf(!dbAvailable)('practice sessions without a model (real Postgres)
       ]) {
         expect(all).not.toContain(marker);
       }
+    });
+  });
+
+  describe('races and failures change nothing they should not', () => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    /** Everything a finish could touch, to compare before and after a refused call. */
+    const snapshot = async () => ({
+      logs: await rows(`select id, hours::float8 as hours from rnd.logs order by id`),
+      events: await rows(`select id, type from rnd.events order by created_at, id`),
+      tasks: await rows(
+        `select id, status, done_hours::float8 as done from rnd.tasks where plan_id = $1 order by id`,
+        [PLAN_A],
+      ),
+      sessions: await rows(`select id, status, ended_at from rnd.practice_sessions order by id`),
+      feedback: await rows(`select session_id from rnd.practice_feedback order by session_id`),
+    });
+
+    /**
+     * Holds `sql` locked in another connection while the calls are sent one after the other
+     * (each waits behind the lock, in this order), then releases it and returns the answers.
+     */
+    const queued = async (
+      lockSql: string,
+      params: unknown[],
+      calls: (() => Promise<{ statusCode: number }>)[],
+    ) => {
+      const pending: Promise<{ statusCode: number }>[] = [];
+      await testDb.admin(async (c) => {
+        await c.query('begin');
+        try {
+          await c.query(lockSql, params);
+          for (const call of calls) {
+            pending.push(call());
+            await sleep(200);
+          }
+        } finally {
+          await c.query('commit');
+        }
+      });
+      return Promise.all(pending);
+    };
+    const lockSession = (id: string): [string, unknown[]] => [
+      `select 1 from rnd.practice_sessions where id = $1 for update`,
+      [id],
+    ];
+    const finishCall = (id: string, body: unknown) => async () =>
+      callA('POST', sessionUrl(id, '/finish'), body);
+    const abandonCall = (id: string) => async () => callA('POST', sessionUrl(id, '/abandon'));
+
+    it('a finish that loses to an abandon logs nothing and leaves the task alone', async () => {
+      await start('p1', S(1), 'self');
+      const before = await snapshot();
+      const [abandon, finish] = await queued(...lockSession(S(1)), [
+        abandonCall(S(1)),
+        finishCall(S(1), { markDone: true, logHours: 1 }),
+      ]);
+      expect([abandon!.statusCode, finish!.statusCode]).toEqual([200, 409]);
+      const after = await snapshot();
+      expect(after.logs).toEqual([]);
+      expect(after.events).toEqual(before.events);
+      expect(after.tasks).toEqual(before.tasks);
+      expect(after.feedback).toEqual([]);
+      expect(after.sessions[0]).toMatchObject({ status: 'abandoned' });
+    });
+
+    it('an abandon that loses to a finish changes nothing', async () => {
+      await start('p1', S(1), 'self');
+      const [finish, abandon] = await queued(...lockSession(S(1)), [
+        finishCall(S(1), { markDone: true, logHours: 1 }),
+        abandonCall(S(1)),
+      ]);
+      expect([finish!.statusCode, abandon!.statusCode]).toEqual([201, 409]);
+      const after = await snapshot();
+      expect(after.sessions[0]).toMatchObject({ status: 'finished' });
+      expect(after.logs).toHaveLength(1);
+      expect(after.tasks.find((t) => t.id === 'p1')).toMatchObject({ status: 'done', done: 1 });
+    });
+
+    it('two finishes with different markDone: the task matches the one that won', async () => {
+      await start('p1', S(1), 'self');
+      const [yes, no] = await queued(...lockSession(S(1)), [
+        finishCall(S(1), { markDone: true, logHours: 1 }),
+        finishCall(S(1), { markDone: false, logHours: 1 }),
+      ]);
+      expect([yes!.statusCode, no!.statusCode]).toEqual([201, 409]);
+      expect(await taskRow('p1')).toMatchObject({ status: 'done', done_hours: 1 });
+      const ev = await rows<{ payload: { markedDone: boolean } }>(
+        `select payload from rnd.events where type = 'practice.finished'`,
+      );
+      expect(ev.map((e) => e.payload.markedDone)).toEqual([true]);
+
+      await start('p2', S(2), 'self');
+      const [no2, yes2] = await queued(...lockSession(S(2)), [
+        finishCall(S(2), { markDone: false, logHours: 1 }),
+        finishCall(S(2), { markDone: true, logHours: 1 }),
+      ]);
+      expect([no2!.statusCode, yes2!.statusCode]).toEqual([201, 409]);
+      expect(await taskRow('p2')).toMatchObject({ status: 'in_progress', done_hours: 1 });
+      expect(
+        await rows(
+          `select 1 from rnd.events where type = 'task.completed' and payload ->> 'taskId' = 'p2'`,
+        ),
+      ).toHaveLength(0);
+    });
+
+    it('a refused finish leaves no trace, so a retry with other options starts clean', async () => {
+      await start('p1', S(1), 'self');
+      await callA('POST', `${base}/tasks/p1/skip`);
+      const before = await snapshot();
+      const refused = await callA('POST', sessionUrl(S(1), '/finish'), {
+        markDone: true,
+        logHours: 1,
+      });
+      expect(refused.statusCode).toBe(409);
+      expect(await snapshot()).toEqual(before);
+
+      await callA('POST', `${base}/tasks/p1/reopen`);
+      const retry = await callA('POST', sessionUrl(S(1), '/finish'), {
+        markDone: true,
+        logHours: 2,
+      });
+      expect(retry.statusCode).toBe(201);
+      expect(await rows(`select hours::float8 as hours from rnd.logs`)).toEqual([{ hours: 2 }]);
+      expect(await taskRow('p1')).toMatchObject({ status: 'done', done_hours: 2 });
+    });
+
+    it('a failure after the task effects rolls the log and the completion back', async () => {
+      await start('p1', S(1), 'self');
+      const before = await snapshot();
+      await testDb.admin(async (c) => {
+        await c.query(`create function rnd.test_fail_feedback() returns trigger language plpgsql
+          as $$ begin raise exception 'test failure'; end $$`);
+        await c.query(
+          `create trigger test_fail before insert on rnd.practice_feedback
+           for each row execute function rnd.test_fail_feedback()`,
+        );
+      });
+      try {
+        const res = await callA('POST', sessionUrl(S(1), '/finish'), {
+          markDone: true,
+          logHours: 1,
+          rubric: { checkedSteps: [0] },
+        });
+        expect(res.statusCode).toBe(500);
+        expect(await snapshot()).toEqual(before);
+      } finally {
+        await testDb.admin(async (c) => {
+          await c.query(`drop trigger test_fail on rnd.practice_feedback`);
+          await c.query(`drop function rnd.test_fail_feedback()`);
+        });
+      }
+      const retry = await callA('POST', sessionUrl(S(1), '/finish'), {
+        markDone: true,
+        logHours: 1,
+        rubric: { checkedSteps: [0] },
+      });
+      expect(retry.statusCode).toBe(201);
+    });
+
+    it('a repeat with different options after success is a 409 that changes nothing', async () => {
+      await start('p1', S(1), 'self');
+      await callA('POST', sessionUrl(S(1), '/finish'), { markDone: true, logHours: 1 });
+      const before = await snapshot();
+      for (const body of [
+        { markDone: true, logHours: 2 },
+        { markDone: false, logHours: 1 },
+        { markDone: true, logHours: 1, rubric: { checkedSteps: [0] } },
+      ]) {
+        expect((await callA('POST', sessionUrl(S(1), '/finish'), body)).statusCode).toBe(409);
+      }
+      expect(await snapshot()).toEqual(before);
+    });
+
+    it('serialises session creation on the plan lock', async () => {
+      let done = false;
+      const pending: Promise<{ statusCode: number }>[] = [];
+      await testDb.admin(async (c) => {
+        await c.query('begin');
+        try {
+          await c.query(`select 1 from rnd.plans where id = $1 for no key update`, [PLAN_A]);
+          pending.push(
+            callA('POST', sessionsUrl('p1'), { id: S(1), channel: 'self' }).then((r) => {
+              done = true;
+              return r;
+            }),
+          );
+          await sleep(400);
+          expect(done).toBe(false);
+          expect(await rows(`select 1 from rnd.practice_sessions`)).toHaveLength(0);
+        } finally {
+          await c.query('commit');
+        }
+      });
+      expect((await pending[0]!).statusCode).toBe(201);
+    });
+
+    it('maps a database-level second active session to 409, not 500', async () => {
+      await testDb.admin(async (c) => {
+        await c.query(`
+          create function rnd.test_competing_session() returns trigger language plpgsql as $$
+          begin
+            insert into rnd.practice_sessions (user_id, id, plan_id, task_id, practice_kind, persona,
+              channel, planned_minutes, prompt_used)
+            values (new.user_id, '${S(9)}', new.plan_id, new.task_id, 'mock_interview', 'x',
+              'self', 60, '');
+            return new;
+          end $$`);
+        await c.query(
+          `create trigger test_competing before insert on rnd.practice_sessions
+           for each row when (new.id <> '${S(9)}') execute function rnd.test_competing_session()`,
+        );
+      });
+      try {
+        const res = await callA('POST', sessionsUrl('p1'), { id: S(1), channel: 'self' });
+        expect(res.statusCode).toBe(409);
+        expect(res.json().error.code).toBe('practice_session_active');
+      } finally {
+        await testDb.admin(async (c) => {
+          await c.query(`drop trigger test_competing on rnd.practice_sessions`);
+          await c.query(`drop function rnd.test_competing_session()`);
+        });
+      }
+    });
+
+    it('answers 422, not 500, for a NUL character in the history filter', async () => {
+      const res = await callA('GET', `${base}/practice/history?kind=a%00b`);
+      expect(res.statusCode).toBe(422);
+    });
+
+    it('does not use the next focus of a finished session in another plan', async () => {
+      const other = await callA('POST', `/plans/${PLAN_A2}/tasks/q1/practice/sessions`, {
+        id: S(7),
+        channel: 'external',
+      });
+      expect(other.statusCode).toBe(201);
+      const done = await callA('POST', `/plans/${PLAN_A2}/practice/sessions/${S(7)}/feedback`, {
+        text: BLOCK('7/10', 'LEAK-MARKER from another plan'),
+      });
+      expect(done.statusCode).toBe(201);
+      const prompt = (await callA('GET', `${base}/tasks/p1/practice/prompt`)).json();
+      expect(prompt.inputs.nextFocus).toBeNull();
+      expect(prompt.prompt).not.toContain('LEAK-MARKER');
     });
   });
 });

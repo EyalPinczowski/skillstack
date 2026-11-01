@@ -20,7 +20,7 @@ This package has **no AI**. The in-app chat (channel `in_app`, messages, model f
 ## Rules
 
 - **Done-marking.** A task is marked done only with `markDone: true`, and only through the tasks service (`completeTask`). Feedback of any kind never marks anything done on its own. `finish` requires `markDone` so the choice is always explicit; on the paste route it defaults to `false`. Logging hours also goes through the tasks service (`addLog`), which moves a `pending` task to `in_progress` as it does everywhere; the task is never closed by logging. A session is never moved from `finished` back to `active` (a database trigger enforces it); practising again means a new session. Marking a `skipped` task done answers 409 (reopen it first).
-- **No cross-module SQL.** The practice SQL reads and writes only the four practice tables, events (through the plans repository) and the user's own name and email (to hide them from prompts). Facts about tasks (type, steps, estimate, status) come from the tasks service. The database still has the foreign key from a session to its task.
+- **No cross-module SQL.** The practice SQL reads and writes only the four practice tables, the `events` table (its own `practice.*` events: writes go through the plans repository, and the practice repository reads back the `practice.finished` event of one session for replay checks) and the user's own name and email (to hide them from prompts). Facts about tasks (type, steps, estimate, status) and every change to them come from the tasks service, which offers transaction-scoped variants (`getTaskIn`, `addLogIn`, `completeTaskIn`) so a finish can use them inside its own transaction. The database still has the foreign key from a session to its task.
 - **Job description (Tier 2).** Stored once per plan in `practice_contexts`. It is in the prompt returned by `GET .../practice/prompt` (for the user to copy) after personal details are removed, but **never** in a session's stored `prompt_used`, in an event or in a log line (`prompt_inputs.jobDescriptionIncluded` records only that it was used).
 - **Personal details.** Prompts are built with the shared allowlist builder, with the user's email, its local part and name tokens as known identifiers. If something personal survives, the answer is 422 `pii_blocked`.
 
@@ -35,15 +35,15 @@ This package has **no AI**. The in-app chat (channel `in_app`, messages, model f
 ## Sessions
 
 - **Create.** Idempotent on the client's `id`: the same id with the same task and channel answers 200 with the stored session; the same id for anything else is 409. A second **active** session on a task is 409 with code `practice_session_active` and the existing id in the message. Two simultaneous starts are serialised by the plan row lock, so exactly one wins. Writes `practice.started`. `planned_minutes` is the task estimate in minutes. The stored prompt is the one **without** the job description.
-- **Abandon.** Active to `abandoned`, `ended_at` set, nothing else changes, no event. Repeating it is 200. A finished session is 409.
+- **Abandon.** Takes the session row lock, so it and a finish on the same session run one after the other: the first wins and the other answers 409 and changes nothing. Active to `abandoned`, `ended_at` set, nothing else changes (no log, task untouched), no event. Repeating it is 200. A finished session is 409.
 
 ## Finishing: order and idempotency
 
 A session finishes **exactly once**, through whichever of `feedback` or `finish` comes first.
 
 1. **Feedback source, decided explicitly.** Pasted feedback and a self-check never combine: `POST .../feedback` finishes the session with the pasted result (`pasted_block`, or `free_text` for text that is not a block) and carries no rubric. `POST .../finish` takes **at most one** of `rubric` (source `self_rubric`, score `10 x ticked / total` from the task's steps, or four generic steps when it has none) or `enteredScore` (a score out of `max`, normalised to 0 to 10, source `self_rubric`), or neither (no feedback row, the session still finishes, for example to log time). Sending both is 400. A `finish` after a paste is a replay (below), not a way to add a rubric.
-2. **Effects, then the commit point.** The hours log (one log per session, with an id derived from the session id) and, only with `markDone`, `completeTask` run first, each through the tasks service. Then one transaction writes the feedback, sets the session `finished` and writes `practice.finished`. If the process dies between the two, the session is still active, the user retries, and the fixed log id and the idempotent `completeTask` make the repeat harmless. The log is dated the plan-local day the session **started**.
-3. **Replay.** A call on an already finished session answers **200** with `replayed: true` and applies nothing, if the feedback matches what was stored (pasted: the same text; rubric or score: the same result; `finish` with no feedback matches anything) **and** `markDone` and `logHours` equal what the first call used (they are kept, as numbers and booleans only, in the `practice.finished` event). Anything else is 409. Two simultaneous identical calls give one 201 and one 200, one log and one event. A call on an abandoned session is 409.
+2. **One transaction.** The whole finish runs in one transaction: lock the session row and confirm it is still active; then, through the tasks service in the same transaction, the hours log (one log per session, with an id derived from the session id) and, only with `markDone`, `completeTask`; then the feedback, the session `finished` and the `practice.finished` event. Any failure, including a 409, rolls everything back: no log, no status change, no event. So a failed finish can be retried with different options, and a racing abandon or second finish leaves nothing behind when it loses. The log is dated the plan-local day the session **started**.
+3. **Replay.** A call on an already finished session answers **200** with `replayed: true` and applies nothing, if the feedback matches what was stored (pasted: the same text; rubric or score: the same result; `finish` with no feedback matches any stored feedback) **and** `markDone` and `logHours` equal what the first call used (they are kept, as numbers and booleans only, in the `practice.finished` event, read back by the practice repository). Anything else is 409 and changes nothing. Two simultaneous identical calls give one 201 and one 200, one log and one event; two with different `markDone` give one 201 and one 409, and the task matches the one that won. A call on an abandoned session is 409.
 4. **Free text.** Text without a readable `===FEEDBACK===` block is saved as `free_text` (score null, `raw` holds the text) with a normal 201 and `parsed: false`. A pasted block that parses has `parsed: true`.
 
 ## Events (never any text)
@@ -57,6 +57,11 @@ A session finishes **exactly once**, through whichever of `feedback` or `finish`
 
 - History lists **finished** sessions only: `{ id, taskId, kind, channel, startedAt, minutes, score | null, source | null }`, newest first. `from` and `to` are plan-local dates of the day the session started. `limit` defaults to 50, at most 200.
 - Trends use scored finished sessions (free text and no-feedback sessions have no score), the newest 1000 in the range, oldest first. `points` carry the plan-local date, the score and the source so the client can tell a self-check from a pasted score; `last`, `average` and `delta` come from `trendsByKind` in the shared package.
+
+## Notes
+
+- The replay check finds the `practice.finished` event by `payload ->> 'sessionId'` within the plan's events. An index on that would need a migration, so none is added; the plan's events are few and already indexed by user and plan.
+- A unique-index violation for a second active session is mapped to 409 `practice_session_active` as a backstop to the plan lock.
 
 ## Data
 
