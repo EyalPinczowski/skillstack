@@ -45,4 +45,20 @@ describe('trendsByKind input hygiene', () => {
     expect(trendsByKind([a, b]).map((x) => x.practiceKind)).toEqual(['a', 'b']);
     expect(trendsByKind([b, a]).map((x) => x.practiceKind)).toEqual(['a', 'b']);
   });
+
+  it('reads zone-less times as UTC whatever the machine time zone is', () => {
+    const before = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+    try {
+      const t = trendsByKind([
+        { practiceKind: 'a', score: 1, at: '2026-11-01T06:00' },
+        { practiceKind: 'a', score: 2, at: '2026-11-01T09:00:00Z' },
+        { practiceKind: 'a', score: 3, at: '2026-11-01' },
+      ]);
+      expect(t[0]?.scores).toEqual([3, 1, 2]);
+    } finally {
+      if (before === undefined) delete process.env.TZ;
+      else process.env.TZ = before;
+    }
+  });
 });
