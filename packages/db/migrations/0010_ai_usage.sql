@@ -42,7 +42,6 @@ create table {{schema}}.ai_provider_usage (
   day date not null,
   provider_id text not null check (provider_id ~ '^[a-z0-9][a-z0-9_-]{0,63}$'),
   requests integer not null default 0 check (requests >= 0),
-  rejected_429 integer not null default 0 check (rejected_429 >= 0),
   primary key (day, provider_id)
 );
 
@@ -75,40 +74,59 @@ create policy backup_select on {{schema}}.ai_cache for select to {{backup}} usin
 -- No app_user policy and no privilege on ai_provider_usage: only the functions below touch it.
 create policy backup_select on {{schema}}.ai_provider_usage for select to {{backup}} using (true);
 
+-- Counters only go up: the app cannot lower its own usage (a direct UPDATE of a smaller value).
+create function {{schema}}.ai_usage_daily_monotonic() returns trigger
+  language plpgsql
+  set search_path = {{schema}}, pg_temp
+  as $$
+begin
+  if new.requests < old.requests or new.avoided < old.avoided then
+    raise exception 'ai_usage_daily counters cannot decrease';
+  end if;
+  return new;
+end
+$$;
+create trigger ai_usage_daily_monotonic before update on {{schema}}.ai_usage_daily
+  for each row execute function {{schema}}.ai_usage_daily_monotonic();
+
 revoke update, delete on {{schema}}.ai_usage_daily from {{app_user}};
 grant update (requests, avoided) on {{schema}}.ai_usage_daily to {{app_user}};
 revoke update on {{schema}}.ai_cache from {{app_user}};
 grant update (purpose, text, created_at, expires_at) on {{schema}}.ai_cache to {{app_user}};
 revoke all on {{schema}}.ai_provider_usage from {{app_user}};
 
--- Reserves one call against a provider's environment budget for a UTC day. Returns true and
--- counts it when fewer than p_budget calls were reserved so far; returns false (and changes
--- nothing) when the budget is reached or not positive. The single INSERT ... ON CONFLICT DO
--- UPDATE ... WHERE takes the row lock, so concurrent callers can never exceed the budget.
--- It needs a signed-in user context (so it is not a free counter for anyone), a day within one
--- day of the UTC date (no rows for arbitrary dates), a budget of 1..1000000 and a provider id
--- slug. No dynamic SQL; search_path is pinned.
-create function {{schema}}.ai_reserve_provider(p_provider text, p_day date, p_budget integer)
+-- Reserves one call against a provider's environment budget for the current UTC day (computed
+-- here; the caller cannot choose the day). Returns true and counts it when fewer than p_budget
+-- calls were reserved so far; returns false (and changes nothing) when the budget is reached or
+-- not positive. The single INSERT ... ON CONFLICT DO UPDATE ... WHERE takes the row lock, so
+-- concurrent callers can never exceed the budget.
+-- It needs a signed-in user context (so it is not a free counter for anyone), a budget of
+-- 1..1000000 and a provider id slug. No dynamic SQL; search_path is pinned.
+-- What it guarantees: an atomic counter. What it does not: protection against a caller who lies
+-- about the budget. The only caller is the backend, and the budget comes from server config.
+-- HOW TO CALL IT (requirement for the AI gateway): reserve in its own short, committed
+-- transaction BEFORE the network call. Never inside a transaction that also makes the provider
+-- call: the row lock would be held until commit, and a rollback would erase a call that really
+-- happened.
+create function {{schema}}.ai_reserve_provider(p_provider text, p_budget integer)
   returns boolean
   language plpgsql
   security definer
   set search_path = {{schema}}, pg_temp
   as $$
 declare
-  v_utc date := (now() at time zone 'utc')::date;
+  v_day date := (now() at time zone 'utc')::date;
   v_count integer;
 begin
-  if {{schema}}.current_user_id() is null
-     or p_provider is null or p_day is null or p_budget is null then
+  if {{schema}}.current_user_id() is null or p_provider is null or p_budget is null then
     return false;
   end if;
   if p_provider !~ '^[a-z0-9][a-z0-9_-]{0,63}$'
-     or p_day not between v_utc - 1 and v_utc + 1
      or p_budget < 1 or p_budget > 1000000 then
     return false;
   end if;
   insert into {{schema}}.ai_provider_usage as u (day, provider_id, requests)
-  values (p_day, p_provider, 1)
+  values (v_day, p_provider, 1)
   on conflict (day, provider_id) do update set requests = u.requests + 1
     where u.requests < p_budget
   returning u.requests into v_count;
@@ -117,21 +135,22 @@ end
 $$;
 
 -- Today's (UTC) counters per provider, for the usage meter. Read only; a signed-in user only.
+-- Uses the same UTC day expression as ai_reserve_provider.
 create function {{schema}}.ai_provider_usage_today()
-  returns table (provider_id text, requests integer, rejected_429 integer)
+  returns table (provider_id text, requests integer)
   language sql
   stable
   security definer
   set search_path = {{schema}}, pg_temp
   as $$
-  select u.provider_id, u.requests, u.rejected_429
+  select u.provider_id, u.requests
     from {{schema}}.ai_provider_usage u
    where {{schema}}.current_user_id() is not null
      and u.day = (now() at time zone 'utc')::date
    order by u.provider_id
 $$;
 
-revoke all on function {{schema}}.ai_reserve_provider(text, date, integer) from public;
-grant execute on function {{schema}}.ai_reserve_provider(text, date, integer) to {{app_user}};
+revoke all on function {{schema}}.ai_reserve_provider(text, integer) from public;
+grant execute on function {{schema}}.ai_reserve_provider(text, integer) to {{app_user}};
 revoke all on function {{schema}}.ai_provider_usage_today() from public;
 grant execute on function {{schema}}.ai_provider_usage_today() to {{app_user}};

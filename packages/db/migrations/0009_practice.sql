@@ -1,6 +1,8 @@
 -- Practice (v0.3, plan section 2.1): the job description a user keeps per plan, practice
 -- sessions on a practice task, their message transcript and the feedback each one ends with.
 -- Everything here is Tier 2 (spec 3.B): the text never goes to events or logs.
+-- The job description is stored only in practice_contexts; sessions keep the built prompt
+-- without it (owner decision D8).
 --
 -- practice_contexts: one row per plan. The app can add it, read it and change the text; it can
 --   never delete it (an empty string clears the job description).
@@ -36,7 +38,9 @@ create table {{schema}}.practice_sessions (
   planned_minutes integer not null check (planned_minutes between 1 and 1440),
   started_at timestamptz not null default now(),
   ended_at timestamptz,
-  -- The built prompt, which has had personal details removed. Never the raw job description.
+  -- The built prompt WITHOUT the job description (and with personal details removed). The job
+  -- description lives only in practice_contexts; prompt_inputs.jobDescriptionIncluded records
+  -- that it was used for this session.
   prompt_used text not null check (char_length(prompt_used) <= 20000),
   -- Which inputs the prompt used (flags, counts and topic ids; no free text).
   prompt_inputs jsonb not null default '{}' check (jsonb_typeof(prompt_inputs) = 'object'),
@@ -57,6 +61,22 @@ create index practice_sessions_kind_idx
   on {{schema}}.practice_sessions (user_id, plan_id, practice_kind, started_at);
 create unique index practice_sessions_one_active_idx
   on {{schema}}.practice_sessions (user_id, plan_id, task_id) where status = 'active';
+
+-- finished and abandoned are final: a session can never go back to active (or switch between
+-- the two). Starting again means a new session.
+create function {{schema}}.practice_sessions_final_status() returns trigger
+  language plpgsql
+  set search_path = {{schema}}, pg_temp
+  as $$
+begin
+  if old.status <> 'active' and new.status <> old.status then
+    raise exception 'practice session status % is final', old.status;
+  end if;
+  return new;
+end
+$$;
+create trigger practice_sessions_final_status before update on {{schema}}.practice_sessions
+  for each row execute function {{schema}}.practice_sessions_final_status();
 
 create table {{schema}}.practice_messages (
   user_id uuid not null,
@@ -137,3 +157,6 @@ grant update (status, ended_at, pending_turn_id, pending_since, providers_used)
   on {{schema}}.practice_sessions to {{app_user}};
 revoke update, delete on {{schema}}.practice_messages from {{app_user}};
 revoke update, delete on {{schema}}.practice_feedback from {{app_user}};
+
+comment on column {{schema}}.practice_sessions.prompt_used is
+  'The built prompt WITHOUT the job description. The job description lives only in practice_contexts.';

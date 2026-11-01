@@ -25,7 +25,6 @@ const SESSION_B2 = 'b0000000-0000-4000-8000-0000000000c3';
 
 const NO_PRIVILEGE = /permission denied for table/;
 const hex = (c: string) => c.repeat(64);
-const today = () => new Date().toISOString().slice(0, 10);
 
 for (const schema of ENVS) {
   describe.skipIf(!dbAvailable)(`practice and AI usage tables (${schema})`, () => {
@@ -103,7 +102,8 @@ for (const schema of ENVS) {
           ('${USER_A}', '${SESSION_A}', 'model_json', 7),
           ('${USER_B}', '${SESSION_B}', 'pasted_block', 6);
         insert into ${s}.practice_contexts (user_id, plan_id, job_description) values
-          ('${USER_A}', '${PLAN_A}', 'job of A');
+          ('${USER_A}', '${PLAN_A}', 'job of A'),
+          ('${USER_B}', '${PLAN_B}', 'job of B');
         insert into ${s}.ai_provider_usage (day, provider_id, requests) values
           ('2020-01-05', 'old', 4);
       `);
@@ -122,6 +122,8 @@ for (const schema of ENVS) {
           const own = await asUser(client, s, USER_B, () =>
             client.query(`select user_id from ${s}.${table}`),
           );
+          // Not vacuous: user B has a row in every one of these tables.
+          expect(own.rows.length, table).toBeGreaterThan(0);
           expect(
             own.rows.every((r) => r.user_id === USER_B),
             table,
@@ -203,7 +205,7 @@ for (const schema of ENVS) {
         const ok = await asUser(client, s, USER_A, () =>
           client.query(
             `update ${s}.practice_sessions
-              set status = 'abandoned', pending_turn_id = gen_random_uuid(),
+              set status = 'finished', pending_turn_id = gen_random_uuid(),
                   pending_since = now(), providers_used = '{fake}'
             where user_id = $1`,
             [USER_A],
@@ -424,16 +426,16 @@ for (const schema of ENVS) {
         withClient(TEST_SUPERUSER_URL!, async (c) => {
           const r = await c.query(
             `select coalesce(sum(requests), 0)::int as n from ${s}.ai_provider_usage
-            where provider_id = $1 and day = $2::date`,
-            [provider, today()],
+            where provider_id = $1 and day = (now() at time zone 'utc')::date`,
+            [provider],
           );
           return r.rows[0].n as number;
         });
-      const reserve = (sub: string | null, provider: string, budget: number, day = today()) =>
+      const reserve = (sub: string | null, provider: string, budget: number) =>
         committed(sub, async (client) => {
           const r = await client.query<{ ok: boolean }>(
-            `select ${s}.ai_reserve_provider($1, $2::date, $3) as ok`,
-            [provider, day, budget],
+            `select ${s}.ai_reserve_provider($1, $2) as ok`,
+            [provider, budget],
           );
           return r.rows[0]!.ok;
         });
@@ -483,27 +485,40 @@ for (const schema of ENVS) {
         expect(await used('zero')).toBe(0);
       });
 
-      it('refuses without a user context, with a bad provider id or with a day far from today', async () => {
+      it('refuses without a user context or with a bad provider id', async () => {
         expect(await reserve(null, 'nouser', 5)).toBe(false);
         for (const bad of ['', 'UPPER', 'has space', "x'; drop table t; --", 'a'.repeat(65)]) {
           expect(await reserve(USER_A, bad, 5), bad).toBe(false);
         }
-        expect(await reserve(USER_A, 'farday', 5, '2020-01-01')).toBe(false);
-        expect(await used('farday')).toBe(0);
+      });
+
+      it('does not let the caller choose the day: the old three-argument form does not exist', async () => {
+        await expect(
+          committed(USER_A, (client) =>
+            client.query(`select ${s}.ai_reserve_provider('dayless', '2020-01-01'::date, 5)`),
+          ),
+        ).rejects.toThrow(/function .* does not exist/);
+        expect(await used('dayless')).toBe(0);
+        // A reservation always lands on today's UTC day.
+        expect(await reserve(USER_A, 'dayless', 5)).toBe(true);
+        expect(await used('dayless')).toBe(1);
       });
 
       it('is executable only after SET ROLE to the user role, never by PUBLIC or the login role', async () => {
         await withClient(env.appUrl(s), async (client) => {
-          await expect(
-            client.query(`select ${s}.ai_reserve_provider('x', current_date, 1)`),
-          ).rejects.toThrow(/permission denied for function/);
+          await expect(client.query(`select ${s}.ai_reserve_provider('x', 1)`)).rejects.toThrow(
+            /permission denied for function/,
+          );
           await expect(
             client.query(`select * from ${s}.ai_provider_usage_today()`),
           ).rejects.toThrow(/permission denied for function/);
         });
       });
 
-      it('shows today’s counters to a signed-in user, nothing to anyone else, and not other days', async () => {
+      it('shows today’s counters (the same UTC day as the reserve) to a signed-in user, nothing to anyone else, and not other days', async () => {
+        // Independent of other tests: reserve here, then read it back.
+        expect(await reserve(USER_A, 'meter', 9)).toBe(true);
+        expect(await reserve(USER_A, 'meter', 9)).toBe(true);
         const rows = await committed(USER_B, async (client) => {
           const r = await client.query(
             `select provider_id, requests from ${s}.ai_provider_usage_today() order by 1`,
@@ -511,14 +526,77 @@ for (const schema of ENVS) {
           return r.rows;
         });
         const ids = rows.map((r) => r.provider_id);
-        expect(ids).toEqual(expect.arrayContaining(['burst', 'seq']));
         expect(ids).not.toContain('old');
-        expect(rows.find((r) => r.provider_id === 'burst')?.requests).toBe(7);
+        expect(rows.find((r) => r.provider_id === 'meter')?.requests).toBe(2);
+        expect(Object.keys(rows[0]!).sort()).toEqual(['provider_id', 'requests']);
         const none = await committed(null, async (client) => {
           const r = await client.query(`select * from ${s}.ai_provider_usage_today()`);
           return r.rows;
         });
         expect(none).toEqual([]);
+      });
+    });
+
+    it('never lets a usage counter go down, but lets it go up', async () => {
+      await withClient(TEST_SUPERUSER_URL!, async (c) => {
+        await c.query(`set role owner_${s}`);
+        await c.query(
+          `insert into ${s}.ai_usage_daily (user_id, day, purpose, requests, avoided)
+           values ('${USER_B}', '2026-03-01', 'practice_feedback', 3, 2)`,
+        );
+      });
+      const set = (sql: string) => committed(USER_B, (c) => c.query(sql));
+      const where = `where user_id = '${USER_B}' and day = '2026-03-01'`;
+      for (const assign of ['requests = 2', 'avoided = 1', 'requests = 0, avoided = 0']) {
+        await expect(
+          set(`update ${s}.ai_usage_daily set ${assign} ${where}`),
+          assign,
+        ).rejects.toThrow(/counters cannot decrease/);
+      }
+      await set(`update ${s}.ai_usage_daily set requests = 4, avoided = 2 ${where}`);
+      await set(`update ${s}.ai_usage_daily set requests = requests ${where}`);
+    });
+
+    it('keeps finished and abandoned sessions final', async () => {
+      await withClient(TEST_SUPERUSER_URL!, async (c) => {
+        await c.query(`set role owner_${s}`);
+        await c.query(
+          `insert into ${s}.practice_sessions (user_id, id, plan_id, task_id, practice_kind, persona,
+             channel, status, planned_minutes, ended_at, prompt_used) values
+           ('${USER_B}', 'b0000000-0000-4000-8000-0000000000e1', '${PLAN_B}', 't1', 'k', 'p',
+             'self', 'abandoned', 5, now(), 'x')`,
+        );
+      });
+      for (const [id, to, ended] of [
+        [SESSION_B, 'active', 'null'],
+        [SESSION_B, 'abandoned', 'ended_at'],
+        ['b0000000-0000-4000-8000-0000000000e1', 'active', 'null'],
+        ['b0000000-0000-4000-8000-0000000000e1', 'finished', 'ended_at'],
+      ]) {
+        await expect(
+          committed(USER_B, (c) =>
+            c.query(
+              `update ${s}.practice_sessions set status = '${to}', ended_at = ${ended} where id = '${id}'`,
+            ),
+          ),
+          `${id} -> ${to}`,
+        ).rejects.toThrow(/status .* is final/);
+      }
+      // Re-saving the same final status is not a transition.
+      await committed(USER_B, (c) =>
+        c.query(`update ${s}.practice_sessions set status = 'finished' where id = '${SESSION_B}'`),
+      );
+    });
+
+    it('stores the prompt without the job description and says so in the schema', async () => {
+      await withClient(TEST_SUPERUSER_URL!, async (c) => {
+        const { rows } = await c.query(
+          `select col_description('${s}.practice_sessions'::regclass, a.attnum) as d
+             from pg_attribute a
+            where a.attrelid = '${s}.practice_sessions'::regclass and a.attname = 'prompt_used'`,
+        );
+        expect(rows[0].d).toContain('WITHOUT the job description');
+        expect(rows[0].d).toContain('practice_contexts');
       });
     });
 

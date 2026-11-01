@@ -85,9 +85,16 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
           name: string;
           config: string[] | null;
           public_execute: boolean;
+          grantees: string[];
+          args: string;
         }>(
           `select p.proname as name, p.proconfig as config,
-                  has_function_privilege('public', p.oid, 'execute') as public_execute
+                  pg_get_function_identity_arguments(p.oid) as args,
+                  has_function_privilege('public', p.oid, 'execute') as public_execute,
+                  coalesce((select array_agg(a.grantee::regrole::text order by a.grantee::regrole::text)
+                              from aclexplode(p.proacl) a
+                             where a.privilege_type = 'EXECUTE' and a.grantee <> p.proowner), '{}')
+                    as grantees
              from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = $1 and p.prosecdef
             order by p.proname`,
@@ -106,6 +113,19 @@ describe.skipIf(!dbAvailable)('table convention: RLS enabled and a backup SELECT
           );
           expect(row.public_execute, `${row.name} PUBLIC execute`).toBe(false);
         }
+        // The exact EXECUTE list (besides the owner), so a stray GRANT to the backup role, the
+        // login role or another environment's role fails here.
+        const expected: Record<string, string[]> = {
+          ai_provider_usage_today: [`app_${schema}_user`],
+          ai_reserve_provider: [`app_${schema}_user`],
+          delete_account: [`app_${schema}_user`],
+          provision_user: [`app_${schema}`],
+        };
+        expect(Object.fromEntries(rows.map((r) => [r.name, r.grantees]))).toEqual(expected);
+        // The reserve takes no day: the UTC day is computed inside.
+        expect(rows.find((r) => r.name === 'ai_reserve_provider')!.args).toBe(
+          'p_provider text, p_budget integer',
+        );
       });
     },
   );
