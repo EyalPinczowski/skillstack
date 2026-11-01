@@ -165,11 +165,11 @@ describe.skipIf(!dbAvailable)('day briefing (real Postgres)', () => {
         ['setup', 'Admin task "Set up learning accounts and study workspace": 30 minutes.'],
         [
           'sql1',
-          'Study "Intro to SQL (Kaggle Learn)" on Kaggle: 3 hours today. 3 hours remain in total.',
+          'Study "Intro to SQL (Kaggle Learn)" on Kaggle: 3 hours today. It has 1 lesson. 3 hours remain in total.',
         ],
         [
           'sqlbolt',
-          'Study "SQLBolt interactive lessons" on SQLBolt: 3 hours 20 minutes today. 4 hours remain in total.',
+          'Study "SQLBolt interactive lessons" on SQLBolt: 3 hours 20 minutes today. It has 1 lesson. 4 hours remain in total.',
         ],
       ]);
       expect(body.tasks[1]).toMatchObject({
@@ -179,7 +179,13 @@ describe.skipIf(!dbAvailable)('day briefing (real Postgres)', () => {
         start: '09:30',
         end: '12:40',
         carriedOver: false,
-        lessons: [],
+        lessons: [
+          {
+            title: 'Getting Started With SQL and BigQuery',
+            url: 'https://www.kaggle.com/code/dansbecker/getting-started-with-sql-and-bigquery',
+            needsCheck: false,
+          },
+        ],
         successCriteria: null,
         promptTemplate: null,
       });
