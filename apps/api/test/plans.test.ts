@@ -237,6 +237,96 @@ describe.skipIf(!dbAvailable)('plans and schedule (real Postgres, locally signed
       expect(await sql('select count(*)::int as n from rnd.plans')).toBe(0);
     });
 
+    describe('skillIds', () => {
+      const summaryOf = async (id: string = PLAN) =>
+        testDb.admin(
+          async (c) =>
+            (await c.query('select summary from rnd.plans where id = $1', [id])).rows[0]
+              .summary as Record<string, unknown>,
+        );
+      const demoWithout = { ...demo, skillIds: undefined };
+      const importWithout = async (extra: Record<string, unknown> = {}, id: string = PLAN) =>
+        call('POST', '/plans/import', await asA(), { id, ...demoWithout, ...extra });
+
+      it('stores the ids in plans.summary.skillIds, in order', async () => {
+        const res = await importWithout({ skillIds: ['python', 'sql'] });
+        expect(res.statusCode).toBe(201);
+        expect((await summaryOf()).skillIds).toEqual(['python', 'sql']);
+        expect(res.json().summary.skillIds).toEqual(['python', 'sql']);
+      });
+
+      it('stores the demo plan skills', async () => {
+        expect((await importDemo()).statusCode).toBe(201);
+        expect((await summaryOf()).skillIds).toEqual(demo.skillIds);
+      });
+
+      it('without the field the summary has no skillIds and import is unchanged', async () => {
+        const res = await importWithout();
+        expect(res.statusCode).toBe(201);
+        expect(Object.keys(await summaryOf()).sort()).toEqual(['certs', 'hours']);
+        expect((await importWithout()).statusCode).toBe(200);
+      });
+
+      it('drops repeats and treats an empty list like a missing one', async () => {
+        await importWithout({ skillIds: ['sql', 'python', 'sql'] });
+        expect((await summaryOf()).skillIds).toEqual(['sql', 'python']);
+        await importWithout({ skillIds: [] }, PLAN_2);
+        expect('skillIds' in (await summaryOf(PLAN_2))).toBe(false);
+        // [] hashes like a missing field, and a repeat hashes like the list without it.
+        expect((await importWithout({ skillIds: [] }, PLAN_2)).statusCode).toBe(200);
+        expect((await importWithout()).statusCode).toBe(409);
+        expect((await importWithout({ skillIds: ['sql', 'python'] })).statusCode).toBe(200);
+      });
+
+      it('rejects an unknown id with 422, naming the position and echoing nothing else', async () => {
+        const res = await importWithout({ skillIds: ['sql', 'not-a-skill'] });
+        const body = expectError(res, 422, 'unprocessable');
+        expect(body.error.message).toContain('skillIds.1');
+        expect(body.error.message).toContain('not-a-skill');
+        expect(body.error.message).not.toContain('sql');
+        expect(body.error.message).not.toContain(String(demo.name));
+        expect(await sql('select count(*)::int as n from rnd.plans')).toBe(0);
+      });
+
+      it('cuts a very long unknown id short in the message', async () => {
+        const res = await importWithout({ skillIds: ['x'.repeat(64)] });
+        const body = expectError(res, 422, 'unprocessable');
+        expect(body.error.message).not.toContain('x'.repeat(41));
+      });
+
+      it.each([
+        ['a string', 'sql'],
+        ['a non-string entry', ['sql', 7]],
+        ['an empty id', ['']],
+        ['more than 50 ids', Array.from({ length: 51 }, (_, i) => `s${i}`)],
+      ])('rejects %s with 422 and stores nothing', async (_label, skillIds) => {
+        expectError(await importWithout({ skillIds }), 422, 'unprocessable');
+        expect(await sql('select count(*)::int as n from rnd.plans')).toBe(0);
+      });
+
+      it('same id and same skillIds is a 200 no-op; different skillIds is a 409 and changes nothing', async () => {
+        expect((await importWithout({ skillIds: ['sql'] })).statusCode).toBe(201);
+        expect((await importWithout({ skillIds: ['sql'] })).statusCode).toBe(200);
+        expectError(await importWithout({ skillIds: ['python'] }), 409, 'conflict');
+        expectError(await importWithout(), 409, 'conflict');
+        expect((await summaryOf()).skillIds).toEqual(['sql']);
+        expect(await sql('select count(*)::int as n from rnd.events')).toBe(1);
+      });
+
+      it('another user cannot see the ids, and may import the same ids as their own plan', async () => {
+        await importWithout({ skillIds: ['sql'] });
+        expect((await call('GET', `/plans/${PLAN}`, await asB())).statusCode).toBe(404);
+        expect((await call('GET', '/plans', await asB())).json()).toEqual({ plans: [] });
+        const other = await call('POST', '/plans/import', await asB(), {
+          id: PLAN_2,
+          ...demoWithout,
+          skillIds: ['sql'],
+        });
+        expect(other.statusCode).toBe(201);
+        expect(await sql('select count(*)::int as n from rnd.plans')).toBe(2);
+      });
+    });
+
     it('rejects a body without a valid client plan id (400)', async () => {
       const headers = await asA();
       expectError(

@@ -463,5 +463,6 @@
       "isCertificate": true,
       "certificateName": "Microsoft Certified: Power BI Data Analyst Associate"
     }
-  ]
+  ],
+  "skillIds": ["sql", "excel", "bi-visualization", "python", "interviewing", "jira"]
 }

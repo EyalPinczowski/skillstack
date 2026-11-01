@@ -28,4 +28,4 @@ Tests cover the scheduling and time-settings acceptance cases from spec section 
 pnpm --filter @skillstack/shared export-plan --plan <plan.json> --out <dir> [--today YYYY-MM-DD]
 ```
 
-Writes `schedule.ics` (import into any calendar), `schedule.html` (printable), `log-template.csv` (record actual hours) and `summary.json`. The plan file follows `PlanFileSchema`. Keep personal plans outside this repository.
+Writes `schedule.ics` (import into any calendar), `schedule.html` (printable), `log-template.csv` (record actual hours) and `summary.json`. The plan file follows `PlanFileSchema`; it may carry optional `skillIds` (taxonomy skill ids, max 50) that the API stores for the briefing's podcast pick. Keep personal plans outside this repository.

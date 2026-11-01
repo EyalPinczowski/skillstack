@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { parsePlanFile, TaskSchema, WeekPatternSchema, type PlanFileInput } from './schemas';
+import {
+  MAX_PLAN_SKILL_IDS,
+  parsePlanFile,
+  TaskSchema,
+  WeekPatternSchema,
+  type PlanFileInput,
+} from './schemas';
 
 const pattern = {
   studyWeekdays: [0, 1, 2, 3, 4],
@@ -142,5 +148,32 @@ describe('parsePlanFile', () => {
   it('rejects duplicate ids and unknown dependencies', () => {
     expect(() => parsePlanFile(plan([a, { ...a, order: 2 }]))).toThrow(/Duplicate task id/);
     expect(() => parsePlanFile(plan([{ ...a, dependsOn: ['nope'] }]))).toThrow(/unknown task/);
+  });
+
+  describe('skillIds', () => {
+    const task = { id: 'a', title: 'A', type: 'course' as const, estHours: 2, order: 1 };
+    const withSkills = (skillIds: unknown) =>
+      ({ ...plan([task]), skillIds }) as unknown as PlanFileInput;
+
+    it('is optional and stays absent', () => {
+      expect('skillIds' in parsePlanFile(plan([task]))).toBe(false);
+    });
+
+    it('accepts a list of ids, the empty list and exactly the maximum', () => {
+      expect(parsePlanFile(withSkills(['sql', 'python'])).skillIds).toEqual(['sql', 'python']);
+      expect(parsePlanFile(withSkills([])).skillIds).toEqual([]);
+      const max = Array.from({ length: MAX_PLAN_SKILL_IDS }, (_, i) => `s${i}`);
+      expect(parsePlanFile(withSkills(max)).skillIds).toHaveLength(MAX_PLAN_SKILL_IDS);
+    });
+
+    it.each([
+      ['a string', 'sql'],
+      ['a number inside', ['sql', 7]],
+      ['an empty id', ['']],
+      ['an over-long id', ['x'.repeat(65)]],
+      ['too many ids', Array.from({ length: MAX_PLAN_SKILL_IDS + 1 }, (_, i) => `s${i}`)],
+    ])('rejects %s', (_label, value) => {
+      expect(() => parsePlanFile(withSkills(value))).toThrow();
+    });
   });
 });
