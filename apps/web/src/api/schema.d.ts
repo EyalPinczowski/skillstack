@@ -599,6 +599,36 @@ export interface paths {
                             events: {
                                 [key: string]: unknown;
                             }[];
+                            daySessions: {
+                                [key: string]: unknown;
+                            }[];
+                            scheduleDays: {
+                                [key: string]: unknown;
+                            }[];
+                            dayReviews: {
+                                [key: string]: unknown;
+                            }[];
+                            adjustments: {
+                                [key: string]: unknown;
+                            }[];
+                            practiceContexts: {
+                                [key: string]: unknown;
+                            }[];
+                            practiceSessions: {
+                                [key: string]: unknown;
+                            }[];
+                            practiceMessages: {
+                                [key: string]: unknown;
+                            }[];
+                            practiceFeedback: {
+                                [key: string]: unknown;
+                            }[];
+                            aiUsageDaily: {
+                                [key: string]: unknown;
+                            }[];
+                            aiCache: {
+                                [key: string]: unknown;
+                            }[];
                         };
                     };
                 };
