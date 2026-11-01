@@ -11,10 +11,13 @@ import { briefingRoutes } from '../briefing/routes';
 import { createBriefingService } from '../briefing/service';
 import { daysRoutes } from '../days/routes';
 import { createDaysService } from '../days/service';
+import { practiceRoutes } from '../practice/routes';
+import { createPracticeService } from '../practice/service';
 import { reviewRoutes } from '../reviews/routes';
 import { createReviewService } from '../reviews/service';
 import { schedulingRoutes } from '../scheduling/routes';
 import { createSchedulingService } from '../scheduling/service';
+import { createTaskService } from '../tasks/service';
 import { validateImport } from './import';
 import {
   dayOverrideBody,
@@ -189,4 +192,8 @@ export const planRoutes: FastifyPluginAsyncZod<PlanRoutesOptions> = async (
   app.register(briefingRoutes, { service: createBriefingService(scheduling), userId });
   app.register(daysRoutes, { service: days, userId });
   app.register(reviewRoutes, { service: createReviewService(db!, days, scheduling), userId });
+  app.register(practiceRoutes, {
+    service: createPracticeService(db!, createTaskService(db!, now), now),
+    userId,
+  });
 };
