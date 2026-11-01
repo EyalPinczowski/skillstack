@@ -1,4 +1,4 @@
-import pg from 'pg';
+import { createClient } from './connection';
 import { environmentNames, parseEnvironment } from './names';
 
 export const MIN_PASSWORD_LENGTH = 24;
@@ -22,7 +22,7 @@ export async function setPasswords(options: SetPasswordsOptions): Promise<void> 
     }
   }
 
-  const client = new pg.Client({ connectionString: options.connectionString });
+  const client = createClient(options.connectionString);
   await client.connect();
   try {
     await client.query('begin');

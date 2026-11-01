@@ -1,4 +1,4 @@
-import pg from 'pg';
+import { createClient } from './connection';
 import { environmentNames, parseEnvironment } from './names';
 
 export interface PromoteAdminOptions {
@@ -50,7 +50,7 @@ export function normalizeEmail(value: string): string {
 export async function promoteAdmin(options: PromoteAdminOptions): Promise<PromoteAdminResult> {
   const names = environmentNames(parseEnvironment(options.schema));
   const email = normalizeEmail(options.email);
-  const client = new pg.Client({ connectionString: options.connectionString });
+  const client = createClient(options.connectionString);
   await client.connect();
   try {
     await client.query('begin');

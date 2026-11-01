@@ -30,6 +30,15 @@ Run the **DB migrate** workflow (Actions tab, "Run workflow") for `rnd` first:
 
 Then check the output, and repeat the same three steps with `schema: prod` (approve the run as reviewer). Later releases: `migrate` on `rnd`, try it, then `migrate` on `prod`. The backends then connect as `app_rnd` / `app_prod` with the passwords above.
 
+## Troubleshooting connection errors
+
+The runner gives up connecting after 15 seconds and prints the underlying error codes (never the connection string or password).
+
+- **`ENETUNREACH`, `ETIMEDOUT`, or a `timeout expired` message:** the runner could not reach the host. The direct Supabase host (`db.<ref>.supabase.co`) is IPv6-only and GitHub-hosted runners are likely IPv4-only (needs check). Use the **Session pooler** connection string instead: host `*.pooler.supabase.com`, user `postgres.<ref>`, port `5432`. Copy it from the project's connection settings in the Supabase dashboard (exact menu wording needs check).
+- **`ECONNREFUSED` or `ENOTFOUND`:** wrong host or port in `DATABASE_URL`, or the project is paused (needs check).
+- **`28P01` (password authentication failed):** wrong password or user. On the pooler the user is `postgres.<ref>`, not plain `postgres`.
+- **Special characters in the password:** characters such as `@`, `:`, `/`, `?`, `#` or `%` must be percent-encoded inside the URL (for example `@` becomes `%40`), or the URL is parsed wrongly and authentication fails. Resetting the database password to one without special characters avoids this.
+
 ## Needs check (Supabase)
 
 - Which connection string flavour works from GitHub-hosted runners: direct connections may be IPv6-only, so the pooler (session mode, for DDL) may be required. Not verified.
