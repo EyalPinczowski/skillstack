@@ -73,3 +73,20 @@ describe('cli refuses unsafe invocations (no database needed)', () => {
     expect(result.stdout + result.stderr).not.toContain(FAKE_PASSWORD);
   });
 });
+
+describe('promote-admin hides the address in GitHub Actions (no database needed)', () => {
+  const EMAIL = 'Hidden.Owner@example.com';
+  const gh = { DATABASE_URL: FAKE_URL, GITHUB_ACTIONS: 'true' };
+
+  it('prints no address on the invalid-email path, nor in a connection error', async () => {
+    const bad = await runCli(['promote-admin', '--schema', 'rnd', '--email', 'not an @ email'], gh);
+    expect(bad.code).toBe(2);
+    expect(bad.stdout + bad.stderr).not.toContain('not an @ email');
+    // Valid address, unreachable database: the error must not echo the address either.
+    const down = await runCli(['promote-admin', '--schema', 'rnd', '--email', EMAIL], gh);
+    expect(down.code).toBe(1);
+    const output = (down.stdout + down.stderr).toLowerCase();
+    expect(output).not.toContain(EMAIL.toLowerCase());
+    expect(output).not.toContain('example.com');
+  });
+});

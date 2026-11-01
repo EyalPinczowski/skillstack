@@ -2,7 +2,9 @@ name: DB migrate
 
 # Manual only. Runs the migration runner against one environment (rnd or prod).
 # The credentials live in the GitHub Environments named `rnd` and `prod` (secrets DATABASE_URL,
-# APP_PASSWORD, BACKUP_PASSWORD), never in the repo. Enable "required reviewers" on `prod`.
+# APP_PASSWORD, BACKUP_PASSWORD, and ADMIN_EMAIL for the promote-admin action), never in the repo.
+# ADMIN_EMAIL is a secret, not an input, because inputs are shown on the public run page.
+# Enable "required reviewers" on `prod`.
 on:
   workflow_dispatch:
     inputs:
@@ -14,7 +16,7 @@ on:
       action:
         description: What to run
         type: choice
-        options: [migrate, status, set-passwords]
+        options: [migrate, status, set-passwords, promote-admin]
         required: true
         default: migrate
       dry_run:
@@ -50,12 +52,20 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           BACKUP_PASSWORD: ${{ secrets.BACKUP_PASSWORD }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           SCHEMA: ${{ inputs.schema }}
           ACTION: ${{ inputs.action }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set +x
           args=("$ACTION" --schema "$SCHEMA")
+          if [ "$ACTION" = "promote-admin" ]; then
+            if [ -z "$ADMIN_EMAIL" ]; then
+              echo "The ADMIN_EMAIL secret is empty or missing in the '$SCHEMA' GitHub Environment." >&2
+              exit 1
+            fi
+            args+=(--email "$ADMIN_EMAIL")
+          fi
           if [ "$ACTION" = "migrate" ] && [ "$DRY_RUN" = "true" ]; then
             args+=(--dry-run)
           fi

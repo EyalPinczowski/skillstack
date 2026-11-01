@@ -66,6 +66,12 @@ DATABASE_URL=<admin connection> pnpm --filter @skillstack/db migrate promote-adm
 
 This adds the email to the allowlist and, if the account already exists, sets its role to `admin`. If you have not signed in yet, sign in once (the API creates the account), then run the command again. It refuses to run without `--schema`.
 
+**Without a local database connection (the GitHub route):** the address must not appear in this public repository or in public Actions logs, so it is never a workflow input. Instead:
+
+1. In GitHub, open Settings, Environments, `rnd` (and later `prod`) and add the environment secret `ADMIN_EMAIL` with your address.
+2. Run the **DB migrate** workflow with `schema: rnd`, `action: promote-admin`. It reads the secret, and the CLI prints `(email hidden)` instead of the address when it runs in GitHub Actions. It fails with a clear message if the secret is empty.
+3. If your account does not exist yet, this first run only adds the email to the allowlist. Sign in once, then run the workflow again; the second run sets the admin role.
+
 ## Service key for account deletion
 
 Deleting the Supabase Auth user needs the project's service-role (secret) key, which only the **operational** API on Render holds.

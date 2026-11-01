@@ -18,6 +18,8 @@ Add these three secrets to **each** Environment, with different values for `rnd`
 | `APP_PASSWORD`    | A new random password, at least 24 characters, for the backend login `app_<schema>`.   |
 | `BACKUP_PASSWORD` | A new random password, at least 24 characters, for the backup login `backup_<schema>`. |
 
+Optional fourth secret, only for the `promote-admin` action: `ADMIN_EMAIL` (see "Becoming the first admin" below).
+
 Generate the passwords with a password manager. Never paste them into issues, chat or files.
 
 ## 3. Run order
@@ -29,6 +31,10 @@ Run the **DB migrate** workflow (Actions tab, "Run workflow") for `rnd` first:
 3. `schema: rnd`, `action: set-passwords`: sets the two passwords from the secrets.
 
 Then check the output, and repeat the same three steps with `schema: prod` (approve the run as reviewer). Later releases: `migrate` on `rnd`, try it, then `migrate` on `prod`. The backends then connect as `app_rnd` / `app_prod` with the passwords above.
+
+### Becoming the first admin
+
+Add the environment secret `ADMIN_EMAIL` (your address) to the `rnd` Environment, then run the workflow with `schema: rnd`, `action: promote-admin`. The address is a secret and not an input so it never shows on the public run page, and the output says `(email hidden)`. If the account does not exist yet, the first run only adds the email to the allowlist; after your first sign-in, run it again to set the admin role. Repeat for `prod` later with the secret in the `prod` Environment. Details: `docs/setup/api-auth.md`.
 
 ## Troubleshooting connection errors
 

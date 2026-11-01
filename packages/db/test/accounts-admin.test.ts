@@ -208,6 +208,20 @@ describe.skipIf(!dbAvailable)('allowlist, provision_user and promote-admin (rnd)
       });
       expect(bad.code).toBe(2);
     });
+
+    it('hides the address in GitHub Actions and keeps the text for local runs', async () => {
+      const email = 'Actions.Person@example.com';
+      const args = ['promote-admin', '--schema', 'rnd', '--email', email];
+      const ci = await runCli(args, { DATABASE_URL: TEST_DATABASE_URL!, GITHUB_ACTIONS: 'true' });
+      expect(ci.code).toBe(0);
+      expect(ci.stdout).toContain('(email hidden): added to the allowlist of rnd.');
+      expect((ci.stdout + ci.stderr).toLowerCase()).not.toContain('actions.person');
+      const local = await runCli(args, { DATABASE_URL: TEST_DATABASE_URL! });
+      expect(local.code).toBe(0);
+      expect(local.stdout).toContain(
+        'actions.person@example.com: already on the allowlist of rnd.',
+      );
+    });
   });
 });
 
