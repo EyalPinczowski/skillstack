@@ -93,7 +93,10 @@ describe('hosts (round 3)', () => {
   ])('%s', (_n, text) => {
     const r = redactPii(text);
     expect(r.count).toBe(1);
-    expect(r.text).not.toMatch(/example|jane|Jane|evil/);
+    const expected = text.startsWith('xhttps')
+      ? `x${REDACTED} now`
+      : text.replace(/\S+(?= now$)/, REDACTED);
+    expect(r.text).toBe(expected);
   });
   it('file names and mixed-case code tokens survive', () => {
     for (const t of [
