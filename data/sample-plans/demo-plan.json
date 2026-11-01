@@ -36,7 +36,14 @@
       "externalRef": "catalog:kaggle-intro-sql",
       "source": "import",
       "isCertificate": true,
-      "certificateName": "Intro to SQL (Kaggle Learn certificate)"
+      "certificateName": "Intro to SQL (Kaggle Learn certificate)",
+      "lessons": [
+        {
+          "title": "Getting Started With SQL and BigQuery",
+          "url": "https://www.kaggle.com/code/dansbecker/getting-started-with-sql-and-bigquery",
+          "needsCheck": false
+        }
+      ]
     },
     {
       "id": "sqlbolt",
@@ -48,7 +55,14 @@
       "provider": "SQLBolt",
       "externalRef": "catalog:sqlbolt",
       "source": "import",
-      "notes": "Needs check: link not yet verified; confirm it on the provider's site before relying on it. Needs check: price not verified."
+      "notes": "Needs check: link not yet verified; confirm it on the provider's site before relying on it. Needs check: price not verified.",
+      "lessons": [
+        {
+          "title": "SQL Lesson 1: SELECT queries 101",
+          "url": "https://sqlbolt.com/lesson/select_queries_introduction",
+          "needsCheck": false
+        }
+      ]
     },
     {
       "id": "hr-sql-basic",
@@ -77,7 +91,14 @@
       "externalRef": "catalog:kaggle-advanced-sql",
       "source": "import",
       "isCertificate": true,
-      "certificateName": "Advanced SQL (Kaggle Learn certificate)"
+      "certificateName": "Advanced SQL (Kaggle Learn certificate)",
+      "lessons": [
+        {
+          "title": "Exercise: JOINs and UNIONs",
+          "url": "https://www.kaggle.com/code/alexisbcook/exercise-joins-and-unions",
+          "needsCheck": true
+        }
+      ]
     },
     {
       "id": "hr-sql-int",
@@ -106,7 +127,14 @@
       "externalRef": "catalog:kaggle-python",
       "source": "import",
       "isCertificate": true,
-      "certificateName": "Python (Kaggle Learn certificate)"
+      "certificateName": "Python (Kaggle Learn certificate)",
+      "lessons": [
+        {
+          "title": "Hello, Python",
+          "url": "https://www.kaggle.com/code/colinmorris/hello-python",
+          "needsCheck": false
+        }
+      ]
     },
     {
       "id": "pandas",
@@ -120,7 +148,14 @@
       "externalRef": "catalog:kaggle-pandas",
       "source": "import",
       "isCertificate": true,
-      "certificateName": "Pandas (Kaggle Learn certificate)"
+      "certificateName": "Pandas (Kaggle Learn certificate)",
+      "lessons": [
+        {
+          "title": "Creating, Reading and Writing",
+          "url": "https://www.kaggle.com/code/residentmario/creating-reading-and-writing",
+          "needsCheck": false
+        }
+      ]
     },
     {
       "id": "dataviz",
@@ -134,7 +169,14 @@
       "externalRef": "catalog:kaggle-data-visualization",
       "source": "import",
       "isCertificate": true,
-      "certificateName": "Data Visualization (Kaggle Learn certificate)"
+      "certificateName": "Data Visualization (Kaggle Learn certificate)",
+      "lessons": [
+        {
+          "title": "Hello, Seaborn",
+          "url": "https://www.kaggle.com/code/alexisbcook/hello-seaborn",
+          "needsCheck": false
+        }
+      ]
     },
     {
       "id": "review1",
@@ -220,7 +262,14 @@
       "provider": "Microsoft Learn",
       "externalRef": "catalog:power-bi-learn-path",
       "source": "import",
-      "notes": "Needs check: link not yet verified; confirm it on the provider's site before relying on it. Needs check: price not verified."
+      "notes": "Needs check: link not yet verified; confirm it on the provider's site before relying on it. Needs check: price not verified.",
+      "lessons": [
+        {
+          "title": "Get Started Building With Power BI",
+          "url": "https://learn.microsoft.com/en-us/training/modules/get-started-with-power-bi/",
+          "needsCheck": true
+        }
+      ]
     },
     {
       "id": "pbi-practice",
@@ -463,5 +512,6 @@
       "isCertificate": true,
       "certificateName": "Microsoft Certified: Power BI Data Analyst Associate"
     }
-  ]
+  ],
+  "skillIds": ["sql", "excel", "bi-visualization", "python", "interviewing", "jira"]
 }

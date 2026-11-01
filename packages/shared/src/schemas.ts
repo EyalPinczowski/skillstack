@@ -168,6 +168,9 @@ export const BlockSchema = z.object({
  * The plan file format: how a whole plan is imported (the seed plan, a plan built by the plan
  * builder, or a demo plan). Spec 12.3: the seed is a JSON file in this shared format.
  */
+/** Most skill ids one plan file can carry (they only feed the briefing's podcast pick). */
+export const MAX_PLAN_SKILL_IDS = 50;
+
 export const PlanFileSchema = z.object({
   formatVersion: z.literal(1),
   name: z.string().min(1),
@@ -176,6 +179,11 @@ export const PlanFileSchema = z.object({
   weekPattern: WeekPatternSchema,
   overrides: z.array(DayOverrideSchema).default([]),
   tasks: z.array(TaskSchema).min(1),
+  /**
+   * Optional taxonomy skill ids (`data/catalog/skills.json`) the plan is about. The API checks
+   * them against the taxonomy and stores them in `plans.summary.skillIds`.
+   */
+  skillIds: z.array(z.string().min(1).max(64)).max(MAX_PLAN_SKILL_IDS).optional(),
 });
 
 /** Outcome of one task at the end of a day (spec 3.4): done, partial (with hours) or not done. */

@@ -165,11 +165,11 @@ describe.skipIf(!dbAvailable)('day briefing (real Postgres)', () => {
         ['setup', 'Admin task "Set up learning accounts and study workspace": 30 minutes.'],
         [
           'sql1',
-          'Study "Intro to SQL (Kaggle Learn)" on Kaggle: 3 hours today. 3 hours remain in total.',
+          'Study "Intro to SQL (Kaggle Learn)" on Kaggle: 3 hours today. It has 1 lesson. 3 hours remain in total.',
         ],
         [
           'sqlbolt',
-          'Study "SQLBolt interactive lessons" on SQLBolt: 3 hours 20 minutes today. 4 hours remain in total.',
+          'Study "SQLBolt interactive lessons" on SQLBolt: 3 hours 20 minutes today. It has 1 lesson. 4 hours remain in total.',
         ],
       ]);
       expect(body.tasks[1]).toMatchObject({
@@ -179,7 +179,13 @@ describe.skipIf(!dbAvailable)('day briefing (real Postgres)', () => {
         start: '09:30',
         end: '12:40',
         carriedOver: false,
-        lessons: [],
+        lessons: [
+          {
+            title: 'Getting Started With SQL and BigQuery',
+            url: 'https://www.kaggle.com/code/dansbecker/getting-started-with-sql-and-bigquery',
+            needsCheck: false,
+          },
+        ],
         successCriteria: null,
         promptTemplate: null,
       });
@@ -205,6 +211,7 @@ describe.skipIf(!dbAvailable)('day briefing (real Postgres)', () => {
     });
 
     it('has no podcast when the plan stores no skills', async () => {
+      await rows(`update rnd.plans set summary = summary - 'skillIds' where id = $1`, [PLAN]);
       const body = (await briefing(SUN)).json();
       expect('podcast' in body).toBe(false);
     });
@@ -226,6 +233,23 @@ describe.skipIf(!dbAvailable)('day briefing (real Postgres)', () => {
       expect(BriefingSchema.parse(body).podcast).toEqual(body.podcast);
       // The same day always gives the same show.
       expect((await briefing(SUN)).json().podcast).toEqual(body.podcast);
+    });
+
+    it('an imported plan file with skillIds gets a podcast whose show matches one of them', async () => {
+      // The demo file carries skillIds (python among them), imported through the real route in beforeEach.
+      expect(
+        (await rows(`select summary from rnd.plans where id = $1`, [PLAN]))[0]!.summary,
+      ).toMatchObject({
+        skillIds: demo.skillIds,
+      });
+      const body = (await briefing(SUN)).json();
+      // 'python' is the only demo skill with shows: Command Line Heroes and CoRecursive.
+      expect(['Command Line Heroes', 'CoRecursive']).toContain(body.podcast.title);
+      // A plan file with data-analysis (Freakonomics Radio) and communication (Hidden Brain, ...).
+      const rest = { ...demo, skillIds: undefined };
+      await importPlan(PLAN_RISK, { ...rest, skillIds: ['data-analysis'] });
+      const other = (await briefing(SUN, PLAN_RISK)).json();
+      expect(other.podcast.title).toBe('Freakonomics Radio');
     });
 
     it('has no podcast when the stored skills match no show', async () => {
