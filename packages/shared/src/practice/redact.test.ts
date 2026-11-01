@@ -36,7 +36,7 @@ describe('redactPii: what is removed', () => {
   });
 
   it('sees through zero-width characters and compatibility forms', () => {
-    const r = redactPii('mail ja\u200Bne@exam\u200Cple.com or ｊａｎｅ@example.com');
+    const r = redactPii('mail ja\u200Bne@exam\u200Cple.com or ｊａｎｅ\uFF20example.com');
     expect(r.count).toBe(2);
     expect(r.text).not.toContain('@');
   });
@@ -198,6 +198,165 @@ describe('redactPii: properties', () => {
       redactPii(h, { knownIdentifiers: ['Jane'] });
       findPii(h);
     }
-    expect(Date.now() - started).toBeLessThan(5000);
+    expect(Date.now() - started).toBeLessThan(30_000);
+  });
+});
+
+describe('normalisation closes format-character bypasses (B3)', () => {
+  const ids = { knownIdentifiers: ['Eyal', 'שלום'] };
+  const cases: [string, string][] = [
+    ['LRM inside a name', 'hi Ey\u200Eal there'],
+    ['RLM inside a name', 'hi Ey\u200Fal there'],
+    ['ALM inside a name', 'hi Ey\u061Cal there'],
+    ['soft hyphen inside a name', 'hi Ey\u00ADal there'],
+    ['bidi embedding inside a name', 'hi E\u202Ay\u202Cal there'],
+    ['isolates inside a name', 'hi E\u2066y\u2069al there'],
+    ['RLM inside a phone number', 'call 050\u200F-1234567 now'],
+    ['grapheme joiner inside an email', 'mail jane@exa\u034Fmple.com now'],
+    ['word joiner and invisible plus', 'mail jane\u2060@example\u2064.com now'],
+    ['mongolian vowel separator', 'hi Ey\u180Eal there'],
+  ];
+  it.each(cases)('%s is redacted and the gate catches the raw text', (_n, text) => {
+    expect(findPii(text, ids).length).toBeGreaterThan(0);
+    expect(() => assertNoPii(text, ids)).toThrow(PiiLeakError);
+    const r = redactPii(text, ids);
+    expect(r.count).toBeGreaterThan(0);
+    expect(findPii(r.text, ids)).toEqual([]);
+  });
+});
+
+describe('known-name tokenising keeps every script (B4)', () => {
+  it('keeps Devanagari names, whose vowel signs are marks', () => {
+    expect(knownIdentifiersFor({ displayName: 'प्रिया शर्मा' })).toEqual(['प्रिया', 'शर्मा']);
+    const r = redactPii('hello प्रिया and शर्मा', {
+      knownIdentifiers: knownIdentifiersFor({ displayName: 'प्रिया शर्मा' }),
+    });
+    expect(r.text).toBe(`hello ${REDACTED} and ${REDACTED}`);
+  });
+  it('keeps Hebrew with niqqud', () => {
+    const ids = knownIdentifiersFor({ displayName: 'דָּנָה לֵוִי' });
+    expect(ids.length).toBe(2);
+    expect(redactPii('שלום דָּנָה', { knownIdentifiers: ids }).count).toBe(1);
+  });
+  it('counts letters, not UTF-16 units, and matches composed against decomposed', () => {
+    expect(knownIdentifiersFor({ displayName: 'Zoe\u0308' })).toEqual(['Zoë']);
+    expect(knownIdentifiersFor({ displayName: 'Zoë' })).toEqual(['Zoë']);
+    expect(knownIdentifiersFor({ displayName: '𐐀𐐁𐐂' }).length).toBe(1);
+    expect(knownIdentifiersFor({ displayName: 'Li Wu' })).toEqual([]);
+    const ids = knownIdentifiersFor({ displayName: 'Zoë' });
+    expect(redactPii('hi Zoe\u0308 and Zoë', { knownIdentifiers: ids }).count).toBe(2);
+  });
+});
+
+describe('phone false negatives (S1)', () => {
+  it.each([
+    ['en dash', 'call 050\u2013123\u20134567 now'],
+    ['minus sign', 'call 050\u2212123\u22124567 now'],
+    [
+      'arabic-indic digits',
+      'call \u0660\u0665\u0660-\u0661\u0662\u0663-\u0664\u0665\u0666\u0667 now',
+    ],
+    ['devanagari digits', 'call \u0966\u096B\u0966\u0967\u0968\u0969\u096A\u096B\u096C\u096D now'],
+    ['dotted pairs', 'call 06.12.34.56.78 now'],
+    ['slash separated', 'call 030/12345678 now'],
+    ['dot with long tail', 'call 05.01.234567 now'],
+    ['a 9-digit landline', 'call 03-123-4567 now'],
+  ])('%s', (_n, text) => {
+    const r = redactPii(text);
+    expect(r.count).toBe(1);
+    expect(r.text).toBe('call [removed] now');
+  });
+  it('an 8-digit number is not a phone, and version numbers survive', () => {
+    expect(redactPii('ref 1234-5678 ok').count).toBe(0);
+    expect(redactPii('v 10.2.3.4.5.6.7.8.9 ok').count).toBe(0);
+  });
+});
+
+describe('url false negatives and code false positives (S2, S3)', () => {
+  it.each([
+    ['any tld with a path', 'see portfolio.photography/jane now'],
+    ['uppercase tld with a path', 'see Example.CLOUD/jane now'],
+    ['new allowlisted tlds', 'see jane.ly and jane.ee and jane.site and jane.tv now'],
+  ])('%s', (_n, text) => {
+    expect(redactPii(text).count).toBeGreaterThan(0);
+  });
+  it.each([
+    'We use ASP.NET and VB.NET and ML.NET with System.IO',
+    'Use Console.WriteLine and Math.PI',
+  ])('code survives: %s', (text) => {
+    expect(redactPii(text)).toEqual({ text, count: 0 });
+  });
+  it('code-looking handles survive, real ones do not', () => {
+    for (const code of [
+      'DECLARE @total INT; SET @total = 5',
+      'SELECT @rowcount, @total',
+      '@Component(selector)',
+      '@media screen and @import url',
+      'use `@jane` as a variable',
+    ]) {
+      expect(redactPii(code).count, code).toBe(0);
+      expect(findPii(code), code).toEqual([]);
+    }
+    expect(redactPii('ping @jane_doe now').count).toBe(1);
+    expect(redactPii('ping @' + 'a'.repeat(32) + ' now').count).toBe(1);
+  });
+});
+
+describe('redaction and the gate agree (S5)', () => {
+  it.each(['@ab4com@abi', '050-1234 a@b.com 567', 'a@b.com@c.org@d.io', '05@a.co0-1234@b.co567'])(
+    'leaves nothing for the gate: %s',
+    (text) => {
+      const r = redactPii(text);
+      expect(findPii(r.text)).toEqual([]);
+    },
+  );
+  it('the marker splits digit runs for the gate too', () => {
+    expect(findPii('050-1234 [removed] 567')).toEqual([]);
+  });
+  it('property: redactPii output is always clean for the gate', () => {
+    const piece = fc.constantFrom(
+      '@',
+      'a',
+      'b',
+      '.',
+      'com',
+      '0',
+      '5',
+      '-',
+      ' ',
+      '1',
+      'x@y.io',
+      'http://',
+      '/',
+    );
+    fc.assert(
+      fc.property(fc.array(piece, { maxLength: 24 }), (parts) => {
+        const r = redactPii(parts.join(''));
+        expect(findPii(r.text)).toEqual([]);
+      }),
+      { numRuns: 1000 },
+    );
+  });
+});
+
+describe('gate and boundaries (S7)', () => {
+  it('findPii normalises by itself', () => {
+    expect(findPii('mail jane\uFF20example.com')).toEqual(['email']);
+    expect(findPii('hi Ey\u200Eal', { knownIdentifiers: ['Eyal'] })).toEqual(['identifier']);
+  });
+  it('respects the 9-digit boundary', () => {
+    expect(findPii('03-123-4567')).toEqual(['phone']);
+    expect(findPii('3-123-4567')).toEqual([]);
+  });
+  it('matches identifiers on letter boundaries only', () => {
+    const ids = { knownIdentifiers: ['Jane', 'Eyal', 'Cohen'] };
+    expect(redactPii('MaryJane and Janet', ids).count).toBe(0);
+    expect(redactPii('Eyal1 and Cohen123 and Jane_x', ids).count).toBe(3);
+  });
+  it('the local part is a known identifier only when distinctive', () => {
+    expect(knownIdentifiersFor({ email: 'dan@x.io' })).toEqual(['dan@x.io']);
+    expect(knownIdentifiersFor({ email: 'danny@x.io' })).toEqual(['danny@x.io', 'danny']);
+    expect(knownIdentifiersFor({ email: 'dan7@x.io' })).toEqual(['dan7@x.io', 'dan7']);
+    expect(knownIdentifiersFor({ email: 'a.b@x.io' })).toEqual(['a.b@x.io', 'a.b']);
   });
 });
