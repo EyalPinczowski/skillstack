@@ -757,6 +757,7 @@ The balance: **prepare the seams, not the features.** That means interfaces with
 | **General AI assistant** (beyond the practice window) | Keeps the AI layer small and the free quota for practice. | AI only inside practices. |
 | **Paid AI providers** (e.g. Claude API) | The $0 constraint. | Free-tier providers only. |
 | **Profile import from CV / LinkedIn** – read the user's CV and LinkedIn profile, extract skills, experience and level, and pre-fill the goal wizard with suggested skills, gaps and courses | Needs file parsing, careful PII handling, and a good skill taxonomy first. | Manual "Where are you now?" step in the wizard (3.0). |
+| **LinkedIn progress posts** – optionally connect the user's LinkedIn account and publish updates on their improvement (a finished course, a certificate earned, a milestone) | Needs a LinkedIn developer app and OAuth, and LinkedIn's API access terms and rate limits have not been checked (needs check). Posting is outward-facing, so it needs its own consent and review flow. | Manual: the app shows a ready-to-copy update text the user can paste into LinkedIn themselves. |
 
 ### 12.2 Permanent guardrails (stay true even when extending)
 Future features must respect these. They are rules, not missing features.
