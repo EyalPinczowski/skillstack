@@ -73,6 +73,16 @@ export interface BuiltPracticePrompt {
   redactions: number;
 }
 
+const OUR_TAGS = /<\/?\s*(?:task|job_description|last_focus|week_topics)\s*>/gi;
+
+/**
+ * Keeps user text from posing as structure: our section tags are removed and runs of three or
+ * more equals signs (the feedback block markers) are shortened.
+ */
+export function neutraliseMarkup(text: string): string {
+  return text.replace(OUR_TAGS, '').replace(/={3,}/g, '=');
+}
+
 /**
  * Redacts one piece of user-controlled text and verifies the result. Use it for every chat turn
  * too. Throws `PiiLeakError` when something personal survives.
@@ -99,7 +109,7 @@ export function buildPracticePrompt(
   const clean = (text: string): string => {
     const r = sanitizeUserText(text, options);
     redactions += r.count;
-    return r.text;
+    return neutraliseMarkup(r.text);
   };
 
   const persona =
@@ -110,34 +120,30 @@ export function buildPracticePrompt(
   const lines: string[] = [
     `Practice: ${persona.label}`,
     `Time available: ${parsed.task.plannedMinutes} minutes`,
-    `Task: ${clean(parsed.task.title)}`,
+    '<task>',
+    `Title: ${clean(parsed.task.title)}`,
   ];
   if (parsed.task.promptTemplate) {
-    lines.push('', 'What I want from this session:', clean(parsed.task.promptTemplate));
+    lines.push('What I want from this session:', clean(parsed.task.promptTemplate));
   }
   if (parsed.task.howToSteps.length > 0) {
-    lines.push('', 'Steps I plan to follow:');
+    lines.push('Steps I plan to follow:');
     parsed.task.howToSteps.forEach((step, i) => lines.push(`${i + 1}. ${clean(step)}`));
   }
+  lines.push('</task>');
   if (parsed.jobDescription) {
-    lines.push(
-      '',
-      'Job description for the role I am preparing for:',
-      clean(parsed.jobDescription),
-    );
+    lines.push('', '<job_description>', clean(parsed.jobDescription), '</job_description>');
   }
   if (parsed.nextFocus) {
-    lines.push(
-      '',
-      `What I wanted to work on after my last session of this kind: ${clean(parsed.nextFocus)}`,
-    );
+    lines.push('', '<last_focus>', clean(parsed.nextFocus), '</last_focus>');
   }
   if (parsed.weekTopics.length > 0) {
-    lines.push('', 'Topics I am studying this week:');
+    lines.push('', '<week_topics>');
     for (const topic of parsed.weekTopics) {
       const title = clean(topic.title);
       lines.push(topic.skillId ? `- ${title} (${clean(topic.skillId)})` : `- ${title}`);
     }
+    lines.push('</week_topics>');
   }
   const user = lines.join('\n');
   const copyText = `${persona.system}\n\n${user}\n\n${FEEDBACK_BLOCK_INSTRUCTION}`;

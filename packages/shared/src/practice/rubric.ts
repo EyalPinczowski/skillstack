@@ -2,7 +2,13 @@
  * The "No AI" path: a rubric self-check built from the task's own steps, scored by a rule.
  * Pure and deterministic. Nothing here marks a task done; the user does that.
  */
-import type { Feedback } from './feedback';
+import {
+  FeedbackSchema,
+  MAX_IMPROVE_LENGTH,
+  MAX_NEXT_FOCUS_LENGTH,
+  MAX_STRENGTHS_LENGTH,
+  type Feedback,
+} from './feedback';
 
 /**
  * Editorial, generic self-check steps for a practice whose plan task has no steps of its own.
@@ -15,40 +21,64 @@ export const GENERIC_RUBRIC_STEPS: readonly string[] = [
   'I wrote down one thing to do better next time',
 ];
 
-/** `round(10 * checked / total, 1)`; 0 when there are no steps. */
-export function scoreRubric(steps: readonly string[], checked: readonly boolean[]): number {
-  if (steps.length === 0) return 0;
-  const done = steps.filter((_, i) => checked[i] === true).length;
-  return Math.round((10 * done * 10) / steps.length) / 10;
+interface RubricItem {
+  text: string;
+  done: boolean;
 }
 
-function listSteps(steps: readonly string[]): string {
-  return steps.join('; ');
+/** Blank steps are dropped; `checked` stays aligned with the original step positions. */
+function rubricItems(steps: readonly string[], checked: readonly boolean[]): RubricItem[] {
+  return steps
+    .map((text, i) => ({ text: text.trim(), done: checked[i] === true }))
+    .filter((item) => item.text.length > 0);
 }
+
+/** `round(10 * checked / total, 1)`; 0 when there are no steps. Blank steps are ignored. */
+export function scoreRubric(steps: readonly string[], checked: readonly boolean[]): number {
+  const items = rubricItems(steps, checked);
+  if (items.length === 0) return 0;
+  const done = items.filter((item) => item.done).length;
+  return Math.round((10 * done * 10) / items.length) / 10;
+}
+
+function cut(text: string, max: number): string {
+  return text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}\u2026`;
+}
+
+const listSteps = (items: readonly RubricItem[]): string => items.map((i) => i.text).join('; ');
 
 /**
  * Feedback for a finished self-check, built from templates. `next_focus` is the first
- * unchecked step. Null when there are no steps (nothing to score).
+ * unchecked step. Null when there are no steps (nothing to score). Always schema-valid: long
+ * step lists and long step texts are cut to the feedback limits.
  */
 export function rubricFeedback(
   steps: readonly string[],
   checked: readonly boolean[],
 ): Feedback | null {
-  if (steps.length === 0) return null;
-  const done = steps.filter((_, i) => checked[i] === true);
-  const open = steps.filter((_, i) => checked[i] !== true);
-  return {
+  const items = rubricItems(steps, checked);
+  if (items.length === 0) return null;
+  const done = items.filter((item) => item.done);
+  const open = items.filter((item) => !item.done);
+  return FeedbackSchema.parse({
     score: scoreRubric(steps, checked),
-    strengths:
+    strengths: cut(
       done.length > 0
-        ? `Self-check: you completed ${done.length} of ${steps.length} steps (${listSteps(done)}).`
-        : `Self-check: none of the ${steps.length} steps were ticked off yet.`,
-    improve:
+        ? `Self-check: you completed ${done.length} of ${items.length} steps (${listSteps(done)}).`
+        : `Self-check: none of the ${items.length} steps were ticked off yet.`,
+      MAX_STRENGTHS_LENGTH,
+    ),
+    improve: cut(
       open.length > 0
         ? `Still open: ${listSteps(open)}.`
         : 'Nothing left open on the self-check. Try a harder version next time.',
-    next_focus: open[0] ?? 'Repeat this practice with a harder version.',
-  };
+      MAX_IMPROVE_LENGTH,
+    ),
+    next_focus: cut(
+      open[0]?.text ?? 'Repeat this practice with a harder version.',
+      MAX_NEXT_FOCUS_LENGTH,
+    ),
+  });
 }
 
 /** Turns a user-entered score (for example 34 out of 40 on a timed test) into 0 to 10. */

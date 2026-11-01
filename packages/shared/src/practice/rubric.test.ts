@@ -59,6 +59,34 @@ describe('rubricFeedback', () => {
   });
 });
 
+describe('rubricFeedback is always schema-valid (S4)', () => {
+  it('copes with 30 steps of 500 characters', () => {
+    const steps = Array.from({ length: 30 }, (_, i) => `${i}`.padEnd(500, 'x'));
+    const all = rubricFeedback(
+      steps,
+      steps.map(() => true),
+    );
+    expect(FeedbackSchema.safeParse(all).success).toBe(true);
+    const none = rubricFeedback(steps, []);
+    expect(FeedbackSchema.safeParse(none).success).toBe(true);
+    expect(none?.next_focus.length).toBeLessThanOrEqual(500);
+    expect(none?.improve.length).toBeLessThanOrEqual(2000);
+    const some = rubricFeedback(
+      steps,
+      steps.map((_, i) => i < 10),
+    );
+    expect(FeedbackSchema.safeParse(some).success).toBe(true);
+  });
+  it('ignores blank steps and keeps ticks aligned with the original positions', () => {
+    const f = rubricFeedback(['', 'Plan', '   ', 'Write'], [false, true, true, false]);
+    expect(f?.score).toBe(5);
+    expect(f?.next_focus).toBe('Write');
+    expect(rubricFeedback(['', ' '], [true, true])).toBeNull();
+    expect(scoreRubric(['', ' '], [true, true])).toBe(0);
+    expect(FeedbackSchema.safeParse(rubricFeedback(['  a  '], [false])).success).toBe(true);
+  });
+});
+
 describe('normalizeEnteredScore', () => {
   it('scales to 0 to 10', () => {
     expect(normalizeEnteredScore(34, 40)).toBe(8.5);
@@ -117,8 +145,8 @@ describe('trendsByKind', () => {
   });
   it('keeps input order for equal timestamps, shows a drop as negative, and handles empty input', () => {
     const t = trendsByKind([
-      { practiceKind: 'a', score: 9, at: 'x' },
-      { practiceKind: 'a', score: 4, at: 'x' },
+      { practiceKind: 'a', score: 9, at: '2026-11-01' },
+      { practiceKind: 'a', score: 4, at: '2026-11-01' },
     ]);
     expect(t[0]?.scores).toEqual([9, 4]);
     expect(t[0]?.delta).toBe(-5);

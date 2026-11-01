@@ -4,7 +4,7 @@ export interface PracticeScorePoint {
   practiceKind: string;
   /** 0 to 10; null for a practice saved as free text, which is not part of a trend. */
   score: number | null;
-  /** ISO timestamp or local date; entries are ordered by it. */
+  /** ISO timestamp or local date (anything `Date.parse` reads); entries are ordered by it. */
   at: string;
 }
 
@@ -26,7 +26,8 @@ const round1 = (n: number): number => Math.round(n * 10) / 10;
 export function trendsByKind(points: readonly PracticeScorePoint[]): KindTrend[] {
   const byKind = new Map<string, PracticeScorePoint[]>();
   for (const p of points) {
-    if (p.score === null) continue;
+    if (p.score === null || !Number.isFinite(p.score) || p.score < 0 || p.score > 10) continue;
+    if (Number.isNaN(Date.parse(p.at))) continue;
     const list = byKind.get(p.practiceKind) ?? [];
     list.push(p);
     byKind.set(p.practiceKind, list);
@@ -35,7 +36,7 @@ export function trendsByKind(points: readonly PracticeScorePoint[]): KindTrend[]
   for (const [practiceKind, list] of byKind) {
     // Array.prototype.sort is stable, so equal timestamps keep their input order.
     const scores = [...list]
-      .sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0))
+      .sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
       .map((p) => p.score as number);
     const last = scores[scores.length - 1] as number;
     const previous = scores[scores.length - 2];

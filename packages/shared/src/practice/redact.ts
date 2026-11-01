@@ -84,7 +84,7 @@ const CSS_AT_RULES = new Set([
   'namespace',
   'property',
 ]);
-const PHONE = /(?<!\d)\+?\(?\d[\d \t().\/-]{7,40}\d/g;
+const PHONE = /(?<!\d)\+?\(?\d[\d \t()./-]{7,40}\d/g;
 const ISO_DATE = /(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)/g;
 const SLASH_DATE = /(?<!\d)\d{1,2}[./]\d{1,2}[./]\d{4}(?!\d)/g;
 const MIN_PHONE_DIGITS = 9;
