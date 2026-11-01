@@ -484,3 +484,16 @@ export async function importHashOf(
   );
   return rows[0]?.hash ?? null;
 }
+
+/** The plan's time zone (from its week pattern); null when the plan has no week pattern yet. */
+export async function planTimezone(
+  ctx: UserContext,
+  userId: string,
+  planId: string,
+): Promise<string | null> {
+  const { rows } = await ctx.client.query<{ timezone: string }>(
+    `select timezone from ${ctx.schema}.week_patterns where user_id = $1 and plan_id = $2`,
+    [userId, planId],
+  );
+  return rows[0]?.timezone ?? null;
+}
