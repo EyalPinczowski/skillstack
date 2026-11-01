@@ -20,6 +20,7 @@ export function createBriefingService(scheduling: SchedulingService) {
         overrides: day.overrides,
         warnings: day.warnings,
         finishDate: day.finishDate,
+        skillIds: day.skillIds,
       });
     },
   };

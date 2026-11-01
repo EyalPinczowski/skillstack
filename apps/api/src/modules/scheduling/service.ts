@@ -24,6 +24,12 @@ export interface ScheduleView {
   warnings: ScheduleResult['warnings'];
 }
 
+/** The plan's skill ids from `plans.summary.skillIds`; anything that is not a string list is dropped. */
+export function planSkillIds(summary: Record<string, unknown>): string[] {
+  const raw = summary.skillIds;
+  return Array.isArray(raw) ? raw.filter((s): s is string => typeof s === 'string') : [];
+}
+
 /** Everything the day briefing needs about one day, from one consistent read. */
 export interface DayPlanView {
   date: string;
@@ -40,6 +46,8 @@ export interface DayPlanView {
   tasks: Task[];
   pattern: WeekPattern;
   overrides: DayOverride[];
+  /** Skill ids stored on the plan (`plans.summary.skillIds`); empty when the plan has none. */
+  skillIds: string[];
 }
 
 export interface PreviewChanges {
@@ -187,6 +195,7 @@ export function createSchedulingService(db: Database, days: DaysService) {
           earlierBlocks,
           pattern: c.pattern,
           overrides: c.plan.overrides,
+          skillIds: planSkillIds(c.plan.summary),
         };
         const snap = c.snapshots.find((s) => s.date === date);
         if (snap) {
