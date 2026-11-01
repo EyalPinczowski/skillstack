@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "generated": "2026-10-29",
     "currency_default": "USD",
+    "attribution": "Some skills and roles adapt information from the O*NET 31.0 Database by USDOL/ETA, used under CC BY 4.0 (O*NET is a trademark of USDOL/ETA; Skillstack has modified the information and USDOL/ETA has not approved or endorsed it), and from the ESCO classification of the European Commission (adapted by Skillstack, marked as modified). See README.md, Attribution.",
     "verification_note": "url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
   },
   "skills": [
@@ -612,6 +613,334 @@
         "rfp",
         "technical discovery",
         "solution design"
+      ]
+    },
+    {
+      "id": "erp-systems",
+      "name": "ERP systems",
+      "category": "operations",
+      "keywords": [
+        "erp",
+        "sap",
+        "oracle",
+        "netsuite",
+        "microsoft dynamics",
+        "odoo",
+        "s/4hana",
+        "purchase order",
+        "sales order",
+        "goods receipt",
+        "master data",
+        "inventory module"
+      ]
+    },
+    {
+      "id": "customer-service",
+      "name": "Customer service",
+      "category": "customer",
+      "keywords": [
+        "customer service",
+        "customer support",
+        "customer care",
+        "tickets",
+        "sla",
+        "csat",
+        "de-escalation",
+        "first response time",
+        "live chat",
+        "complaint handling",
+        "refunds",
+        "empathy"
+      ]
+    },
+    {
+      "id": "ticketing-helpdesk",
+      "name": "Ticketing & helpdesk tools",
+      "category": "tools",
+      "keywords": [
+        "ticketing",
+        "helpdesk",
+        "service desk",
+        "zendesk",
+        "freshdesk",
+        "servicenow",
+        "jira service management",
+        "queue",
+        "tier 1",
+        "tier 2",
+        "escalation",
+        "knowledge base",
+        "macros"
+      ]
+    },
+    {
+      "id": "office-administration",
+      "name": "Office administration",
+      "category": "business",
+      "keywords": [
+        "scheduling",
+        "calendar management",
+        "travel arrangements",
+        "minute taking",
+        "filing",
+        "document management",
+        "correspondence",
+        "meeting coordination",
+        "front desk",
+        "office supplies",
+        "data entry"
+      ]
+    },
+    {
+      "id": "bookkeeping-accounting",
+      "name": "Bookkeeping & accounting",
+      "category": "business",
+      "keywords": [
+        "bookkeeping",
+        "accounts payable",
+        "accounts receivable",
+        "general ledger",
+        "reconciliation",
+        "trial balance",
+        "double-entry",
+        "journal entries",
+        "invoicing",
+        "quickbooks",
+        "xero",
+        "month-end close"
+      ]
+    },
+    {
+      "id": "procurement-sourcing",
+      "name": "Procurement & sourcing",
+      "category": "operations",
+      "keywords": [
+        "procurement",
+        "purchasing",
+        "sourcing",
+        "rfq",
+        "rfp",
+        "purchase order",
+        "supplier selection",
+        "vendor management",
+        "contract administration",
+        "tender",
+        "spend analysis",
+        "buyer"
+      ]
+    },
+    {
+      "id": "demand-inventory-planning",
+      "name": "Demand & inventory planning",
+      "category": "operations",
+      "keywords": [
+        "demand planning",
+        "forecasting",
+        "inventory management",
+        "reorder point",
+        "safety stock",
+        "wms",
+        "warehouse",
+        "replenishment",
+        "s&op",
+        "stockout",
+        "abc analysis"
+      ]
+    },
+    {
+      "id": "data-privacy-confidentiality",
+      "name": "Data privacy & confidentiality",
+      "category": "security",
+      "keywords": [
+        "gdpr",
+        "data protection",
+        "privacy",
+        "confidentiality",
+        "pii",
+        "data retention",
+        "consent",
+        "access control",
+        "nda",
+        "information security policy",
+        "data subject request"
+      ]
+    },
+    {
+      "id": "change-management",
+      "name": "Change management",
+      "category": "management",
+      "keywords": [
+        "change management",
+        "adoption",
+        "rollout",
+        "stakeholder buy-in",
+        "communication plan",
+        "training plan",
+        "change request",
+        "resistance to change",
+        "kotter",
+        "prosci"
+      ]
+    },
+    {
+      "id": "stakeholder-management",
+      "name": "Stakeholder management",
+      "category": "management",
+      "keywords": [
+        "stakeholder",
+        "stakeholder management",
+        "stakeholder analysis",
+        "raci",
+        "expectations",
+        "status updates",
+        "alignment",
+        "executive communication",
+        "sponsor",
+        "cross-functional"
+      ]
+    },
+    {
+      "id": "work-management-tools",
+      "name": "Work management tools",
+      "category": "tools",
+      "keywords": [
+        "asana",
+        "trello",
+        "monday.com",
+        "smartsheet",
+        "airtable",
+        "notion",
+        "confluence",
+        "ms project",
+        "microsoft planner",
+        "kanban board",
+        "task tracker",
+        "sharepoint",
+        "basecamp"
+      ]
+    },
+    {
+      "id": "windows-m365-admin",
+      "name": "Windows & Microsoft 365 admin",
+      "category": "technical",
+      "keywords": [
+        "active directory",
+        "entra id",
+        "azure ad",
+        "windows server",
+        "group policy",
+        "microsoft 365",
+        "office 365",
+        "exchange",
+        "intune",
+        "google workspace admin",
+        "user provisioning",
+        "mfa",
+        "powershell"
+      ]
+    },
+    {
+      "id": "security-monitoring-siem",
+      "name": "Security monitoring & SIEM",
+      "category": "technical",
+      "keywords": [
+        "siem",
+        "splunk",
+        "sentinel",
+        "log analysis",
+        "alert triage",
+        "ids",
+        "ips",
+        "edr",
+        "soar",
+        "vulnerability scanning",
+        "qualys",
+        "threat detection",
+        "mitre att&ck"
+      ]
+    },
+    {
+      "id": "content-social-marketing",
+      "name": "Content & social media marketing",
+      "category": "marketing",
+      "keywords": [
+        "content marketing",
+        "social media",
+        "content strategy",
+        "copywriting",
+        "wordpress",
+        "canva",
+        "editorial calendar",
+        "community management",
+        "seo content",
+        "blog"
+      ]
+    },
+    {
+      "id": "market-research",
+      "name": "Market research",
+      "category": "marketing",
+      "keywords": [
+        "market research",
+        "competitor analysis",
+        "customer segmentation",
+        "surveys",
+        "personas",
+        "voice of customer",
+        "swot",
+        "market sizing",
+        "focus groups"
+      ]
+    },
+    {
+      "id": "data-cleaning-etl",
+      "name": "Data cleaning & ETL",
+      "category": "data",
+      "keywords": [
+        "data cleaning",
+        "data wrangling",
+        "etl",
+        "elt",
+        "data pipeline",
+        "deduplication",
+        "data quality",
+        "power query",
+        "alteryx",
+        "ssis",
+        "missing values",
+        "normalization"
+      ]
+    },
+    {
+      "id": "negotiation",
+      "name": "Negotiation",
+      "category": "soft",
+      "keywords": [
+        "negotiation",
+        "negotiate",
+        "contract terms",
+        "pricing discussion",
+        "win-win",
+        "objection handling",
+        "concessions",
+        "vendor negotiation"
+      ]
+    },
+    {
+      "id": "training-facilitation",
+      "name": "Training & facilitation",
+      "category": "people",
+      "keywords": [
+        "training",
+        "facilitation",
+        "onboarding",
+        "curriculum",
+        "lms",
+        "instructional design",
+        "workshop",
+        "train the trainer",
+        "enablement",
+        "learning objectives"
       ]
     }
   ]

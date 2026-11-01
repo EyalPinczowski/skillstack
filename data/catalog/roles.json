@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "generated": "2026-10-29",
     "currency_default": "USD",
+    "attribution": "Some skills and roles adapt information from the O*NET 31.0 Database by USDOL/ETA, used under CC BY 4.0 (O*NET is a trademark of USDOL/ETA; Skillstack has modified the information and USDOL/ETA has not approved or endorsed it), and from the ESCO classification of the European Commission (adapted by Skillstack, marked as modified). See README.md, Attribution.",
     "verification_note": "url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
   },
   "roles": [
@@ -99,17 +100,17 @@
           "lean-six-sigma-yellow-belt",
           "google-project-management",
           "excel-skills-for-business",
+          "wharton-intro-operations-management",
           "power-bi-learn-path",
-          "pl-300",
-          "itil-4-foundation"
+          "pl-300"
         ],
         "optional": [
+          "asana-certification-program",
+          "itil-4-foundation",
+          "ms-learn-data-analytics-microsoft",
           "zapier-ai-builder",
           "cfi-fundamentals-challenge",
-          "mos-excel",
-          "lean-six-sigma-white-belt",
-          "hackerrank-sql-basic",
-          "hackerrank-sql-intermediate"
+          "mos-excel"
         ],
         "practice": [
           "practice-ops-assignment",
@@ -119,11 +120,11 @@
         ],
         "free_only": [
           "power-bi-learn-path",
+          "ms-learn-data-analytics-microsoft",
           "zapier-ai-builder",
           "cfi-fundamentals-challenge",
           "lean-six-sigma-white-belt",
-          "hackerrank-sql-basic",
-          "hackerrank-sql-intermediate"
+          "hackerrank-sql-basic"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -215,20 +216,19 @@
         "core": [
           "google-it-support",
           "itil-4-foundation",
+          "comptia-a-plus-v15",
           "postman-api-fundamentals",
           "hackerrank-rest-api",
           "kaggle-intro-sql",
-          "hackerrank-sql-basic",
-          "aws-cloud-practitioner-essentials",
-          "aws-cloud-practitioner"
+          "hackerrank-sql-basic"
         ],
         "optional": [
+          "aws-cloud-practitioner",
           "jira-fundamentals",
           "sqlbolt",
           "az-900",
-          "cisco-networking-basics",
-          "linux-foundation-intro-linux",
-          "google-tech-writing"
+          "atlassian-get-started-with-jira-live",
+          "coursera-agile-with-atlassian-jira"
         ],
         "practice": [
           "practice-techops-assignment",
@@ -336,12 +336,12 @@
           "jira-fundamentals"
         ],
         "optional": [
+          "atlassian-get-started-with-jira-live",
+          "coursera-agile-with-atlassian-jira",
           "psm-1",
           "pendo-pm-basics",
           "pendo-product-analytics",
-          "google-ux-design",
-          "iiba-ecba",
-          "google-project-management-audit"
+          "google-ux-design"
         ],
         "practice": [
           "practice-product-prd",
@@ -353,9 +353,9 @@
           "pendo-ai-for-pm",
           "productled-plg-fundamentals",
           "jira-fundamentals",
+          "atlassian-get-started-with-jira-live",
           "pendo-pm-basics",
-          "google-project-management-audit",
-          "scrum-guide"
+          "google-project-management-audit"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -433,15 +433,19 @@
       "suggested_path": {
         "core": [
           "google-project-management",
+          "asana-certification-program",
           "capm",
           "jira-fundamentals",
-          "scrum-guide",
-          "scrum-open",
-          "psm-1",
-          "excel-skills-for-business"
+          "atlassian-get-started-with-jira-live",
+          "coursera-agile-with-atlassian-jira"
         ],
         "optional": [
-          "google-project-management-audit"
+          "google-project-management-audit",
+          "psm-1",
+          "excel-skills-for-business",
+          "asana-structure-work-with-projects",
+          "openlearn-effective-communication-workplace",
+          "coursera-packt-getting-started-with-jira"
         ],
         "practice": [
           "practice-ops-assignment",
@@ -452,8 +456,10 @@
         "free_only": [
           "google-project-management-audit",
           "jira-fundamentals",
-          "scrum-guide",
-          "scrum-open"
+          "atlassian-get-started-with-jira-live",
+          "asana-structure-work-with-projects",
+          "openlearn-effective-communication-workplace",
+          "scrum-guide"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -531,16 +537,15 @@
           "power-bi-learn-path",
           "pl-300",
           "excel-skills-for-business",
-          "kaggle-python",
-          "kaggle-pandas"
+          "ms-learn-data-analytics-microsoft"
         ],
         "optional": [
+          "coursera-stanford-introduction-to-statistics",
+          "coursera-uva-basic-statistics",
+          "kaggle-pandas",
           "kaggle-data-visualization",
-          "hackerrank-sql-basic",
-          "hackerrank-sql-intermediate",
-          "tableau-desktop-foundations",
-          "kaggle-intro-sql",
-          "kaggle-advanced-sql"
+          "kaggle-data-cleaning",
+          "hackerrank-sql-basic"
         ],
         "practice": [
           "practice-data-assignment",
@@ -550,11 +555,11 @@
         ],
         "free_only": [
           "power-bi-learn-path",
+          "ms-learn-data-analytics-microsoft",
           "kaggle-pandas",
           "kaggle-data-visualization",
-          "hackerrank-sql-basic",
-          "hackerrank-sql-intermediate",
-          "kaggle-intro-sql"
+          "kaggle-data-cleaning",
+          "hackerrank-sql-basic"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -746,10 +751,12 @@
           "northwestern-art-of-sales"
         ],
         "optional": [
+          "zendesk-customer-service-essentials",
+          "wharton-improving-communication-skills",
+          "openlearn-effective-communication-workplace",
           "anthropic-ai-fluency",
           "google-ai-essentials",
-          "productled-plg-fundamentals",
-          "apollo-social-selling"
+          "hubspot-service-hub-admin"
         ],
         "practice": [
           "practice-star-bank",
@@ -762,8 +769,8 @@
           "hubspot-customer-success",
           "hubspot-inbound-sales",
           "northwestern-art-of-sales",
-          "anthropic-ai-fluency",
-          "productled-plg-fundamentals"
+          "zendesk-customer-service-essentials",
+          "openlearn-effective-communication-workplace"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -836,7 +843,7 @@
           "apollo-cold-email",
           "apollo-outbound-program",
           "apollo-social-selling",
-          "google-ai-essentials"
+          "wharton-improving-communication-skills"
         ],
         "practice": [
           "practice-sales-roleplay",
@@ -933,16 +940,18 @@
         "core": [
           "google-digital-marketing",
           "google-ads-search",
+          "semrush-academy-seo-courses",
+          "semrush-seo-essentials-exam",
           "hubspot-inbound-marketing",
-          "hubspot-email-marketing",
-          "google-analytics-cert",
-          "anthropic-ai-fluency"
+          "hubspot-email-marketing"
         ],
         "optional": [
+          "google-analytics-cert",
+          "coursera-stanford-introduction-to-statistics",
+          "coursera-uva-basic-statistics",
+          "anthropic-ai-fluency",
           "google-ai-essentials",
-          "pendo-product-analytics",
-          "productled-plg-fundamentals",
-          "khan-statistics"
+          "hubspot-content-marketing-cert"
         ],
         "practice": [
           "practice-star-bank",
@@ -951,11 +960,11 @@
         ],
         "free_only": [
           "google-ads-search",
+          "semrush-academy-seo-courses",
+          "semrush-seo-essentials-exam",
           "hubspot-inbound-marketing",
           "hubspot-email-marketing",
-          "google-analytics-cert",
-          "anthropic-ai-fluency",
-          "productled-plg-fundamentals"
+          "google-analytics-cert"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1028,18 +1037,20 @@
         "core": [
           "jira-fundamentals",
           "istqb-ctfl",
+          "atlassian-get-started-with-jira-live",
+          "coursera-agile-with-atlassian-jira",
           "scrum-guide",
           "scrum-open",
           "psm-1",
-          "postman-api-fundamentals",
-          "hackerrank-rest-api",
-          "kaggle-intro-sql",
-          "hackerrank-sql-basic"
+          "postman-api-fundamentals"
         ],
         "optional": [
+          "hackerrank-rest-api",
+          "hackerrank-sql-basic",
+          "kaggle-intro-sql",
           "github-foundations",
           "google-tech-writing",
-          "linux-foundation-intro-linux"
+          "google-technical-writing-two"
         ],
         "practice": [
           "practice-qa-test-plan",
@@ -1049,11 +1060,11 @@
         ],
         "free_only": [
           "jira-fundamentals",
+          "atlassian-get-started-with-jira-live",
           "postman-api-fundamentals",
           "hackerrank-rest-api",
           "hackerrank-sql-basic",
-          "kaggle-intro-sql",
-          "google-tech-writing"
+          "kaggle-intro-sql"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1121,22 +1132,32 @@
         "core": [
           "google-cybersecurity",
           "comptia-security-plus",
+          "tryhackme-soc-level-1",
+          "cisco-cybersecurity-essentials",
           "cisco-intro-cybersecurity",
-          "isc2-cc",
-          "cisco-networking-basics",
-          "linux-foundation-intro-linux"
+          "isc2-cc"
         ],
-        "optional": [],
+        "optional": [
+          "sc-900",
+          "cisco-networking-basics",
+          "linux-foundation-intro-linux",
+          "netacad-networking-essentials",
+          "coursera-abcs-of-gdpr",
+          "splunk-intro-to-splunk-elearning"
+        ],
         "practice": [
           "practice-soc-alert-triage",
+          "sc-900-practice-assessment",
           "practice-star-bank",
-          "practice-mock-behavioral",
-          "practice-mock-english"
+          "practice-mock-behavioral"
         ],
         "free_only": [
+          "tryhackme-soc-level-1",
+          "cisco-cybersecurity-essentials",
           "cisco-intro-cybersecurity",
           "cisco-networking-basics",
-          "linux-foundation-intro-linux"
+          "linux-foundation-intro-linux",
+          "netacad-networking-essentials"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1204,28 +1225,32 @@
         "core": [
           "google-cybersecurity",
           "google-it-support",
+          "comptia-a-plus-v15",
           "comptia-security-plus",
-          "itil-4-foundation",
-          "aws-cloud-practitioner-essentials",
-          "aws-cloud-practitioner",
-          "az-900"
+          "cisco-cybersecurity-essentials",
+          "itil-4-foundation"
         ],
         "optional": [
+          "aws-cloud-practitioner",
+          "az-900",
           "cisco-networking-basics",
+          "aws-cloud-practitioner-essentials",
           "cisco-intro-cybersecurity",
-          "isc2-cc",
-          "linux-foundation-intro-linux"
+          "isc2-cc"
         ],
         "practice": [
           "practice-star-bank",
           "practice-mock-english",
-          "practice-mock-behavioral"
+          "practice-mock-behavioral",
+          "sc-900-practice-assessment"
         ],
         "free_only": [
+          "cisco-cybersecurity-essentials",
           "cisco-networking-basics",
           "aws-cloud-practitioner-essentials",
           "cisco-intro-cybersecurity",
-          "linux-foundation-intro-linux"
+          "linux-foundation-intro-linux",
+          "netacad-networking-essentials"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1298,20 +1323,22 @@
       ],
       "suggested_path": {
         "core": [
+          "coursera-skillup-business-analysis-process-modeling",
+          "openlearn-business-communication-swot",
           "iiba-ecba",
+          "ms-learn-data-analytics-microsoft",
           "scrum-guide",
           "scrum-open",
           "psm-1",
-          "lean-six-sigma-yellow-belt",
-          "lean-six-sigma-white-belt",
-          "kaggle-intro-sql",
-          "hackerrank-sql-basic",
-          "google-tech-writing"
+          "lean-six-sigma-yellow-belt"
         ],
         "optional": [
-          "jira-fundamentals",
-          "wharton-financial-accounting",
-          "wharton-corporate-finance-audit"
+          "wharton-improving-communication-skills",
+          "coursera-ibm-introduction-to-business-analysis",
+          "coursera-fundamentals-of-business-analysis",
+          "openlearn-effective-communication-workplace",
+          "lean-six-sigma-white-belt",
+          "hackerrank-sql-basic"
         ],
         "practice": [
           "practice-requirements-doc",
@@ -1320,12 +1347,12 @@
           "practice-mock-behavioral"
         ],
         "free_only": [
+          "openlearn-business-communication-swot",
+          "ms-learn-data-analytics-microsoft",
+          "openlearn-effective-communication-workplace",
           "lean-six-sigma-white-belt",
           "hackerrank-sql-basic",
-          "google-tech-writing",
-          "jira-fundamentals",
-          "kaggle-intro-sql",
-          "wharton-financial-accounting"
+          "google-tech-writing"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1400,16 +1427,17 @@
           "power-bi-learn-path",
           "pl-300",
           "salesforce-admin",
+          "ms-learn-data-analytics-microsoft",
           "hubspot-sales-software",
-          "salesforce-sdr-certificate",
-          "apollo-outbound-program"
+          "salesforce-sdr-certificate"
         ],
         "optional": [
+          "apollo-outbound-program",
           "trailhead-sales-fundamentals",
           "hackerrank-sql-basic",
           "make-automation-foundation",
           "zapier-ai-builder",
-          "kaggle-intro-sql"
+          "kaggle-data-cleaning"
         ],
         "practice": [
           "practice-crm-cleanup",
@@ -1418,12 +1446,12 @@
           "practice-automation-build"
         ],
         "free_only": [
+          "ms-learn-data-analytics-microsoft",
           "hubspot-sales-software",
           "apollo-outbound-program",
           "trailhead-sales-fundamentals",
           "hackerrank-sql-basic",
-          "make-automation-foundation",
-          "zapier-ai-builder"
+          "make-automation-foundation"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1490,10 +1518,13 @@
           "hrci-aphr-prep-free",
           "hrci-aphr",
           "shrm-cp",
-          "anthropic-ai-fluency"
+          "wharton-improving-communication-skills"
         ],
         "optional": [
           "umn-recruiting-onboarding-audit",
+          "coursera-hrci-learning-and-development",
+          "openlearn-effective-communication-workplace",
+          "anthropic-ai-fluency",
           "google-ai-essentials",
           "mos-excel"
         ],
@@ -1507,7 +1538,9 @@
           "hireez-recruiting-academy",
           "umn-recruiting-onboarding-audit",
           "hrci-aphr-prep-free",
-          "anthropic-ai-fluency"
+          "openlearn-effective-communication-workplace",
+          "anthropic-ai-fluency",
+          "google-workspace-learning-center"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1556,6 +1589,10 @@
         {
           "skill": "interviewing",
           "weight": 3
+        },
+        {
+          "skill": "erp-systems",
+          "weight": 3
         }
       ],
       "jd_keywords": [
@@ -1577,12 +1614,17 @@
           "lean-six-sigma-yellow-belt",
           "power-bi-learn-path",
           "pl-300",
-          "mos-excel",
-          "mitx-supply-chain-fundamentals",
-          "lean-six-sigma-white-belt"
+          "rutgers-supply-chain-management-spec",
+          "wharton-intro-operations-management",
+          "ms-learn-data-analytics-microsoft"
         ],
         "optional": [
-          "khan-statistics"
+          "rutgers-supply-chain-operations",
+          "mos-excel",
+          "mitx-supply-chain-fundamentals",
+          "rutgers-supply-chain-sourcing",
+          "rutgers-global-procurement-sourcing-spec",
+          "lean-six-sigma-white-belt"
         ],
         "practice": [
           "practice-inventory-case",
@@ -1591,9 +1633,12 @@
           "practice-mock-behavioral"
         ],
         "free_only": [
+          "rutgers-supply-chain-operations",
+          "ms-learn-data-analytics-microsoft",
           "mitx-supply-chain-fundamentals",
           "lean-six-sigma-white-belt",
-          "khan-statistics"
+          "odoo-self-paced-course",
+          "sap-learning-two-tier-erp"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1637,6 +1682,10 @@
         {
           "skill": "interviewing",
           "weight": 3
+        },
+        {
+          "skill": "erp-systems",
+          "weight": 3
         }
       ],
       "jd_keywords": [
@@ -1658,13 +1707,16 @@
           "excel-skills-for-business",
           "power-bi-learn-path",
           "pl-300",
-          "quickbooks-proadvisor",
-          "xero-advisor"
+          "ms-learn-data-analytics-microsoft",
+          "quickbooks-proadvisor"
         ],
         "optional": [
+          "xero-advisor",
           "mos-excel",
           "wharton-financial-accounting",
-          "wharton-corporate-finance-audit"
+          "wharton-corporate-finance-audit",
+          "openlearn-intro-bookkeeping-accounting",
+          "openlearn-fundamentals-of-accounting"
         ],
         "practice": [
           "practice-variance-analysis",
@@ -1674,6 +1726,7 @@
         ],
         "free_only": [
           "cfi-fundamentals-challenge",
+          "ms-learn-data-analytics-microsoft",
           "quickbooks-proadvisor",
           "xero-advisor",
           "wharton-financial-accounting",
@@ -1743,14 +1796,16 @@
       "suggested_path": {
         "core": [
           "northwestern-art-of-sales",
+          "coursera-core-sales-techniques-customer-engagement",
           "aws-cloud-practitioner-essentials",
           "aws-cloud-practitioner",
           "postman-api-fundamentals",
           "gcp-cloud-digital-leader",
-          "az-900",
-          "hackerrank-rest-api"
+          "az-900"
         ],
         "optional": [
+          "hackerrank-rest-api",
+          "wharton-improving-communication-skills",
           "github-foundations"
         ],
         "practice": [
@@ -1856,6 +1911,926 @@
           "anthropic-ai-fluency",
           "n8n-essentials"
         ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "customer-support-specialist",
+      "title": "Customer Support Specialist",
+      "aliases": [
+        "Customer Service Representative",
+        "Customer Support Representative",
+        "Customer Care Representative",
+        "Client Services Representative",
+        "Customer Service Specialist",
+        "Customer Service Agent",
+        "Call Center Representative",
+        "Member Services Representative",
+        "Support Agent"
+      ],
+      "summary": "Answers customers by chat, email and phone, resolves or escalates issues in a ticketing tool, and keeps records. A common entry point into customer success, technical support and operations.",
+      "skills": [
+        {
+          "skill": "customer-service",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "ticketing-helpdesk",
+          "weight": 4
+        },
+        {
+          "skill": "crm",
+          "weight": 4
+        },
+        {
+          "skill": "data-privacy-confidentiality",
+          "weight": 3
+        },
+        {
+          "skill": "incident-management",
+          "weight": 2
+        },
+        {
+          "skill": "sales",
+          "weight": 2
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 2
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "customer service",
+        "tickets",
+        "zendesk",
+        "crm",
+        "sla",
+        "csat",
+        "escalation",
+        "live chat",
+        "inbound calls",
+        "de-escalation",
+        "knowledge base",
+        "first response time"
+      ],
+      "overlap_note": "Overlaps customer-success (account management) and it-sysadmin 'help desk' titles; resolve by JD keywords: 'renewal', 'QBR', 'health score' -> customer-success; 'tickets', 'queue', 'SLA' -> this role. Needs check: Aliases are O*NET 'sample of reported job titles' (short titles only). jd_keywords are Skillstack wording from the task lists, needs review against real postings.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "43-4051.00",
+          "title": "Customer Service Representatives",
+          "url": "https://www.onetonline.org/link/details/43-4051.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "customer service representative (4225.1)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/13d1b2b4-99dd-44da-9734-c9f74bae18f7&language=en"
+        },
+        {
+          "system": "ESCO",
+          "title": "call centre agent (5244.1)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/0ededdc2-050a-4ec3-8e70-6295105fcd19&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "zendesk-customer-service-essentials",
+          "hubspot-service-hub-admin",
+          "trailhead-agentforce-service-basics",
+          "trailhead-service-small-business",
+          "hubspot-ai-driven-customer-service",
+          "hubspot-scale-support-path"
+        ],
+        "optional": [
+          "wharton-improving-communication-skills",
+          "openlearn-effective-communication-workplace",
+          "coursera-abcs-of-gdpr"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "zendesk-customer-service-essentials",
+          "hubspot-service-hub-admin",
+          "trailhead-agentforce-service-basics",
+          "trailhead-service-small-business",
+          "hubspot-ai-driven-customer-service",
+          "hubspot-scale-support-path"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "technical-support-specialist",
+      "title": "Technical Support Specialist",
+      "aliases": [
+        "Help Desk Analyst",
+        "Help Desk Technician",
+        "IT Support Specialist",
+        "Desktop Support Technician",
+        "Technical Support Engineer (Tier 1/2)",
+        "Application Support Analyst"
+      ],
+      "summary": "First and second line support for software or devices: reproduce issues, troubleshoot by following runbooks, log tickets and escalate to engineering. Bridges customer service and IT operations.",
+      "skills": [
+        {
+          "skill": "it-support",
+          "weight": 5
+        },
+        {
+          "skill": "ticketing-helpdesk",
+          "weight": 5
+        },
+        {
+          "skill": "customer-service",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 4
+        },
+        {
+          "skill": "windows-m365-admin",
+          "weight": 3
+        },
+        {
+          "skill": "networking",
+          "weight": 3
+        },
+        {
+          "skill": "jira",
+          "weight": 3
+        },
+        {
+          "skill": "crm",
+          "weight": 3
+        },
+        {
+          "skill": "incident-management",
+          "weight": 3
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        },
+        {
+          "skill": "linux",
+          "weight": 2
+        },
+        {
+          "skill": "sql",
+          "weight": 2
+        },
+        {
+          "skill": "apis",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "troubleshooting",
+        "help desk",
+        "ticketing",
+        "tier 1",
+        "tier 2",
+        "remote support",
+        "windows",
+        "active directory",
+        "knowledge base",
+        "sla",
+        "escalation",
+        "customer-facing",
+        "servicenow",
+        "jira service management"
+      ],
+      "overlap_note": "Close to it-sysadmin ('IT Support / Junior Sysadmin') and technical-operations. Proposed split: internal IT/infrastructure -> it-sysadmin; customer/application-facing troubleshooting -> this role. Owner may prefer to merge it into it-sysadmin. Needs check: Aliases are O*NET sample titles plus two Skillstack additions (Technical Support Engineer, Application Support Analyst) that need check. Alias(es) Technical Support Specialist left out because another role already uses them.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "15-1232.00",
+          "title": "Computer User Support Specialists",
+          "url": "https://www.onetonline.org/link/details/15-1232.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "ICT help desk agent (3512.1)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/aaeec9a7-dc57-4485-890c-86b3eef735f9&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "zendesk-customer-service-essentials",
+          "hubspot-service-hub-admin",
+          "comptia-a-plus-v15",
+          "servicenow-welcome-to-servicenow",
+          "sc-900",
+          "atlassian-get-started-with-jira-live"
+        ],
+        "optional": [
+          "coursera-packt-getting-started-with-jira",
+          "netacad-networking-essentials"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral",
+          "sc-900-practice-assessment"
+        ],
+        "free_only": [
+          "zendesk-customer-service-essentials",
+          "hubspot-service-hub-admin",
+          "servicenow-welcome-to-servicenow",
+          "atlassian-get-started-with-jira-live",
+          "netacad-networking-essentials"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "administrative-coordinator",
+      "title": "Administrative Coordinator",
+      "aliases": [
+        "Administrative Assistant",
+        "Administrative Coordinator",
+        "Office Administrator",
+        "Administrative Specialist",
+        "Office Assistant",
+        "Staff Assistant",
+        "Administrative Support Assistant",
+        "Department Secretary"
+      ],
+      "summary": "Keeps an office or team running: calendars, meetings, travel, documents, supplies, simple bookkeeping and correspondence. Often the first step toward operations, HR or project coordination.",
+      "skills": [
+        {
+          "skill": "office-administration",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 4
+        },
+        {
+          "skill": "data-privacy-confidentiality",
+          "weight": 3
+        },
+        {
+          "skill": "work-management-tools",
+          "weight": 3
+        },
+        {
+          "skill": "bookkeeping-accounting",
+          "weight": 2
+        },
+        {
+          "skill": "project-management",
+          "weight": 2
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 2
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "scheduling",
+        "calendar management",
+        "travel arrangements",
+        "microsoft office",
+        "correspondence",
+        "filing",
+        "minutes",
+        "front desk",
+        "expense reports",
+        "data entry",
+        "confidentiality"
+      ],
+      "overlap_note": "Overlaps project-coordinator and people-operations in duties; distinct by emphasis on office routine. Needs check: O*NET page: knowledge list was cut off after the third item in the fetch; the weights above rely on the items that were visible.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "43-6014.00",
+          "title": "Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",
+          "url": "https://www.onetonline.org/link/details/43-6014.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "administrative assistant (3343.1)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/044d78cc-f62f-4532-83a5-8e04f2889652&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "google-workspace-learning-center",
+          "openlearn-business-communication-swot",
+          "asana-structure-work-with-projects",
+          "wharton-improving-communication-skills",
+          "openlearn-effective-communication-workplace",
+          "coursera-abcs-of-gdpr"
+        ],
+        "optional": [
+          "openlearn-intro-bookkeeping-accounting"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "google-workspace-learning-center",
+          "openlearn-business-communication-swot",
+          "asana-structure-work-with-projects",
+          "openlearn-effective-communication-workplace",
+          "openlearn-intro-bookkeeping-accounting"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "bookkeeping-clerk",
+      "title": "Bookkeeper / Accounts Payable & Receivable Clerk",
+      "aliases": [
+        "Bookkeeper",
+        "Accounting Clerk",
+        "Accounts Payable Clerk",
+        "Accounts Payable Specialist",
+        "Accounts Receivable Clerk",
+        "Accounting Associate",
+        "Billing Clerk"
+      ],
+      "summary": "Records transactions, issues invoices, reconciles accounts and supports month-end in accounting software. Entry point for finance-operations and junior financial analyst work.",
+      "skills": [
+        {
+          "skill": "bookkeeping-accounting",
+          "weight": 5
+        },
+        {
+          "skill": "excel",
+          "weight": 5
+        },
+        {
+          "skill": "finance-basics",
+          "weight": 4
+        },
+        {
+          "skill": "erp-systems",
+          "weight": 3
+        },
+        {
+          "skill": "communication",
+          "weight": 3
+        },
+        {
+          "skill": "data-privacy-confidentiality",
+          "weight": 2
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 2
+        },
+        {
+          "skill": "process-improvement",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "accounts payable",
+        "accounts receivable",
+        "reconciliation",
+        "general ledger",
+        "invoicing",
+        "quickbooks",
+        "xero",
+        "month-end",
+        "journal entries",
+        "payroll",
+        "sap"
+      ],
+      "overlap_note": "Overlaps finance-operations (junior financial analyst); this role is ledger-and-transaction work, finance-operations is reporting and modelling. Needs check: Job Zone 3 per O*NET (medium preparation). Alias Accounting Assistant left out because finance-operations already uses it.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "43-3031.00",
+          "title": "Bookkeeping, Accounting, and Auditing Clerks",
+          "url": "https://www.onetonline.org/link/details/43-3031.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "bookkeeper (3313.2)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/c3aae59e-1441-4b3e-bdd1-6da50dc7cf42&language=en"
+        },
+        {
+          "system": "ESCO",
+          "title": "billing clerk (4311.1)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/bafbc672-0ad9-41af-9de8-db0c91a24f9b&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "openlearn-intro-bookkeeping-accounting",
+          "openlearn-fundamentals-of-accounting",
+          "aipb-certified-bookkeeper"
+        ],
+        "optional": [],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "openlearn-intro-bookkeeping-accounting",
+          "openlearn-fundamentals-of-accounting"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "procurement-specialist",
+      "title": "Procurement Specialist / Buyer",
+      "aliases": [
+        "Buyer",
+        "Purchasing Agent",
+        "Procurement Specialist",
+        "Purchasing Administrator",
+        "Contract Administrator",
+        "Procurement Coordinator"
+      ],
+      "summary": "Finds and evaluates suppliers, issues requests for quotes and purchase orders, negotiates terms and tracks orders in an ERP. Common route into supply chain and operations.",
+      "skills": [
+        {
+          "skill": "procurement-sourcing",
+          "weight": 5
+        },
+        {
+          "skill": "negotiation",
+          "weight": 4
+        },
+        {
+          "skill": "supply-chain",
+          "weight": 4
+        },
+        {
+          "skill": "erp-systems",
+          "weight": 4
+        },
+        {
+          "skill": "excel",
+          "weight": 4
+        },
+        {
+          "skill": "communication",
+          "weight": 4
+        },
+        {
+          "skill": "finance-basics",
+          "weight": 3
+        },
+        {
+          "skill": "demand-inventory-planning",
+          "weight": 3
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 3
+        },
+        {
+          "skill": "operations-management",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "procurement",
+        "purchasing",
+        "sourcing",
+        "rfq",
+        "rfp",
+        "purchase orders",
+        "suppliers",
+        "vendor management",
+        "contracts",
+        "negotiation",
+        "erp",
+        "sap",
+        "cost savings"
+      ],
+      "overlap_note": "Overlaps supply-chain-analyst ('Procurement Analyst', 'Purchasing Coordinator' are aliases there). Owner decision: split or merge. Needs check: ESCO match is a manager occupation (1324.3.4.2); used for skills only. O*NET Job Zone is 4, so entry-level postings may be titled 'Purchasing Coordinator' or 'Buyer I' (needs check). Alias(es) Purchasing Coordinator left out because another role already uses them.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "13-1023.00",
+          "title": "Purchasing Agents, Except Wholesale, Retail, and Farm Products",
+          "url": "https://www.onetonline.org/link/details/13-1023.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "purchasing manager (1324.3.4.2)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/377865f0-c327-4599-8c7e-d428c6588edf&language=en"
+        },
+        {
+          "system": "ESCO",
+          "title": "supply chain manager (1324.3.4)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/aacc3918-b5d3-484b-9480-5d29aa550d74&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "rutgers-supply-chain-management-spec",
+          "rutgers-global-procurement-sourcing-spec",
+          "odoo-self-paced-course",
+          "rutgers-supply-chain-sourcing",
+          "coursera-procurement-specs-to-pos",
+          "sap-learning-sourcing-procurement"
+        ],
+        "optional": [
+          "rutgers-supply-chain-operations",
+          "rutgers-procurement-basics",
+          "sap-learning-two-tier-erp",
+          "wharton-intro-operations-management"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "odoo-self-paced-course",
+          "sap-learning-sourcing-procurement",
+          "rutgers-supply-chain-operations",
+          "sap-learning-two-tier-erp"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "marketing-coordinator",
+      "title": "Marketing Coordinator",
+      "aliases": [
+        "Marketing Coordinator",
+        "Marketing Specialist",
+        "Marketing Assistant",
+        "Content Marketing Specialist",
+        "Social Media Coordinator",
+        "Market Research Analyst",
+        "Communications Specialist",
+        "Content Strategist"
+      ],
+      "summary": "Plans and runs campaigns and content, tracks results, and gathers customer and competitor information. Broader and more content-oriented than the existing growth-marketing role.",
+      "skills": [
+        {
+          "skill": "digital-marketing",
+          "weight": 5
+        },
+        {
+          "skill": "content-social-marketing",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "market-research",
+          "weight": 4
+        },
+        {
+          "skill": "web-analytics",
+          "weight": 4
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 3
+        },
+        {
+          "skill": "crm",
+          "weight": 3
+        },
+        {
+          "skill": "excel",
+          "weight": 3
+        },
+        {
+          "skill": "work-management-tools",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "bi-visualization",
+          "weight": 2
+        },
+        {
+          "skill": "statistics",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "campaigns",
+        "content",
+        "social media",
+        "seo",
+        "email marketing",
+        "hubspot",
+        "google analytics",
+        "brand",
+        "copywriting",
+        "market research",
+        "editorial calendar",
+        "wordpress"
+      ],
+      "overlap_note": "Overlaps growth-marketing ('Marketing Operations' alias also sits in revenue-operations). 'Market Research Analyst' title is analytic and could instead map to data-analyst; resolve by JD keywords. Needs check: O*NET page: skills section was truncated in the fetch; Essential Skills list used.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "13-1161.00",
+          "title": "Market Research Analysts and Marketing Specialists",
+          "url": "https://www.onetonline.org/link/details/13-1161.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "market research analyst (2431.11)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/66fb9704-0d56-4673-8e69-7823816b73e1&language=en"
+        },
+        {
+          "system": "ESCO",
+          "title": "online community manager (2432.5)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/137b1d11-c4bc-4016-89ba-45345d4c71f0&language=en"
+        },
+        {
+          "system": "ESCO",
+          "title": "marketeer (2431.10)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/4791e217-d607-40d5-9f84-df1d0a071cbc&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "semrush-academy-seo-courses",
+          "hubspot-content-marketing-cert",
+          "hubspot-social-media-cert",
+          "openlearn-business-communication-swot",
+          "semrush-seo-essentials-exam",
+          "google-digital-garage-digital-marketing"
+        ],
+        "optional": [
+          "google-analytics-academy-help",
+          "tableau-free-training-videos"
+        ],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "semrush-academy-seo-courses",
+          "hubspot-content-marketing-cert",
+          "hubspot-social-media-cert",
+          "openlearn-business-communication-swot",
+          "semrush-seo-essentials-exam",
+          "google-digital-garage-digital-marketing"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "technical-writer",
+      "title": "Technical Writer",
+      "aliases": [
+        "Technical Writer",
+        "Documentation Specialist",
+        "Documentation Writer",
+        "Content Developer",
+        "Knowledge Base Writer",
+        "Technical Communicator",
+        "Requirements Writer"
+      ],
+      "summary": "Writes and maintains product, process and API documentation, help-centre articles and release notes, working with engineers and support. Natural fit for people with strong writing and structured thinking.",
+      "skills": [
+        {
+          "skill": "technical-writing",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "work-management-tools",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "ux-basics",
+          "weight": 2
+        },
+        {
+          "skill": "apis",
+          "weight": 2
+        },
+        {
+          "skill": "git",
+          "weight": 2
+        },
+        {
+          "skill": "project-management",
+          "weight": 2
+        },
+        {
+          "skill": "jira",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "documentation",
+        "technical writing",
+        "api documentation",
+        "knowledge base",
+        "user guides",
+        "release notes",
+        "markdown",
+        "confluence",
+        "dita",
+        "style guide",
+        "docs-as-code"
+      ],
+      "overlap_note": "Overlaps the technical-writing skill used in qa-tester, business-analyst etc.; as a role it is new. Needs check: O*NET sample titles are broader than software documentation (include Grant Writer, Medical Writer); aliases keep only the software-relevant ones plus ESCO's 'technical communicator'.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "27-3042.00",
+          "title": "Technical Writers",
+          "url": "https://www.onetonline.org/link/details/27-3042.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "technical communicator (2641.4.4)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/8cb59bc4-1f39-477e-beea-effed12d186c&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "google-technical-writing-two",
+          "wharton-improving-communication-skills"
+        ],
+        "optional": [],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": [
+          "google-technical-writing-two"
+        ]
+      },
+      "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
+    },
+    {
+      "id": "learning-development-coordinator",
+      "title": "Learning & Development Coordinator",
+      "aliases": [
+        "Training Coordinator",
+        "Training Specialist",
+        "Learning and Development Specialist",
+        "Learning and Development Coordinator",
+        "Corporate Trainer",
+        "Enablement Coordinator"
+      ],
+      "summary": "Plans and delivers employee or customer training: needs assessment, materials, scheduling, delivery (in person and virtual) and evaluation. Fit for people with teaching, coaching or military instruction backgrounds.",
+      "skills": [
+        {
+          "skill": "training-facilitation",
+          "weight": 5
+        },
+        {
+          "skill": "communication",
+          "weight": 5
+        },
+        {
+          "skill": "project-management",
+          "weight": 3
+        },
+        {
+          "skill": "recruiting-hr",
+          "weight": 3
+        },
+        {
+          "skill": "office-administration",
+          "weight": 3
+        },
+        {
+          "skill": "technical-writing",
+          "weight": 3
+        },
+        {
+          "skill": "people-leadership",
+          "weight": 3
+        },
+        {
+          "skill": "excel",
+          "weight": 3
+        },
+        {
+          "skill": "ai-literacy",
+          "weight": 3
+        },
+        {
+          "skill": "data-analysis",
+          "weight": 2
+        },
+        {
+          "skill": "work-management-tools",
+          "weight": 2
+        },
+        {
+          "skill": "interviewing",
+          "weight": 3
+        }
+      ],
+      "jd_keywords": [
+        "training",
+        "onboarding",
+        "facilitation",
+        "curriculum",
+        "lms",
+        "e-learning",
+        "needs assessment",
+        "instructional design",
+        "workshops",
+        "learning objectives",
+        "enablement"
+      ],
+      "overlap_note": "Overlaps people-operations (HR generalist) and customer-success (customer onboarding). Needs check: ESCO match is a manager occupation (2424.3); used for skills only. O*NET Job Zone is 4. Alias(es) Onboarding Specialist left out because another role already uses them.",
+      "sources": [
+        {
+          "system": "O*NET",
+          "code": "13-1151.00",
+          "title": "Training and Development Specialists",
+          "url": "https://www.onetonline.org/link/details/13-1151.00"
+        },
+        {
+          "system": "ESCO",
+          "title": "corporate training manager (2424.3)",
+          "url": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/a14e96a7-6c4d-4d69-8c6f-7ccadf77bac5&language=en"
+        }
+      ],
+      "suggested_path": {
+        "core": [
+          "coursera-hrci-learning-and-development",
+          "coursera-uiuc-instructional-design-foundations"
+        ],
+        "optional": [],
+        "practice": [
+          "practice-star-bank",
+          "practice-mock-english",
+          "practice-mock-behavioral"
+        ],
+        "free_only": []
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
     }

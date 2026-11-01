@@ -83,6 +83,7 @@ for s in skills:
         "text":f"Skill: {s['name']} ({s['category']}). Related terms: {', '.join(s['keywords'])}.","metadata":{"category":s["category"]}})
 
 meta={"version":"0.1.0","generated":"2026-10-29","currency_default":"USD",
+      "attribution":"Some skills and roles adapt information from the O*NET 31.0 Database by USDOL/ETA, used under CC BY 4.0 (O*NET is a trademark of USDOL/ETA; Skillstack has modified the information and USDOL/ETA has not approved or endorsed it), and from the ESCO classification of the European Commission (adapted by Skillstack, marked as modified). See README.md, Attribution.",
       "verification_note":"url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."}
 json.dump({"meta":meta,"items":ITEMS},open(f"{OUT}/catalog.json","w"),indent=2,ensure_ascii=False)
 json.dump({"meta":meta,"roles":roles_out},open(f"{OUT}/roles.json","w"),indent=2,ensure_ascii=False)
