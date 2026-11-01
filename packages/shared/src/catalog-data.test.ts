@@ -182,11 +182,11 @@ describe('role suggested_path core is closed under required prerequisites', () =
 
   it('fails when a prerequisite comes after its dependent (mutation)', () => {
     const m = clone(roles);
-    const pc = m.find((r) => r.id === 'project-coordinator')!;
-    const core = pc.suggested_path.core;
+    const qa = m.find((r) => r.id === 'qa-tester')!;
+    const core = qa.suggested_path.core;
     core.splice(core.indexOf('scrum-guide'), 1);
     core.push('scrum-guide');
-    expect(brokenCore(structItems, m)).toContain('project-coordinator: psm-1 needs scrum-guide');
+    expect(brokenCore(structItems, m)).toContain('qa-tester: psm-1 needs scrum-guide');
   });
 
   it('does not require a recommended prerequisite (mutation)', () => {
@@ -263,5 +263,155 @@ describe('ai-900 and ai-901', () => {
     expect(ai901?.price_verified).toBe(false);
     expect(ai901?.url_verified).toBe(true);
     for (const r of roles) expect(r.suggested_path.core).not.toContain('ai-900');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Catalog expansion (batch 3): 18 skills, 8 roles and 58 items derived from O*NET / ESCO
+// occupation data and official provider pages checked on 2026-11-01.
+// ---------------------------------------------------------------------------
+
+interface ExpItem extends StructItem {
+  type: string;
+  notes: string;
+  roles: string[];
+  est_hours: number;
+}
+interface ExpRole {
+  id: string;
+  skills: { skill: string; weight: number }[];
+  sources?: { system: string }[];
+}
+
+const expItems = structItems as ExpItem[];
+const expRoles = (JSON.parse(readFileSync(`${dataDir}roles.json`, 'utf8')) as { roles: ExpRole[] })
+  .roles;
+const skillIds = new Set(
+  (
+    JSON.parse(readFileSync(`${dataDir}skills.json`, 'utf8')) as { skills: { id: string }[] }
+  ).skills.map((s) => s.id),
+);
+
+const NEW_ROLES = [
+  'customer-support-specialist',
+  'technical-support-specialist',
+  'administrative-coordinator',
+  'bookkeeping-clerk',
+  'procurement-specialist',
+  'marketing-coordinator',
+  'technical-writer',
+  'learning-development-coordinator',
+];
+const NEW_SKILLS = [
+  'erp-systems',
+  'customer-service',
+  'ticketing-helpdesk',
+  'office-administration',
+  'bookkeeping-accounting',
+  'procurement-sourcing',
+  'demand-inventory-planning',
+  'data-privacy-confidentiality',
+  'change-management',
+  'stakeholder-management',
+  'work-management-tools',
+  'windows-m365-admin',
+  'security-monitoring-siem',
+  'content-social-marketing',
+  'market-research',
+  'data-cleaning-etl',
+  'negotiation',
+  'training-facilitation',
+];
+
+describe('catalog expansion (batch 3)', () => {
+  it('has the expected totals', () => {
+    expect(expItems).toHaveLength(180);
+    expect(expRoles).toHaveLength(27);
+    expect(skillIds.size).toBe(59);
+  });
+
+  it('adds the 18 new skills and 8 new roles, with O*NET sources on the roles', () => {
+    for (const s of NEW_SKILLS) expect(skillIds.has(s), s).toBe(true);
+    for (const id of NEW_ROLES) {
+      const r = expRoles.find((x) => x.id === id);
+      expect(r, id).toBeDefined();
+      expect(r!.sources?.length ?? 0, id).toBeGreaterThan(0);
+      expect(
+        r!.sources!.some((s) => s.system === 'O*NET'),
+        id,
+      ).toBe(true);
+    }
+  });
+
+  it('only uses skill ids that exist in the taxonomy (items and roles)', () => {
+    for (const i of expItems) {
+      for (const s of i.skills) expect(skillIds.has(s), `${i.id}: ${s}`).toBe(true);
+    }
+    for (const r of expRoles) {
+      for (const s of r.skills) expect(skillIds.has(s.skill), `${r.id}: ${s.skill}`).toBe(true);
+    }
+  });
+
+  it('keeps role weights between 1 and 5', () => {
+    for (const r of expRoles) {
+      for (const s of r.skills) {
+        expect(s.weight).toBeGreaterThanOrEqual(1);
+        expect(s.weight).toBeLessThanOrEqual(5);
+      }
+    }
+  });
+
+  it('flags every unverified url or price with "needs check" in the notes of the new items', () => {
+    const added = expItems.filter((i) => i.roles.some((r) => NEW_ROLES.includes(r)));
+    expect(added.length).toBeGreaterThan(30);
+    for (const i of added) {
+      if (!i.url_verified || !i.price_verified) {
+        expect(i.notes.toLowerCase(), i.id).toContain('needs check');
+      }
+    }
+  });
+
+  it('lets an item without a url exist only while unverified and flagged', () => {
+    const noUrl = expItems.filter((i) => i.type !== 'practice' && !i.url);
+    expect(noUrl.map((i) => i.id).sort()).toEqual([
+      'futurelearn-understanding-gdpr',
+      'google-digital-garage-digital-marketing',
+      'opensap-building-tomorrows-erp',
+      'servicenow-welcome-to-servicenow',
+      'splunk-intro-to-splunk-elearning',
+      'tableau-free-training-videos',
+      'tryhackme-soc-level-1',
+    ]);
+    for (const i of noUrl) {
+      expect(i.url_verified, i.id).toBe(false);
+      expect(i.last_verified_at, i.id).toBeNull();
+      expect(i.notes.toLowerCase(), i.id).toContain('needs check');
+    }
+  });
+
+  it('does not invent exam prices and keeps new Coursera items in one subscription group', () => {
+    for (const id of ['sc-900', 'comptia-a-plus-v15', 'aipb-certified-bookkeeper']) {
+      const it = expItems.find((i) => i.id === id)!;
+      expect(it.price, id).toBeNull();
+      expect(it.price_verified, id).toBe(false);
+    }
+    const coursera = expItems.filter(
+      (i) => i.id.startsWith('coursera-') && i.cost_type === 'subscription',
+    );
+    expect(coursera.length).toBeGreaterThan(10);
+    for (const i of coursera) {
+      expect(i.subscription_group, i.id).toBe('coursera-plus');
+      expect(i.price_verified, i.id).toBe(false);
+    }
+  });
+
+  it('puts the order hints from the proposal in as recommended edges', () => {
+    const byId = new Map(expItems.map((i) => [i.id, i]));
+    expect(byId.get('google-technical-writing-two')!.prerequisite_kinds).toEqual({
+      'google-tech-writing': 'recommended',
+    });
+    expect(byId.get('sc-900-practice-assessment')!.prerequisite_kinds).toEqual({
+      'sc-900': 'recommended',
+    });
   });
 });
