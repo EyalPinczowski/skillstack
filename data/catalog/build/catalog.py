@@ -2,13 +2,15 @@
 # certificate_price, certificate_type, recognition, est_hours, level, skills, roles, format,
 # url_verified, price_verified, source, notes
 V = True; N = False
-COURSERA_PLUS = dict(cost_type="subscription", price=59, currency="USD", subscription_period="month")
+COURSERA_PLUS = dict(cost_type="subscription", price=59, currency="USD", subscription_period="month",
+                     subscription_group="coursera-plus")
 def c(**k):
     base = dict(type="course", cost_type="free", price=0, currency="USD", subscription_period=None,
                 certificate_price=None, certificate_type="none", recognition="low", level="beginner",
                 format=["video"], language="en", url_verified=N, price_verified=N, source=None,
-                notes="", prerequisites=[], free_alternative_ids=[])
-    base.update(k); return base
+                notes="", prerequisites=[], free_alternative_ids=[],
+                prerequisite_kinds=None, last_verified_at=None, subscription_group=None, skill_depth={})
+    base.update(k); base["skill_depth"] = dict(base["skill_depth"]); return base
 
 ITEMS = [
 # ---------- Project management & Agile ----------
@@ -39,7 +41,8 @@ c(id="scrum-guide", title="The Scrum Guide (read twice)", provider="Scrum.org / 
   price=0),
 c(id="scrum-open", title="Scrum Open practice assessment", provider="Scrum.org",
   url="https://www.scrum.org/open-assessments/scrum-open", est_hours=3, skills=["agile-scrum"], format=["exam"],
-  roles=["project-coordinator","product-operations"], url_verified=N, notes="Free practice test; repeat until 100% before PSM I."),
+  roles=["project-coordinator","product-operations"], url_verified=N, source="Link check 2026-11-01: page unreachable",
+  notes="UNVERIFIED: this link could not be reached in the 2026-11-01 check and no replacement is confirmed yet; show 'needs check'. Free practice test; repeat until 100% before PSM I."),
 c(id="pspo-1", title="Professional Scrum Product Owner I (PSPO I) – exam", provider="Scrum.org", type="cert_exam",
   url="https://www.scrum.org/assessments/professional-scrum-product-owner-i-certification", cost_type="one_time", price=200,
   certificate_type="official_exam", recognition="high", est_hours=1, skills=["agile-scrum","product-management"],
@@ -127,7 +130,8 @@ c(id="pl-300", title="Microsoft Power BI Data Analyst (PL-300) – exam", provid
 c(id="power-bi-learn-path", title="Microsoft Learn – Power BI data analyst learning paths", provider="Microsoft Learn",
   url="https://learn.microsoft.com/training/browse/?products=power-bi", est_hours=30, certificate_type="none",
   skills=["bi-visualization","data-analysis"], roles=["data-analyst","operations-associate"], format=["reading","hands-on"],
-  url_verified=N, notes="Free, badges only. Official PL-300 prep. Needs check: the filtered learning-path list could not be confirmed."),
+  url_verified=N, source="Link check 2026-11-01: page unreachable",
+  notes="UNVERIFIED: this link could not be reached in the 2026-11-01 check and no replacement is confirmed yet; show 'needs check'. Free, badges only. Official PL-300 prep. The filtered learning-path list could not be confirmed."),
 c(id="tableau-desktop-foundations", title="Salesforce Certified Tableau Desktop Foundations – exam", provider="Salesforce / Tableau",
   type="cert_exam", url="https://trailhead.salesforce.com/credentials/tableaudesktopfoundations", cost_type="one_time", price=75,
   certificate_type="official_exam", recognition="medium", est_hours=25, skills=["bi-visualization"], roles=["data-analyst"],
@@ -167,8 +171,15 @@ c(id="az-900", title="Microsoft Azure Fundamentals (AZ-900) – exam", provider=
   format=["exam"], url_verified=V, price_verified=N, notes="Price varies by country; check the Microsoft exam page."),
 c(id="ai-900", title="Microsoft Azure AI Fundamentals (AI-900) – exam", provider="Microsoft", type="cert_exam",
   url="https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-fundamentals/", cost_type="one_time", price=None,
+  certificate_type="official_exam", recognition="medium", est_hours=15, skills=["ai-literacy","cloud"], roles=[],
+  format=["exam"], url_verified=V, price_verified=N,
+  notes="SUPERSEDED by ai-901: the official Azure AI Fundamentals certification page (checked 2026-11-01) lists exam AI-901 as the required exam and does not name AI-900, so the replacement is inferred. Kept in the catalog for old references; roles point to ai-901 instead. Price varies by country."),
+c(id="ai-901", title="Exam AI-901: Microsoft Azure AI Fundamentals", provider="Microsoft", type="cert_exam",
+  url="https://learn.microsoft.com/en-us/credentials/certifications/exams/ai-901/", cost_type="one_time", price=None,
   certificate_type="official_exam", recognition="medium", est_hours=15, skills=["ai-literacy","cloud"], roles=["ai-deployment-specialist"],
-  format=["exam"], url_verified=V, price_verified=N, notes="Price varies by country. The official certification page now lists exam AI-901 (Microsoft Azure AI Fundamentals) as the required exam; AI-900 may be retired (needs check)."),
+  format=["exam"], url_verified=V, price_verified=N, source="Official Microsoft Learn page opened 2026-11-01",
+  notes="Live exam for the Azure AI Fundamentals certification (page: retirement date none; passing score 700; English version updated 2026-04-15). Price depends on the country or region where the exam is proctored; no amount stated, so check price. Assessed: AI concepts and capabilities (40-45%), AI solutions with Microsoft Foundry (55-60%); candidates should know Python syntax and Azure basics. Free practice assessment needs sign-in. Hours and recognition are Skillstack estimates carried over from ai-900, not from the page.",
+  ),
 # ---------- AI ----------
 c(id="anthropic-claude-code-in-action", title="Claude Code in Action", provider="Anthropic Academy",
   url="https://anthropic.skilljar.com/claude-code-in-action", est_hours=3, certificate_type="completion", recognition="medium",
@@ -550,3 +561,68 @@ for it in ITEMS:
     if it["id"] in ("hubspot-inbound-sales","northwestern-art-of-sales","udemy-sales-prospecting"):
         pass
     if it["id"]=="hrci-aphr": it["prerequisites"]=["hrci-aphr-prep-free"]
+
+# ---------- structure fields (added after the 2026-11-01 verification) ----------
+# Coursera Plus: every monthly Coursera subscription item shares one subscription, so a plan
+# pays for each month once, not once per item.
+from urllib.parse import urlparse
+def _host(url):
+    return (urlparse(url or "").hostname or "").lower()
+for it in ITEMS:
+    if it["cost_type"] == "subscription" and it["subscription_period"] == "month" and _host(it["url"]) in ("coursera.org", "www.coursera.org"):
+        it["subscription_group"] = "coursera-plus"
+
+# Items whose url_verified=true comes from the 2026-11-01 link check. The date records that
+# check; items verified in the earlier research pass keep null.
+VERIFIED_2026_11_01 = {"ai-901"} | set([
+ "ai-900",
+ "anthropic-ai-fluency",
+ "anthropic-building-with-api",
+ "anthropic-claude-code-in-action",
+ "anthropic-intro-mcp",
+ "apollo-ai-prospecting",
+ "apollo-outbound-program",
+ "apollo-social-selling",
+ "aws-cloud-practitioner",
+ "az-900",
+ "cfi-fmva",
+ "cfi-fundamentals-challenge",
+ "cisco-intro-cybersecurity",
+ "cisco-networking-basics",
+ "deeplearning-crewai",
+ "excel-skills-for-business",
+ "gcp-cloud-digital-leader",
+ "github-foundations",
+ "google-ai-essentials",
+ "google-ai-professional",
+ "google-genai-path",
+ "google-project-management-audit",
+ "hackerrank-rest-api",
+ "hackerrank-sql-basic",
+ "hackerrank-sql-intermediate",
+ "hrci-aphr",
+ "iiba-ecba",
+ "isc2-cc",
+ "istqb-ctfl",
+ "itil-4-foundation",
+ "linux-foundation-intro-linux",
+ "n8n-essentials",
+ "pl-300",
+ "salesforce-sdr-certificate",
+ "scrum-guide",
+ "shrm-cp",
+ "sqlbolt",
+ "umn-recruiting-onboarding-audit",
+ "wharton-corporate-finance-audit",
+ "xero-advisor"
+])
+for it in ITEMS:
+    if it["id"] in VERIFIED_2026_11_01 and it["url_verified"]:
+        it["last_verified_at"] = "2026-11-01"
+
+# Every prerequisite is required unless an item says otherwise (prerequisite_kinds is filled in
+# here so the sources only have to list the exceptions).
+for it in ITEMS:
+    kinds = {p: "required" for p in it["prerequisites"]}
+    kinds.update(it["prerequisite_kinds"] or {})
+    it["prerequisite_kinds"] = kinds

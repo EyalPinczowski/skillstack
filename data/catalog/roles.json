@@ -99,16 +99,17 @@
           "lean-six-sigma-yellow-belt",
           "google-project-management",
           "excel-skills-for-business",
+          "power-bi-learn-path",
           "pl-300",
           "itil-4-foundation"
         ],
         "optional": [
-          "power-bi-learn-path",
           "zapier-ai-builder",
           "cfi-fundamentals-challenge",
           "mos-excel",
           "lean-six-sigma-white-belt",
-          "hackerrank-sql-basic"
+          "hackerrank-sql-basic",
+          "hackerrank-sql-intermediate"
         ],
         "practice": [
           "practice-ops-assignment",
@@ -216,16 +217,18 @@
           "itil-4-foundation",
           "postman-api-fundamentals",
           "hackerrank-rest-api",
+          "kaggle-intro-sql",
           "hackerrank-sql-basic",
+          "aws-cloud-practitioner-essentials",
           "aws-cloud-practitioner"
         ],
         "optional": [
           "jira-fundamentals",
-          "kaggle-intro-sql",
           "sqlbolt",
           "az-900",
-          "aws-cloud-practitioner-essentials",
-          "cisco-networking-basics"
+          "cisco-networking-basics",
+          "linux-foundation-intro-linux",
+          "google-tech-writing"
         ],
         "practice": [
           "practice-techops-assignment",
@@ -325,6 +328,7 @@
       "suggested_path": {
         "core": [
           "google-project-management",
+          "scrum-guide",
           "pspo-1",
           "google-data-analytics",
           "pendo-ai-for-pm",
@@ -375,7 +379,7 @@
         },
         {
           "skill": "agile-scrum",
-          "weight": 5
+          "weight": 3
         },
         {
           "skill": "jira",
@@ -429,21 +433,21 @@
       "suggested_path": {
         "core": [
           "google-project-management",
-          "jira-fundamentals",
-          "psm-1",
           "capm",
+          "jira-fundamentals",
           "scrum-guide",
-          "scrum-open"
+          "scrum-open",
+          "psm-1",
+          "excel-skills-for-business"
         ],
         "optional": [
-          "google-project-management-audit",
-          "excel-skills-for-business"
+          "google-project-management-audit"
         ],
         "practice": [
           "practice-ops-assignment",
-          "practice-jira-board",
           "practice-star-bank",
-          "practice-mock-english"
+          "practice-mock-english",
+          "practice-jira-board"
         ],
         "free_only": [
           "google-project-management-audit",
@@ -461,10 +465,10 @@
         "Data Analyst",
         "Junior Data Analyst",
         "BI Analyst",
-        "Business Analyst",
         "Reporting Analyst",
         "Business Intelligence Analyst"
       ],
+      "alias_note": "'Business Analyst' is deliberately not an alias here: it is the title of the business-analyst role. O*NET uses it as a sample title for both, so resolve an ambiguous posting by keywords (sql, dashboards, bi, etl -> this role; requirements, process mapping, bpmn, user stories -> business-analyst).",
       "summary": "Turns data into decisions: SQL, dashboards, metrics and business insights.",
       "skills": [
         {
@@ -524,9 +528,10 @@
         "core": [
           "google-data-analytics",
           "google-advanced-data-analytics",
+          "power-bi-learn-path",
           "pl-300",
           "excel-skills-for-business",
-          "power-bi-learn-path",
+          "kaggle-python",
           "kaggle-pandas"
         ],
         "optional": [
@@ -640,7 +645,7 @@
           "aws-ai-practitioner",
           "anthropic-building-with-api",
           "anthropic-intro-mcp",
-          "ai-900"
+          "ai-901"
         ],
         "optional": [
           "anthropic-ai-fluency",
@@ -1023,13 +1028,15 @@
         "core": [
           "jira-fundamentals",
           "istqb-ctfl",
+          "scrum-guide",
+          "scrum-open",
           "psm-1",
           "postman-api-fundamentals",
           "hackerrank-rest-api",
+          "kaggle-intro-sql",
           "hackerrank-sql-basic"
         ],
         "optional": [
-          "kaggle-intro-sql",
           "github-foundations",
           "google-tech-writing",
           "linux-foundation-intro-linux"
@@ -1199,12 +1206,12 @@
           "google-it-support",
           "comptia-security-plus",
           "itil-4-foundation",
+          "aws-cloud-practitioner-essentials",
           "aws-cloud-practitioner",
           "az-900"
         ],
         "optional": [
           "cisco-networking-basics",
-          "aws-cloud-practitioner-essentials",
           "cisco-intro-cybersecurity",
           "isc2-cc",
           "linux-foundation-intro-linux"
@@ -1260,6 +1267,10 @@
           "weight": 3
         },
         {
+          "skill": "bi-visualization",
+          "weight": 3
+        },
+        {
           "skill": "technical-writing",
           "weight": 4
         },
@@ -1288,15 +1299,17 @@
       "suggested_path": {
         "core": [
           "iiba-ecba",
+          "scrum-guide",
+          "scrum-open",
           "psm-1",
           "lean-six-sigma-yellow-belt",
           "lean-six-sigma-white-belt",
+          "kaggle-intro-sql",
           "hackerrank-sql-basic",
           "google-tech-writing"
         ],
         "optional": [
           "jira-fundamentals",
-          "kaggle-intro-sql",
           "wharton-financial-accounting",
           "wharton-corporate-finance-audit"
         ],
@@ -1384,6 +1397,7 @@
       "suggested_path": {
         "core": [
           "excel-skills-for-business",
+          "power-bi-learn-path",
           "pl-300",
           "salesforce-admin",
           "hubspot-sales-software",
@@ -1473,9 +1487,9 @@
         "core": [
           "umn-hr-management",
           "hireez-recruiting-academy",
+          "hrci-aphr-prep-free",
           "hrci-aphr",
           "shrm-cp",
-          "hrci-aphr-prep-free",
           "anthropic-ai-fluency"
         ],
         "optional": [
@@ -1561,6 +1575,7 @@
         "core": [
           "excel-skills-for-business",
           "lean-six-sigma-yellow-belt",
+          "power-bi-learn-path",
           "pl-300",
           "mos-excel",
           "mitx-supply-chain-fundamentals",
@@ -1641,6 +1656,7 @@
           "cfi-fmva",
           "cfi-fundamentals-challenge",
           "excel-skills-for-business",
+          "power-bi-learn-path",
           "pl-300",
           "quickbooks-proadvisor",
           "xero-advisor"
@@ -1727,6 +1743,7 @@
       "suggested_path": {
         "core": [
           "northwestern-art-of-sales",
+          "aws-cloud-practitioner-essentials",
           "aws-cloud-practitioner",
           "postman-api-fundamentals",
           "gcp-cloud-digital-leader",
@@ -1734,7 +1751,6 @@
           "hackerrank-rest-api"
         ],
         "optional": [
-          "aws-cloud-practitioner-essentials",
           "github-foundations"
         ],
         "practice": [

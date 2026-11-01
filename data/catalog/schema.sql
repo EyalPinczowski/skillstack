@@ -54,6 +54,8 @@ create table if not exists catalog_items (
   price_verified       boolean not null default false,
   source               text,
   last_link_check      timestamptz,
+  last_verified_at     date,                -- date a person or the link checker confirmed the url; null = never
+  subscription_group   text,                -- items sharing one subscription (e.g. 'coursera-plus') are paid for once
   link_ok              boolean,
   created_at           timestamptz not null default now(),
   -- keyword search (hybrid retrieval)
@@ -66,6 +68,7 @@ create index if not exists catalog_items_tsv_idx on catalog_items using gin (sea
 create table if not exists item_skills (
   item_id   text references catalog_items(id) on delete cascade,
   skill_id  text references skills(id) on delete cascade,
+  depth     text check (depth in ('beginner','intermediate','advanced')),  -- optional: how far the item takes this skill; null = unset
   primary key (item_id, skill_id)
 );
 
@@ -79,8 +82,18 @@ create table if not exists item_links (
   item_id     text references catalog_items(id) on delete cascade,
   related_id  text references catalog_items(id) on delete cascade,
   kind        text not null check (kind in ('prerequisite','free_alternative')),
+  prerequisite_kind text check (prerequisite_kind in ('required','recommended')),  -- only for kind = 'prerequisite'
   primary key (item_id, related_id, kind)
 );
+
+-- Additive changes for databases created before these columns existed (safe to re-run).
+alter table catalog_items add column if not exists last_verified_at date;
+alter table catalog_items add column if not exists subscription_group text;
+alter table item_skills add column if not exists depth text
+  check (depth in ('beginner','intermediate','advanced'));
+alter table item_links add column if not exists prerequisite_kind text
+  check (prerequisite_kind in ('required','recommended'));
+update item_links set prerequisite_kind = 'required' where kind = 'prerequisite' and prerequisite_kind is null;
 
 -- ---------- RAG documents ----------
 -- One row per entry in documents.jsonl. Embeddings: 384 dimensions, produced by a free

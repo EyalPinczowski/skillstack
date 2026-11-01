@@ -2,11 +2,13 @@ import json, csv, sys
 sys.path.insert(0,'.')
 from taxonomy import SKILLS, ROLES
 from catalog import ITEMS
+import lint
 OUT='..'
 skills=[{"id":i,"name":n,"category":c,"keywords":k} for i,n,c,k in SKILLS]
 sid={s["id"] for s in skills}
 rid={r["id"] for r in ROLES}
 iid={i["id"] for i in ITEMS}
+by_id={i["id"]:i for i in ITEMS}
 errs=[]
 for it in ITEMS:
     for s in it["skills"]:
@@ -20,6 +22,7 @@ for r in ROLES:
     for s in r["skills"]:
         if s not in sid: errs.append(f"role {r['id']}: unknown skill {s}")
 if len(iid)!=len(ITEMS): errs.append("duplicate item ids")
+errs += lint.check_items(ITEMS)
 if errs: print("\n".join(errs)); sys.exit(1)
 
 REC={"high":3,"medium":2,"low":1}
@@ -30,18 +33,25 @@ def score(item, role):
 roles_out=[]
 for r in ROLES:
     ranked=sorted([i for i in ITEMS if (r["id"] in i["roles"] or "*" in i["roles"])], key=lambda i:-score(i,r))
-    core=[]
+    # Pick the 6 best items by score, as before; each pick brings its transitive required
+    # prerequisites along as a bundle (prerequisites first), so core may hold more than 6 ids.
+    core=[]; picked=set()
     for i in ranked:
         if i["type"]=="practice": continue
         if i["cost_type"]=="free_audit" and any(i["id"] in x["free_alternative_ids"] for x in ITEMS): continue
-        core.append(i["id"])
-        if len(core)==6: break
+        for x in lint.ordered_required_closure(i["id"], by_id):
+            if x not in core: core.append(x)
+        picked.add(i["id"])
+        if len(picked)==6: break
     practice=[i["id"] for i in ranked if i["type"]=="practice"][:4]
     optional=[i["id"] for i in ranked if i["type"]!="practice" and i["id"] not in core][:6]
     free_path=[i["id"] for i in ranked if i["cost_type"] in ("free","free_audit") and i["type"]!="practice"][:6]
     roles_out.append({**r,"skills":[{"skill":k,"weight":v} for k,v in r["skills"].items()],
         "suggested_path":{"core":core,"optional":optional,"practice":practice,"free_only":free_path},
         "suggested_path_note":"Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."})
+
+errs=lint.check_role_paths(ITEMS, roles_out)
+if errs: print("\n".join(errs)); sys.exit(1)
 
 def cost_text(i):
     if i["cost_type"]=="free": return "Free"
@@ -62,7 +72,8 @@ for i in ITEMS:
     docs.append({"id":f"item:{i['id']}","kind":"catalog_item","ref_id":i["id"],"text":text,
         "metadata":{"type":i["type"],"cost_type":i["cost_type"],"price":i["price"],"currency":i["currency"],
         "certificate_type":i["certificate_type"],"recognition":i["recognition"],"est_hours":i["est_hours"],
-        "level":i["level"],"skills":i["skills"],"roles":i["roles"],"url_verified":i["url_verified"]}})
+        "level":i["level"],"skills":i["skills"],"roles":i["roles"],"url_verified":i["url_verified"],
+        "last_verified_at":i["last_verified_at"],"subscription_group":i["subscription_group"]}})
 for r in roles_out:
     top=", ".join(f"{skill_name[s['skill']]} ({s['weight']}/5)" for s in sorted(r["skills"],key=lambda s:-s["weight"]))
     text=(f"Role: {r['title']}. Also known as: {', '.join(r['aliases'])}. {r['summary']} "
@@ -80,8 +91,8 @@ json.dump({"meta":meta,"skills":skills},open(f"{OUT}/skills.json","w"),indent=2,
 with open(f"{OUT}/documents.jsonl","w") as f:
     for d in docs: f.write(json.dumps(d,ensure_ascii=False)+"\n")
 with open(f"{OUT}/catalog.csv","w",newline="") as f:
-    w=csv.writer(f); w.writerow(["id","title","provider","type","cost","certificate","recognition","hours","skills","roles","url","url_verified","price_verified"])
-    for i in ITEMS: w.writerow([i["id"],i["title"],i["provider"],i["type"],cost_text(i),i["certificate_type"],i["recognition"],i["est_hours"],";".join(i["skills"]),";".join(i["roles"]),i["url"] or "",i["url_verified"],i["price_verified"]])
+    w=csv.writer(f); w.writerow(["id","title","provider","type","cost","certificate","recognition","hours","skills","roles","url","url_verified","price_verified","last_verified_at","subscription_group","prerequisites"])
+    for i in ITEMS: w.writerow([i["id"],i["title"],i["provider"],i["type"],cost_text(i),i["certificate_type"],i["recognition"],i["est_hours"],";".join(i["skills"]),";".join(i["roles"]),i["url"] or "",i["url_verified"],i["price_verified"],i["last_verified_at"] or "",i["subscription_group"] or "",";".join(p+":"+i["prerequisite_kinds"][p] for p in i["prerequisites"])])
 print(f"items={len(ITEMS)} roles={len(ROLES)} skills={len(skills)} docs={len(docs)}")
 print("verified urls:",sum(i['url_verified'] for i in ITEMS if i['type']!='practice'),"of",sum(1 for i in ITEMS if i['type']!='practice'))
 
@@ -98,14 +109,14 @@ for s in skills: L.append(f"insert into skills (id,name,category,keywords) value
 for r in roles_out:
     L.append(f"insert into roles (id,title,aliases,summary,jd_keywords,suggested_path) values ({q(r['id'])},{q(r['title'])},{q(r['aliases'])},{q(r['summary'])},{q(r['jd_keywords'])},{q(r['suggested_path'])}) on conflict (id) do nothing;")
     for s in r["skills"]: L.append(f"insert into role_skills values ({q(r['id'])},{q(s['skill'])},{s['weight']}) on conflict do nothing;")
-cols=["id","title","provider","url","type","cost_type","price","currency","subscription_period","certificate_price","certificate_type","recognition","est_hours","level","format","language","notes","url_verified","price_verified","source"]
+cols=["id","title","provider","url","type","cost_type","price","currency","subscription_period","certificate_price","certificate_type","recognition","est_hours","level","format","language","notes","url_verified","price_verified","source","last_verified_at","subscription_group"]
 for i in ITEMS:
     L.append(f"insert into catalog_items ({','.join(cols)}) values ({','.join(q(i[c]) for c in cols)}) on conflict (id) do nothing;")
 for i in ITEMS:
-    for s in i["skills"]: L.append(f"insert into item_skills values ({q(i['id'])},{q(s)}) on conflict do nothing;")
+    for s in i["skills"]: L.append(f"insert into item_skills (item_id,skill_id,depth) values ({q(i['id'])},{q(s)},{q(i['skill_depth'].get(s))}) on conflict do nothing;")
     for r in i["roles"]: L.append(f"insert into item_roles values ({q(i['id'])},{q(r)}) on conflict do nothing;")
-    for p in i["prerequisites"]: L.append(f"insert into item_links values ({q(i['id'])},{q(p)},'prerequisite') on conflict do nothing;")
-    for p in i["free_alternative_ids"]: L.append(f"insert into item_links values ({q(i['id'])},{q(p)},'free_alternative') on conflict do nothing;")
+    for p in i["prerequisites"]: L.append(f"insert into item_links (item_id,related_id,kind,prerequisite_kind) values ({q(i['id'])},{q(p)},'prerequisite',{q(i['prerequisite_kinds'][p])}) on conflict do nothing;")
+    for p in i["free_alternative_ids"]: L.append(f"insert into item_links (item_id,related_id,kind) values ({q(i['id'])},{q(p)},'free_alternative') on conflict do nothing;")
 for d in docs: L.append(f"insert into rag_documents (id,kind,ref_id,content,metadata) values ({q(d['id'])},{q(d['kind'])},{q(d['ref_id'])},{q(d['text'])},{q(d['metadata'])}) on conflict (id) do update set content=excluded.content, metadata=excluded.metadata;")
 L.append("commit;")
 open(f"{OUT}/seed.sql","w").write("\n".join(L)+"\n")

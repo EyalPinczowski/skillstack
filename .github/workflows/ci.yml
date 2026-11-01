@@ -199,6 +199,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash scripts/check-catalog-drift.sh
+      - name: Catalog lint tests
+        run: cd data/catalog/build && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest test_lint -v
 
   gitleaks:
     name: gitleaks
