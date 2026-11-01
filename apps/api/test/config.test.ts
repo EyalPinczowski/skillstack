@@ -23,7 +23,17 @@ describe('loadConfig defaults', () => {
         pushNotifications: false,
         aiOverview: false,
       },
-      ai: { allowPaid: false },
+      ai: {
+        allowPaid: false,
+        paidMonthlyCapUsd: null,
+        providerOrder: [],
+        fakeProvider: false,
+        budgets: {},
+        userCaps: { practice_message: 40, practice_feedback: 6, day_overview: 1 },
+        timeoutMs: 15000,
+        turnTimeoutMs: 25000,
+        historyChars: 12000,
+      },
     });
     expect(featureNames).toHaveLength(5);
   });
@@ -252,5 +262,80 @@ describe('sign-in and database settings', () => {
         expect((err as ConfigError).message).not.toContain(value);
       }
     }
+  });
+});
+
+describe('AI configuration', () => {
+  it('has no provider by default and every user cap at its documented value', () => {
+    const { ai } = loadConfig({});
+    expect(ai.providerOrder).toEqual([]);
+    expect(ai.budgets).toEqual({});
+    expect(ai.userCaps).toEqual({ practice_message: 40, practice_feedback: 6, day_overview: 1 });
+  });
+
+  it('refuses AI_ALLOW_PAID without a spending cap above zero', () => {
+    expect(() => loadConfig({ AI_ALLOW_PAID: 'true' })).toThrow(/AI_PAID_MONTHLY_CAP_USD/);
+    expect(() => loadConfig({ AI_ALLOW_PAID: 'true', AI_PAID_MONTHLY_CAP_USD: '0' })).toThrow(
+      /AI_PAID_MONTHLY_CAP_USD/,
+    );
+    const ok = loadConfig({ AI_ALLOW_PAID: 'true', AI_PAID_MONTHLY_CAP_USD: '5' });
+    expect(ok.ai).toMatchObject({ allowPaid: true, paidMonthlyCapUsd: 5 });
+    // A cap alone does not switch paid providers on.
+    expect(loadConfig({ AI_PAID_MONTHLY_CAP_USD: '5' }).ai.allowPaid).toBe(false);
+  });
+
+  it('refuses the fake provider on the operational environment', () => {
+    expect(() => loadConfig({ APP_ENV: 'operational', AI_FAKE_PROVIDER: 'true' })).toThrow(
+      /AI_FAKE_PROVIDER/,
+    );
+    expect(() => loadConfig({ APP_ENV: 'operational', AI_PROVIDERS: 'fake' })).toThrow(
+      /AI_PROVIDERS/,
+    );
+    expect(() =>
+      loadConfig({ APP_ENV: 'operational', AI_PROVIDERS: 'fake', AI_FAKE_PROVIDER: 'true' }),
+    ).toThrow(ConfigError);
+  });
+
+  it('uses the fake provider on R&D only when explicitly enabled', () => {
+    expect(loadConfig({ APP_ENV: 'rnd' }).ai.providerOrder).toEqual([]);
+    expect(() => loadConfig({ APP_ENV: 'rnd', AI_PROVIDERS: 'fake' })).toThrow(/AI_FAKE_PROVIDER/);
+    const ai = loadConfig({ APP_ENV: 'rnd', AI_FAKE_PROVIDER: 'true' }).ai;
+    expect(ai.providerOrder).toEqual(['fake']);
+    expect(ai.budgets).toEqual({ fake: 1000 });
+  });
+
+  it('reads one explicit budget per listed provider; none means the provider is not used', () => {
+    const ai = loadConfig({ AI_PROVIDERS: 'groq,cloudflare-ai', AI_BUDGET_GROQ_DAILY: '200' }).ai;
+    expect(ai.providerOrder).toEqual(['groq', 'cloudflare-ai']);
+    expect(ai.budgets).toEqual({ groq: 200 });
+    const cf = loadConfig({
+      AI_PROVIDERS: 'cloudflare-ai',
+      AI_BUDGET_CLOUDFLARE_AI_DAILY: '50',
+    }).ai;
+    expect(cf.budgets).toEqual({ 'cloudflare-ai': 50 });
+    // A budget for a provider that is not listed is ignored.
+    expect(loadConfig({ AI_BUDGET_GROQ_DAILY: '200' }).ai.budgets).toEqual({});
+  });
+
+  it('rejects bad budgets and unknown providers', () => {
+    for (const bad of ['0', '-5', '1.5', 'many', '1000001']) {
+      expect(() => loadConfig({ AI_PROVIDERS: 'groq', AI_BUDGET_GROQ_DAILY: bad })).toThrow(
+        /AI_BUDGET_GROQ_DAILY: must be a whole number/,
+      );
+    }
+    expect(() => loadConfig({ AI_PROVIDERS: 'groq,groq' })).toThrow(/repeat/);
+    expect(() => loadConfig({ AI_PROVIDERS: 'openai' })).toThrow(/AI_PROVIDERS/);
+  });
+
+  it('reads timeouts and caps', () => {
+    const ai = loadConfig({
+      AI_TIMEOUT_MS: '5000',
+      AI_TURN_TIMEOUT_MS: '9000',
+      AI_USER_DAILY_PRACTICE_MESSAGES: '10',
+      AI_USER_DAILY_PRACTICE_FEEDBACK: '0',
+    }).ai;
+    expect(ai).toMatchObject({ timeoutMs: 5000, turnTimeoutMs: 9000 });
+    expect(ai.userCaps).toMatchObject({ practice_message: 10, practice_feedback: 0 });
+    expect(() => loadConfig({ AI_TIMEOUT_MS: '10' })).toThrow(/AI_TIMEOUT_MS/);
   });
 });

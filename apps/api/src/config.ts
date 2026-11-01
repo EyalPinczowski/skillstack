@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { AISettings } from './ai/provider';
+import type { AIPurpose, AISettings } from './ai/provider';
 import { booleanString, featureEnvShape, toFeatures, type Features } from './features';
 
 const isBareOrigin = (value: string) => {
@@ -29,6 +29,31 @@ const serviceKey = z
   .min(20, 'is too short to be a service key')
   .max(2048, 'is too long to be a service key')
   .regex(/^[A-Za-z0-9._~+/=-]+$/, 'contains characters a key never has');
+
+/** The provider ids the app can name in AI_PROVIDERS. A provider is one file plus one entry here. */
+export const PROVIDER_IDS = ['groq', 'cloudflare-ai', 'fake'] as const;
+
+const MAX_BUDGET = 1_000_000;
+const intBetween = (min: number, max: number, fallback: number) =>
+  z.coerce.number().int().min(min).max(max).default(fallback);
+
+const providerList = z
+  .string()
+  .default('')
+  .transform((v) =>
+    v
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  )
+  .pipe(
+    z
+      .array(z.enum(PROVIDER_IDS, { error: `must list only: ${PROVIDER_IDS.join(', ')}` }))
+      .refine((ids) => new Set(ids).size === ids.length, 'must not repeat a provider'),
+  );
+
+/** `cloudflare-ai` reads its budget from AI_BUDGET_CLOUDFLARE_AI_DAILY. */
+const budgetVariable = (id: string) => `AI_BUDGET_${id.toUpperCase().replace(/-/g, '_')}_DAILY`;
 
 const httpsUrl = z.url().refine((v) => v.startsWith('https://'), 'must be an https URL');
 
@@ -75,8 +100,38 @@ const envSchema = z.object({
     .optional(),
   // Lets paid AI providers register (spec 12.2). Off unless the owner sets it; no paid provider exists yet.
   AI_ALLOW_PAID: booleanString('false'),
+  // Required (greater than 0) when AI_ALLOW_PAID=true, or the API refuses to start. No paid provider exists.
+  AI_PAID_MONTHLY_CAP_USD: z.coerce.number().min(0).max(100_000).optional(),
+  // The order providers are tried in. Empty (the default) means no provider: AI is off everywhere.
+  AI_PROVIDERS: providerList,
+  // Explicit opt-in for the offline fake provider. R&D only; the operational API refuses to start with it.
+  AI_FAKE_PROVIDER: booleanString('false'),
+  AI_TIMEOUT_MS: intBetween(1000, 60_000, 15_000),
+  AI_TURN_TIMEOUT_MS: intBetween(1000, 120_000, 25_000),
+  AI_HISTORY_CHARS: intBetween(1000, 100_000, 12_000),
+  AI_USER_DAILY_PRACTICE_MESSAGES: intBetween(0, 1000, 40),
+  AI_USER_DAILY_PRACTICE_FEEDBACK: intBetween(0, 1000, 6),
+  AI_USER_DAILY_OVERVIEW: intBetween(0, 1000, 1),
   ...featureEnvShape,
 });
+
+/** AI settings; every one is off by default (ADR 012). */
+export interface AIConfig extends AISettings {
+  /** Must be greater than 0 whenever allowPaid is true. */
+  paidMonthlyCapUsd: number | null;
+  /** The providers to try, in order. Empty means AI is off. */
+  providerOrder: string[];
+  fakeProvider: boolean;
+  /** Calls per UTC day per provider id for this environment. No entry means the provider is not used. */
+  budgets: Record<string, number>;
+  /** Calls per user per UTC day. */
+  userCaps: Record<AIPurpose, number>;
+  /** One provider attempt. */
+  timeoutMs: number;
+  /** A whole turn, across fallbacks. */
+  turnTimeoutMs: number;
+  historyChars: number;
+}
 
 export interface Config {
   nodeEnv: 'development' | 'test' | 'production';
@@ -98,8 +153,7 @@ export interface Config {
   rateLimitPerMinute: number;
   trustProxy: number;
   features: Features;
-  /** AI settings; every one is off by default (ADR 012). */
-  ai: AISettings;
+  ai: AIConfig;
 }
 
 export class ConfigError extends Error {
@@ -150,6 +204,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   if (Boolean(e.SUPABASE_JWKS_URL) !== Boolean(e.SUPABASE_JWT_ISSUER)) {
     throw new ConfigError(['SUPABASE_JWKS_URL and SUPABASE_JWT_ISSUER: set both or neither']);
   }
+  const ai = loadAIConfig(e, env);
   return {
     nodeEnv: e.NODE_ENV,
     supabase:
@@ -169,6 +224,61 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     rateLimitPerMinute: e.RATE_LIMIT_PER_MINUTE,
     trustProxy: e.TRUST_PROXY,
     features: toFeatures(e),
-    ai: { allowPaid: e.AI_ALLOW_PAID },
+    ai,
+  };
+}
+
+function loadAIConfig(e: z.infer<typeof envSchema>, env: NodeJS.ProcessEnv): AIConfig {
+  const problems: string[] = [];
+  if (
+    e.AI_ALLOW_PAID &&
+    !(e.AI_PAID_MONTHLY_CAP_USD !== undefined && e.AI_PAID_MONTHLY_CAP_USD > 0)
+  ) {
+    problems.push(
+      'AI_PAID_MONTHLY_CAP_USD: must be greater than 0 when AI_ALLOW_PAID=true (a spending cap is required)',
+    );
+  }
+  if (e.AI_FAKE_PROVIDER && e.APP_ENV === 'operational') {
+    problems.push('AI_FAKE_PROVIDER: must not be true when APP_ENV=operational (R&D only)');
+  }
+  if (e.AI_PROVIDERS.includes('fake') && !e.AI_FAKE_PROVIDER) {
+    problems.push('AI_PROVIDERS: "fake" needs AI_FAKE_PROVIDER=true (and APP_ENV=rnd)');
+  }
+  // The fake provider is on only when explicitly enabled; with no list it is the only provider.
+  const providerOrder =
+    e.AI_FAKE_PROVIDER && e.APP_ENV === 'rnd' && e.AI_PROVIDERS.length === 0
+      ? ['fake']
+      : e.AI_PROVIDERS.filter((id) => id !== 'fake' || e.APP_ENV === 'rnd');
+  // Budgets are explicit and fail closed: a provider with no budget is never called.
+  const budgets: Record<string, number> = {};
+  for (const id of providerOrder) {
+    const name = budgetVariable(id);
+    const raw = env[name]?.trim();
+    if (!raw) {
+      if (id === 'fake') budgets[id] = 1000; // offline, costs nothing
+      continue;
+    }
+    const value = Number(raw);
+    if (!/^[1-9]\d{0,6}$/.test(raw) || value > MAX_BUDGET) {
+      problems.push(`${name}: must be a whole number from 1 to ${MAX_BUDGET}`);
+    } else {
+      budgets[id] = value;
+    }
+  }
+  if (problems.length > 0) throw new ConfigError(problems);
+  return {
+    allowPaid: e.AI_ALLOW_PAID,
+    paidMonthlyCapUsd: e.AI_PAID_MONTHLY_CAP_USD ?? null,
+    providerOrder,
+    fakeProvider: e.AI_FAKE_PROVIDER,
+    budgets,
+    userCaps: {
+      practice_message: e.AI_USER_DAILY_PRACTICE_MESSAGES,
+      practice_feedback: e.AI_USER_DAILY_PRACTICE_FEEDBACK,
+      day_overview: e.AI_USER_DAILY_OVERVIEW,
+    },
+    timeoutMs: e.AI_TIMEOUT_MS,
+    turnTimeoutMs: e.AI_TURN_TIMEOUT_MS,
+    historyChars: e.AI_HISTORY_CHARS,
   };
 }

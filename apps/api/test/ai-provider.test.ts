@@ -10,6 +10,8 @@ import { createAIRegistry } from '../src/ai/registry';
 
 const fake = (id: string, costTier: CostTier): AIProvider => ({
   id,
+  label: id,
+  maxContextChars: 1000,
   costTier,
   generate: vi.fn(async () => ({ text: 'x' })),
 });
@@ -59,7 +61,13 @@ describe('AIProvider guard (spec 9: a paid provider registered in tests is refus
 
   it('keeps refusing a provider that turns paid after it registered', () => {
     const registry = createAIRegistry();
-    const mutable = { id: 'sneaky', costTier: 'free' as CostTier, generate: vi.fn() };
+    const mutable = {
+      id: 'sneaky',
+      label: 'sneaky',
+      maxContextChars: 1000,
+      costTier: 'free' as CostTier,
+      generate: vi.fn(),
+    };
     registry.register(mutable);
     mutable.costTier = 'paid';
     expect(registry.list()).toEqual([]);
@@ -87,12 +95,17 @@ describe('AIProvider guard (spec 9: a paid provider registered in tests is refus
 describe('AI settings in the config', () => {
   it('are off by default', () => {
     const config = loadConfig({});
-    expect(config.ai).toEqual({ allowPaid: false });
+    expect(config.ai.allowPaid).toBe(false);
+    expect(config.ai.providerOrder).toEqual([]);
     expect(config.features.aiOverview).toBe(false);
   });
 
   it('turn on only with the literal "true"', () => {
-    const config = loadConfig({ AI_ALLOW_PAID: 'true', FEATURE_AI_OVERVIEW: 'true' });
+    const config = loadConfig({
+      AI_ALLOW_PAID: 'true',
+      AI_PAID_MONTHLY_CAP_USD: '5',
+      FEATURE_AI_OVERVIEW: 'true',
+    });
     expect(config.ai.allowPaid).toBe(true);
     expect(config.features.aiOverview).toBe(true);
     expect(() => loadConfig({ AI_ALLOW_PAID: 'yes' })).toThrow(/AI_ALLOW_PAID: must be exactly/);

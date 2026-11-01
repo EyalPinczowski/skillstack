@@ -1,34 +1,59 @@
 /**
- * The AIProvider seam (spec 12.3, ADR 004 and 012). This is only the contract and the guard:
- * v0.2 ships no implementation, makes no network call and holds no key. Provider
- * implementations (GitHub Models, Groq, Gemini) arrive in v0.3 as one new file each.
+ * The AIProvider seam (spec 12.3, ADR 004 and 012) and the shared AI types.
  *
- * Privacy rule for every caller: a request carries task metadata only, never a name, email,
- * phone number or link of the user.
+ * A provider is one file that turns a `SafeAIRequest` (already redacted, see `safe-request.ts`)
+ * into text. It never decides budgets, fallbacks or caching; the gateway does (`gateway.ts`).
+ *
+ * Rules for every provider implementation:
+ * - plain `fetch` with the `signal` it is given, no SDK;
+ * - the key goes in a header, never in a URL, a log line or an error message;
+ * - on failure throw `ProviderQuotaError` (the provider's limit was reached) or
+ *   `ProviderUnavailableError` (anything else). Never put the provider's own error text in
+ *   either: it can echo the request, the key or the account.
  */
+import type { SafeAIRequest } from './safe-request';
 
 /** `paid` providers are refused unless the owner enables them explicitly (spec 12.2). */
 export type CostTier = 'free' | 'paid';
 
-export interface AIRequest {
-  /** What the text is for, e.g. `day-overview`. Used for caching and the usage meter later. */
-  purpose: string;
-  system?: string;
-  prompt: string;
-  maxOutputTokens?: number;
-}
+/** What a model call is for. The same three values are allowed by the database. */
+export const AI_PURPOSES = ['practice_message', 'practice_feedback', 'day_overview'] as const;
+export type AIPurpose = (typeof AI_PURPOSES)[number];
 
 export interface AIResponse {
   text: string;
   /** The model that answered, as the provider reports it. */
   model?: string;
+  /** What the provider said about its own limits, when it said anything. */
+  rateLimit?: { remainingRequests?: number; resetAt?: Date };
 }
 
 export interface AIProvider {
-  /** A stable lower-case id such as `github-models`. */
+  /** A stable lower-case slug such as `groq`. */
   readonly id: string;
+  /** Shown on the switch notice and the usage meter. */
+  readonly label: string;
   readonly costTier: CostTier;
-  generate(request: AIRequest): Promise<AIResponse>;
+  /** Used to truncate the conversation history before a request is built. */
+  readonly maxContextChars: number;
+  /** Must honour `opts.signal`. The gateway also stops waiting when it fires. */
+  generate(request: SafeAIRequest, opts: { signal: AbortSignal }): Promise<AIResponse>;
+}
+
+/** The provider's quota is used up (HTTP 429 or its own quota signal). */
+export class ProviderQuotaError extends Error {
+  constructor(public readonly retryAfter?: Date) {
+    super('AI provider quota reached.');
+    this.name = 'ProviderQuotaError';
+  }
+}
+
+/** The provider failed in any other way: 5xx, network, timeout, malformed body. */
+export class ProviderUnavailableError extends Error {
+  constructor() {
+    super('AI provider unavailable.');
+    this.name = 'ProviderUnavailableError';
+  }
 }
 
 /** The settings the guard reads. Everything is off unless switched on. */
@@ -52,7 +77,10 @@ export class PaidProviderRefusedError extends Error {
  * Throws unless the provider may be used under `settings`. Fails closed: anything that is not
  * exactly `free` counts as paid, so a provider that forgets to declare its tier is refused.
  */
-export function assertProviderAllowed(provider: AIProvider, settings: AISettings): void {
+export function assertProviderAllowed(
+  provider: Pick<AIProvider, 'id' | 'costTier'>,
+  settings: AISettings,
+): void {
   if (provider.costTier === 'free') return;
   if (provider.costTier === 'paid' && settings.allowPaid === true) return;
   throw new PaidProviderRefusedError(provider.id);
