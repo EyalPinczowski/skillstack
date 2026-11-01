@@ -11,6 +11,12 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import pkg from '../package.json' with { type: 'json' };
+import { createAIUsageStore, type AIUsageStore } from './ai/budget';
+import { createAICache, type AICache } from './ai/cache';
+import { createAIGateway, type AIGateway } from './ai/gateway';
+import type { AIProvider } from './ai/provider';
+import { createConfiguredProviders } from './ai/providers';
+import { createAIRegistry } from './ai/registry';
 import type { Config } from './config';
 import { createDatabase, type Database } from './db/database';
 import { installErrorHandling } from './errors';
@@ -20,6 +26,7 @@ import {
   unconfiguredAuthAdmin,
   type AuthAdmin,
 } from './modules/accounts/auth-admin';
+import { aiRoutes } from './modules/ai/routes';
 import { accountRoutes } from './modules/accounts/routes';
 import {
   createSupabaseVerifierFromUrl,
@@ -33,6 +40,27 @@ import { taskRoutes } from './modules/tasks/routes';
 import { installIdempotency } from './plugins/idempotency';
 import { generateRequestId, installRequestId } from './plugins/request-id';
 import { installSecurityHeaders, transformSwaggerCsp } from './plugins/security-headers';
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    /** The AI gateway: the only way to call a model (plan 3.2). */
+    aiGateway: AIGateway;
+  }
+}
+
+/** Used when there is no database: the routes answer 503 before it is ever reached. */
+const unavailableAIUsage: AIUsageStore = {
+  async reserveUser() {
+    throw new Error('no database');
+  },
+  async noteAvoided() {},
+  async reserveProvider() {
+    throw new Error('no database');
+  },
+  async snapshot() {
+    throw new Error('no database');
+  },
+};
 
 const HEALTH_URL = '/api/v1/health';
 
@@ -52,6 +80,13 @@ export interface AppDeps {
   now?: () => Date;
   /** Defaults to Supabase from config on operational (fails closed without a key), and to a no-op on R&D. */
   authAdmin?: AuthAdmin;
+  /** Tests and local development: replace the AI pieces. Defaults come from `config.ai`. */
+  ai?: {
+    /** Instead of the providers named in AI_PROVIDERS. Each still passes the paid guard. */
+    providers?: AIProvider[];
+    usage?: AIUsageStore;
+    cache?: AICache | null;
+  };
   /** Tests only: where log lines go, so they can be inspected. Defaults to stdout. */
   logStream?: { write(line: string): void };
 }
@@ -79,12 +114,32 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
         ? createDatabase({ connectionString: config.databaseUrl, appEnv: config.appEnv })
         : null;
 
+  // AI: no provider is configured by default, and then everything reports `configured: false`.
+  const aiRegistry = createAIRegistry(config.ai);
+  for (const provider of deps.ai?.providers ??
+    createConfiguredProviders(config.ai, config.appEnv)) {
+    aiRegistry.register(provider);
+  }
+  const aiUsage = deps.ai?.usage ?? (db ? createAIUsageStore(db, deps.now) : unavailableAIUsage);
+  const aiCache =
+    deps.ai?.cache !== undefined ? deps.ai.cache : db ? createAICache(db, deps.now) : null;
+
   const app = Fastify({
     // Default request logging has no headers or body; redact is a second line of defence.
     logger: {
       level: config.logLevel,
       ...(deps.logStream ? { stream: deps.logStream } : {}),
-      redact: ['req.headers.authorization', 'req.headers.cookie', 'req.headers["x-api-key"]'],
+      redact: [
+        'req.headers.authorization',
+        'req.headers.cookie',
+        'req.headers["x-api-key"]',
+        // Provider keys must never be logged, wherever a future log call puts them.
+        'apiKey',
+        '*.apiKey',
+        '*.api_key',
+        'headers.authorization',
+        '*.headers.authorization',
+      ],
     },
     genReqId: generateRequestId,
     requestIdHeader: false,
@@ -95,6 +150,16 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
     // Fastify version fails closed on a bare number and would ignore the hop count.
     trustProxy: (_address: string, hop: number) => hop < config.trustProxy,
   }).withTypeProvider<ZodTypeProvider>();
+
+  const aiGateway = createAIGateway({
+    registry: aiRegistry,
+    config: config.ai,
+    usage: aiUsage,
+    cache: aiCache,
+    now: deps.now,
+    log: app.log,
+  });
+  app.decorate('aiGateway', aiGateway);
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
@@ -157,6 +222,13 @@ export function buildApp(config: Config, deps: AppDeps = {}) {
       v1.register(accountRoutes, { verifier, db, authAdmin });
       v1.register(planRoutes, { verifier, db, now: deps.now });
       v1.register(taskRoutes, { verifier, db, now: deps.now });
+      v1.register(aiRoutes, {
+        verifier,
+        db,
+        gateway: aiGateway,
+        usage: aiUsage,
+        userCaps: config.ai.userCaps,
+      });
     },
     { prefix: '/api/v1' },
   );
