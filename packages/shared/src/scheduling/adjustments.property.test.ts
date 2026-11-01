@@ -176,3 +176,42 @@ describe('adjustments (property)', () => {
     );
   });
 });
+
+describe('estimate updates and done time', () => {
+  it('a suggested estimate is never below the hours already logged or imported', () => {
+    const arb = fc.record({
+      est: fc.integer({ min: 1, max: 40 }).map((q) => q / 4),
+      imported: fc.integer({ min: 0, max: 80 }).map((q) => q / 4),
+      logged: fc.integer({ min: 0, max: 80 }).map((q) => q / 4),
+      factor: fc.integer({ min: 10, max: 60 }).map((p) => p / 20),
+    });
+    fc.assert(
+      fc.property(arb, ({ est, imported, logged, factor }) => {
+        // doneHours is the stored total: imported hours plus everything logged.
+        const open = task({
+          id: 'open',
+          estHours: est,
+          doneHours: imported + logged,
+          status: 'in_progress',
+        });
+        const suggestion = {
+          id: 'sg_p',
+          rule: 'estimate_drift' as const,
+          key: 'k',
+          title: 't',
+          explanation: 'e',
+          proposedChange: {
+            kind: 'estimateUpdate' as const,
+            taskType: 'course' as const,
+            factor,
+            taskIds: ['open'],
+          },
+          alternatives: [],
+          evidence: { reviewDates: [], taskIds: [] },
+        };
+        const out = applySuggestion([open], basePattern, [], suggestion);
+        expect(out.tasks[0]!.estHours).toBeGreaterThanOrEqual(imported + logged);
+      }),
+    );
+  });
+});

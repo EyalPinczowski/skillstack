@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { diffDays } from '../dates';
-import { DayReviewInputSchema, type DayOverride, type DayReview, type Task } from '../schemas';
+import {
+  DayReviewInputSchema,
+  type DayOverride,
+  type DayReview,
+  type Suggestion,
+  type Task,
+} from '../schemas';
 import {
   applySuggestion,
   suggestAdjustments,
@@ -155,8 +161,9 @@ describe('rule 2: density "too light" (spec 3.4)', () => {
 });
 
 describe('rule 3: actual vs estimated hours per task type (spec 3.4)', () => {
-  const done = (id: string, est: number, type: Task['type'] = 'course') =>
-    task({ id, estHours: est, type, status: 'done', doneHours: est });
+  // doneHours 0: the hours come from the logs unless a test says some were imported.
+  const done = (id: string, est: number, type: Task['type'] = 'course', imported = 0) =>
+    task({ id, estHours: est, type, status: 'done', doneHours: imported });
   const logsFor = (hours: Record<string, number>): LogEntry[] =>
     Object.entries(hours).map(([taskId, h]) => ({ taskId, date: TUE, hours: h }));
   const base = (actualEach: number) => ({
@@ -212,6 +219,49 @@ describe('rule 3: actual vs estimated hours per task type (spec 3.4)', () => {
     const i = base(20);
     i.logs = logsFor({ a: 20, b: 20 });
     expect(rulesOf(input(i))).toEqual([]);
+  });
+
+  it('counts hours imported with the plan: logs alone must not look shorter than estimated', () => {
+    // Each task: 10 h estimated, 10 h done of which 6 h came with the plan file and 4 h are logged.
+    // Reading the logs only gives 12 h vs 30 h (a wrong "60% shorter"); the truth is on target.
+    const i = {
+      tasks: [
+        done('a', 10, 'course', 10),
+        done('b', 10, 'course', 10),
+        done('c', 10, 'course', 10),
+        task({ id: 'next', estHours: 8 }),
+      ],
+      logs: logsFor({ a: 4, b: 4, c: 4 }),
+    };
+    expect(rulesOf(input(i))).toEqual([]);
+  });
+
+  it('counts imported hours of a task that has no logs at all, and states the real total', () => {
+    const i = {
+      tasks: [
+        done('a', 10, 'course', 15),
+        done('b', 10, 'course', 15),
+        done('c', 10, 'course', 15),
+        task({ id: 'next', estHours: 8 }),
+      ],
+      logs: [],
+    };
+    const [s] = suggestAdjustments(input(i));
+    expect(s?.proposedChange).toMatchObject({ kind: 'estimateUpdate', factor: 1.5 });
+    expect(s?.explanation).toContain('45 h actual vs 30 h estimated');
+  });
+
+  it('does not add logs on top of doneHours (doneHours already includes them)', () => {
+    const i = {
+      tasks: [
+        done('a', 10, 'course', 13),
+        done('b', 10, 'course', 13),
+        done('c', 10, 'course', 13),
+        task({ id: 'next', estHours: 8 }),
+      ],
+      logs: logsFor({ a: 13, b: 13, c: 13 }),
+    };
+    expect(suggestAdjustments(input(i))[0]?.explanation).toContain('39 h actual vs 30 h');
   });
 
   it('judges the aggregate, not single tasks', () => {
@@ -423,6 +473,34 @@ describe('ids and ordering', () => {
       'difficulty_practice',
     ]);
     expect(b).toEqual(a);
+  });
+});
+
+describe('applySuggestion: estimates never drop below the hours already done', () => {
+  const update = (factor: number, ids: string[]): Suggestion => ({
+    id: 'sg_x',
+    rule: 'estimate_drift',
+    key: 'k',
+    title: 't',
+    explanation: 'e',
+    proposedChange: { kind: 'estimateUpdate', taskType: 'course', factor, taskIds: ids },
+    alternatives: [],
+    evidence: { reviewDates: [], taskIds: [] },
+  });
+
+  it('raises an in-progress task to its done hours (est 5, done 4, factor 0.6 -> 4, not 3)', () => {
+    const tasks = [task({ id: 'p', estHours: 5, doneHours: 4, status: 'in_progress' })];
+    const out = applySuggestion(tasks, basePattern, [], update(0.6, ['p']));
+    expect(out.tasks[0]?.estHours).toBe(4);
+  });
+
+  it('rounds the floor up to a quarter hour and leaves higher results alone', () => {
+    const tasks = [
+      task({ id: 'p', estHours: 5, doneHours: 4.1, status: 'in_progress' }),
+      task({ id: 'q', estHours: 5, doneHours: 1, status: 'in_progress' }),
+    ];
+    const out = applySuggestion(tasks, basePattern, [], update(0.6, ['p', 'q']));
+    expect(out.tasks.map((t) => t.estHours)).toEqual([4.25, 3]);
   });
 });
 
