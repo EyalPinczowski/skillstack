@@ -18,3 +18,5 @@ export * from './practice/redact';
 export * from './practice/feedback';
 export * from './practice/personas';
 export * from './practice/prompt';
+export * from './practice/rubric';
+export * from './practice/trends';
