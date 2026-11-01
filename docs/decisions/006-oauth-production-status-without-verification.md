@@ -1,6 +1,6 @@
 # 006 – OAuth in production status, without Google verification at first
 
-**Status:** Planned · built with the calendar feature (v0.6)
+**Status:** Planned · built with the calendar feature (v0.3b)
 
 ## Context
 Calendar scopes are "sensitive". In Google's **Testing** status, refresh tokens expire after about a week (**needs check** on Google's current rules), which would silently break calendar sync. Google verification requires a domain the owner does not have yet.
