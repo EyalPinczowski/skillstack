@@ -84,6 +84,12 @@ def check_items(items, skill_ids=None):
                     errs.append(f"{iid}: prerequisite_kinds[{p}] is {k!r}, expected one of {PREREQ_KINDS}")
         if it["url_verified"] and not (it["url"] or "").startswith("https://"):
             errs.append(f"{iid}: url_verified is true but the url is not an https url")
+        if it.get("type") != "practice" and not it["url"]:
+            # A learning item without a url is allowed only while it is unverified and says so.
+            if it["url_verified"] or "needs check: url" not in (it.get("notes") or "").lower():
+                errs.append(f"{iid}: missing url (allowed only when url_verified is false and notes contain 'needs check: url')")
+            if it.get("last_verified_at") is not None:
+                errs.append(f"{iid}: last_verified_at must be null when the item has no url")
         lv = it.get("last_verified_at")
         if lv is not None and not (isinstance(lv, str) and DATE_RE.match(lv)):
             errs.append(f"{iid}: last_verified_at must be YYYY-MM-DD or null, got {lv!r}")
@@ -121,10 +127,17 @@ def check_items(items, skill_ids=None):
 
 
 def check_role_paths(items, roles):
-    """Every required prerequisite of a `core` item must be in `core`, before the item."""
+    """Every required prerequisite of a `core` item must be in `core`, before the item. No path
+    list may hold a learning item without a url."""
     by_id = {i["id"]: i for i in items}
     errs = []
     for r in roles:
+        # An item without a url cannot be opened, so it must not be recommended in any list.
+        for lst, ids in r["suggested_path"].items():
+            for x in ids:
+                it = by_id.get(x)
+                if it is not None and it.get("type") != "practice" and not it.get("url"):
+                    errs.append(f"role {r['id']}: {lst} item {x} has no url")
         core = r["suggested_path"]["core"]
         pos = {x: n for n, x in enumerate(core)}
         for x in core:
