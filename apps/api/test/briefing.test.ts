@@ -204,6 +204,38 @@ describe.skipIf(!dbAvailable)('day briefing (real Postgres)', () => {
       ]);
     });
 
+    it('has no podcast when the plan stores no skills', async () => {
+      const body = (await briefing(SUN)).json();
+      expect('podcast' in body).toBe(false);
+    });
+
+    it('adds one Idea of the day podcast when the plan stores skills, in the schema shape', async () => {
+      await rows(`update rnd.plans set summary = summary || $2::jsonb where id = $1`, [
+        PLAN,
+        JSON.stringify({ skillIds: ['python', 'not-a-string-next', 7] }),
+      ]);
+      const body = (await briefing(SUN)).json();
+      expect(Object.keys(body.podcast).sort()).toEqual([
+        'oneLine',
+        'publisher',
+        'skillLink',
+        'spotifyUrl',
+        'title',
+      ]);
+      expect(body.podcast.spotifyUrl).toMatch(/^https:\/\/open\.spotify\.com\/show\//);
+      expect(BriefingSchema.parse(body).podcast).toEqual(body.podcast);
+      // The same day always gives the same show.
+      expect((await briefing(SUN)).json().podcast).toEqual(body.podcast);
+    });
+
+    it('has no podcast when the stored skills match no show', async () => {
+      await rows(`update rnd.plans set summary = summary || $2::jsonb where id = $1`, [
+        PLAN,
+        JSON.stringify({ skillIds: ['excel'] }),
+      ]);
+      expect('podcast' in (await briefing(SUN)).json()).toBe(false);
+    });
+
     it('writes nothing for today: no events, no stored days', async () => {
       const before = await rows(`select type from rnd.events order by id`);
       await briefing(SUN);

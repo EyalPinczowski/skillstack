@@ -2492,6 +2492,13 @@ export interface paths {
                                 start: string;
                                 end: string;
                             }[];
+                            podcast?: {
+                                title: string;
+                                publisher: string;
+                                skillLink: string;
+                                oneLine: string | null;
+                                spotifyUrl: string;
+                            };
                             /** @enum {string} */
                             source: "template";
                         };

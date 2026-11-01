@@ -6,6 +6,7 @@ export * from './zone';
 export * from './schemas';
 export * from './labels';
 export * from './briefing';
+export * from './podcasts';
 export * from './scheduling/capacity';
 export * from './scheduling/engine';
 export * from './scheduling/changes';

@@ -227,6 +227,7 @@ When I start a study day, a briefing screen opens:
   - Practice: what to do, how, how long, and what success looks like.
   - **A ready-made prompt** for practices that need one – already tailored to today (e.g. including the job description of the user's next interview, if entered). "Copy" and "Run here" buttons (3.3).
 - **Suggested order for the day**, with times (based on the start time and calendar events).
+- **Idea of the day (added 1 Nov 2026, owner decision):** one podcast about the ideas around my skills, not a lesson, with a link to the show on Spotify. Chosen by a fixed rule from the plan's skills and the date (no AI, nothing about me leaves the app); not a task and not counted as study time. Only shows whose links were verified are listed (`data/podcasts/`); on days with no fit, nothing is shown.
 
 ### 3.3 Running practices inside the app – with a free AI model
 **Constraint: the app is completely free.** No Claude API and no paid API of any kind. A Claude Pro subscription can't be connected to the app (it has no API), so in-app practice runs on **a model with a free tier**.
