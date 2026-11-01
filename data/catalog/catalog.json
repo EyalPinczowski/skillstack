@@ -48,7 +48,7 @@
     {
       "type": "course",
       "cost_type": "free_audit",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": 59,
@@ -133,8 +133,8 @@
         "reading"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": false,
+      "url_verified": true,
+      "price_verified": true,
       "source": null,
       "notes": "Official, short, free. Core prep for PSM I / PSPO I.",
       "prerequisites": [],
@@ -269,10 +269,10 @@
         "hands-on"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "Atlassian community announcement",
-      "notes": "~90 minutes, assessment-backed badge. Pair with a real Jira board in a free workspace.",
+      "notes": "~90 minutes, assessment-backed badge. Pair with a real Jira board in a free workspace. Needs check: the catalog URL no longer resolves to this learning path.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "jira-fundamentals",
@@ -378,7 +378,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": false,
       "source": "Readynez ITIL cost guide",
       "notes": "Price varies by country and provider (often several hundred USD/GBP). Training not mandatory.",
@@ -619,7 +619,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -630,7 +630,7 @@
         "hands-on"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": false,
       "source": null,
       "notes": "No certificate; fastest way to practice SQL basics in the browser.",
@@ -653,7 +653,7 @@
     {
       "type": "cert_exam",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -664,8 +664,8 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": true,
+      "url_verified": true,
+      "price_verified": false,
       "source": "HackerRank community knowledge base",
       "notes": "Free timed assessment (2–4 questions). Basic, Intermediate and Advanced levels exist.",
       "prerequisites": [
@@ -676,7 +676,7 @@
       "title": "HackerRank SQL (Basic) – skills certification",
       "provider": "HackerRank",
       "url": "https://www.hackerrank.com/skills-verification/sql_basic",
-      "est_hours": 1,
+      "est_hours": 0.5,
       "skills": [
         "sql"
       ],
@@ -693,7 +693,7 @@
     {
       "type": "cert_exam",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -704,8 +704,8 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": true,
+      "url_verified": true,
+      "price_verified": false,
       "source": "HackerRank community knowledge base",
       "notes": "",
       "prerequisites": [
@@ -717,7 +717,7 @@
       "title": "HackerRank SQL (Intermediate) – skills certification",
       "provider": "HackerRank",
       "url": "https://www.hackerrank.com/skills-verification/sql_intermediate",
-      "est_hours": 2,
+      "est_hours": 0.6,
       "skills": [
         "sql"
       ],
@@ -729,7 +729,7 @@
     {
       "type": "course",
       "cost_type": "subscription",
-      "price": 59,
+      "price": null,
       "currency": "USD",
       "subscription_period": "month",
       "certificate_price": null,
@@ -741,8 +741,8 @@
         "hands-on"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": true,
+      "url_verified": true,
+      "price_verified": false,
       "source": "Coursera Plus pricing",
       "notes": "4 courses, essentials to advanced.",
       "prerequisites": [],
@@ -768,7 +768,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": 165,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -779,8 +779,8 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": true,
+      "url_verified": true,
+      "price_verified": false,
       "source": "Open Exam Prep PL-300 guide 2026",
       "notes": "40–60 questions, 100 min, 700/1000 to pass. Valid 1 year, free online renewal. 8–12 weeks prep for beginners. 2026 skills include Copilot.",
       "prerequisites": [
@@ -790,7 +790,7 @@
       "id": "pl-300",
       "title": "Microsoft Power BI Data Analyst (PL-300) – exam",
       "provider": "Microsoft",
-      "url": "https://learn.microsoft.com/credentials/certifications/data-analyst-associate/",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/data-analyst-associate/",
       "est_hours": 80,
       "skills": [
         "bi-visualization",
@@ -822,7 +822,7 @@
       "url_verified": false,
       "price_verified": false,
       "source": null,
-      "notes": "Free, badges only. Official PL-300 prep.",
+      "notes": "Free, badges only. Official PL-300 prep. Needs check: the filtered learning-path list could not be confirmed.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "power-bi-learn-path",
@@ -885,7 +885,7 @@
         "hands-on"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "dev.to learner write-up",
       "notes": "Badge + certificate after a final test. Free per most sources; confirm.",
@@ -994,7 +994,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": true,
       "source": "AWS certification guides 2026",
       "notes": "Conceptual exam. Completing the official Essentials course may earn a 50% exam voucher (reported).",
@@ -1053,7 +1053,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": 75,
+      "price": 99,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -1064,7 +1064,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": true,
       "source": "Telecom Trainer CDL page",
       "notes": "50 questions, 1 hour.",
@@ -1098,7 +1098,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": false,
       "source": null,
       "notes": "Price varies by country; check the Microsoft exam page.",
@@ -1107,7 +1107,7 @@
       "id": "az-900",
       "title": "Microsoft Azure Fundamentals (AZ-900) – exam",
       "provider": "Microsoft",
-      "url": "https://learn.microsoft.com/credentials/certifications/azure-fundamentals/",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/",
       "est_hours": 15,
       "skills": [
         "cloud"
@@ -1132,16 +1132,16 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": false,
       "source": null,
-      "notes": "Price varies by country.",
+      "notes": "Price varies by country. The official certification page now lists exam AI-901 (Microsoft Azure AI Fundamentals) as the required exam; AI-900 may be retired (needs check).",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "ai-900",
       "title": "Microsoft Azure AI Fundamentals (AI-900) – exam",
       "provider": "Microsoft",
-      "url": "https://learn.microsoft.com/credentials/certifications/azure-ai-fundamentals/",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-fundamentals/",
       "est_hours": 15,
       "skills": [
         "ai-literacy",
@@ -1169,13 +1169,13 @@
       "url_verified": true,
       "price_verified": true,
       "source": "Anthropic Academy coverage (DEV, NewsBytes)",
-      "notes": "Free with certificate. Catalog URL – open the course from there.",
+      "notes": "Free with certificate (Skilljar account required).",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "anthropic-claude-code-in-action",
       "title": "Claude Code in Action",
       "provider": "Anthropic Academy",
-      "url": "https://anthropic.skilljar.com/",
+      "url": "https://anthropic.skilljar.com/claude-code-in-action",
       "est_hours": 3,
       "skills": [
         "ai-agents",
@@ -1212,7 +1212,7 @@
       "id": "anthropic-building-with-api",
       "title": "Building with the Claude API",
       "provider": "Anthropic Academy",
-      "url": "https://anthropic.skilljar.com/",
+      "url": "https://anthropic.skilljar.com/claude-with-the-anthropic-api",
       "est_hours": 5,
       "skills": [
         "ai-agents",
@@ -1246,7 +1246,7 @@
       "id": "anthropic-intro-mcp",
       "title": "Introduction to Model Context Protocol (MCP)",
       "provider": "Anthropic Academy",
-      "url": "https://anthropic.skilljar.com/",
+      "url": "https://anthropic.skilljar.com/introduction-to-model-context-protocol",
       "est_hours": 2,
       "skills": [
         "ai-agents",
@@ -1279,7 +1279,7 @@
       "id": "anthropic-ai-fluency",
       "title": "AI Fluency: Framework & Foundations",
       "provider": "Anthropic Academy",
-      "url": "https://anthropic.skilljar.com/",
+      "url": "https://anthropic.skilljar.com/ai-fluency-framework-foundations",
       "est_hours": 3,
       "skills": [
         "ai-literacy"
@@ -1297,7 +1297,7 @@
     {
       "type": "course",
       "cost_type": "subscription",
-      "price": 59,
+      "price": null,
       "currency": "USD",
       "subscription_period": "month",
       "certificate_price": null,
@@ -1335,7 +1335,7 @@
     {
       "type": "course",
       "cost_type": "subscription",
-      "price": 59,
+      "price": null,
       "currency": "USD",
       "subscription_period": "month",
       "certificate_price": null,
@@ -1371,7 +1371,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -1385,13 +1385,13 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Product Compass list",
-      "notes": "",
+      "notes": "Page title is 'Beginner: Introduction to Generative AI'; hours not stated on the page (needs check).",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "google-genai-path",
       "title": "Generative AI learning path",
       "provider": "Google Cloud Skills Boost",
-      "url": "https://www.cloudskillsboost.google/paths/118",
+      "url": "https://www.skills.google/paths/118",
       "est_hours": 8,
       "skills": [
         "ai-literacy"
@@ -1753,7 +1753,7 @@
         "video"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "Supademo",
       "notes": "Udemy price fluctuates ($15–30).",
@@ -1921,7 +1921,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "Skillshop coverage",
       "notes": "Free; search Skillshop for 'Google Analytics Certification'.",
@@ -2333,7 +2333,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": true,
       "source": "ASTQB FAQ – price of an ISTQB exam",
       "notes": "$229 USD worldwide via ASTQB (local boards may differ). Self-study with the free official syllabus is common.",
@@ -2354,7 +2354,7 @@
     {
       "type": "cert_exam",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2365,10 +2365,10 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": true,
+      "url_verified": true,
+      "price_verified": false,
       "source": "HackerRank community knowledge base",
-      "notes": "",
+      "notes": "URL is the HackerRank skills-verification hub; the specific certificate page needs check.",
       "prerequisites": [
         "postman-api-fundamentals"
       ],
@@ -2440,7 +2440,7 @@
         "video"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": true,
       "source": "Credly – Cisco Introduction to Cybersecurity badge",
       "notes": "Free, earns a Credly badge.",
@@ -2474,8 +2474,8 @@
         "video"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": false,
+      "url_verified": true,
+      "price_verified": true,
       "source": "NetAcad course listings",
       "notes": "Free; badge on completion (confirm).",
       "prerequisites": [],
@@ -2497,7 +2497,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": 439,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2509,9 +2509,9 @@
       ],
       "language": "en",
       "url_verified": false,
-      "price_verified": true,
+      "price_verified": false,
       "source": "HackerDNA Security+ cost 2026",
-      "notes": "$439 US voucher after the June 2026 increase; resellers ~$365–395.",
+      "notes": "$439 US voucher after the June 2026 increase; resellers ~$365–395. Needs check: the exam version is changing (V8 launch), so exam version and price may change; price not stated on the page.",
       "prerequisites": [],
       "free_alternative_ids": [
         "cisco-intro-cybersecurity"
@@ -2544,7 +2544,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": false,
       "source": "ISC2 press release, April 2026",
       "notes": "The free 'One Million Certified' program concluded in 2026 – check current exam price and annual maintenance fee.",
@@ -2566,7 +2566,7 @@
     {
       "type": "course",
       "cost_type": "free_audit",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2577,8 +2577,8 @@
         "video"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": true,
+      "url_verified": true,
+      "price_verified": false,
       "source": "Careers360 Linux Foundation free courses",
       "notes": "Free to audit (~14 weeks self-paced); verified certificate is paid.",
       "prerequisites": [],
@@ -2601,7 +2601,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": 99,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2615,7 +2615,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "DEV – GitHub Foundations",
-      "notes": "Reported $99; free for verified students via GitHub Education. Confirm current price.",
+      "notes": "Reported $99; free for verified students via GitHub Education. Confirm current price. URL is the GitHub Education page (free voucher for verified students, no public price on it); public price needs check on the GitHub certification page.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "github-foundations",
@@ -2672,11 +2672,11 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
-      "certificate_type": "none",
+      "certificate_type": "completion",
       "recognition": "low",
       "level": "beginner",
       "format": [
@@ -2717,10 +2717,10 @@
         "video"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "Analytics Vidhya free automation courses 2026",
-      "notes": "",
+      "notes": "Needs check: this path name was not found on learn.zapier.com; it may have been renamed or restructured.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "zapier-ai-builder",
@@ -2788,16 +2788,16 @@
       ],
       "language": "en",
       "url_verified": true,
-      "price_verified": false,
+      "price_verified": true,
       "source": "Analytics Vidhya free automation courses 2026",
-      "notes": "",
+      "notes": "Free for a limited time during the DeepLearning.AI promo (needs check); completion certificates need a PRO membership.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "deeplearning-crewai",
       "title": "Multi AI Agent Systems with crewAI",
       "provider": "DeepLearning.AI",
       "url": "https://www.deeplearning.ai/courses/multi-ai-agent-systems-with-crewai",
-      "est_hours": 3,
+      "est_hours": 3.1,
       "skills": [
         "ai-agents",
         "python"
@@ -2821,7 +2821,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": true,
       "source": "Adaptive US – ECBA cost 2026",
       "notes": "US fee ~$395 (first year of membership included from 2026). Requires 21 hours of BA professional development.",
@@ -2854,7 +2854,7 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": true,
       "source": "ExamCert aPHR requirements 2026",
       "notes": "$300 exam + $100 application. Entry-level HR credential; 105-minute exam.",
@@ -2865,7 +2865,7 @@
       "id": "hrci-aphr",
       "title": "HRCI Associate Professional in Human Resources (aPHR) – exam",
       "provider": "HRCI",
-      "url": "https://www.hrci.org/our-programs/our-hr-certifications/aphr",
+      "url": "https://www.hrci.org/certifications/individual-certifications/aphr",
       "est_hours": 40,
       "skills": [
         "recruiting-hr"
@@ -2889,7 +2889,7 @@
       ],
       "language": "en",
       "url_verified": true,
-      "price_verified": false,
+      "price_verified": true,
       "source": "CFI site",
       "notes": "Free CFI program; confirm certificate terms.",
       "prerequisites": [],
@@ -2925,7 +2925,7 @@
       "url_verified": false,
       "price_verified": false,
       "source": "Free MOOC listings (TUN, findcourses)",
-      "notes": "Free to audit; verified certificate paid. Part of the MITx MicroMasters in SCM.",
+      "notes": "Free to audit; verified certificate paid. Part of the MITx MicroMasters in SCM. Needs check: the catalog URL returned 404; the course may have moved or been renamed.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "mitx-supply-chain-fundamentals",
@@ -3357,7 +3357,7 @@
     {
       "type": "course",
       "cost_type": "subscription",
-      "price": 59,
+      "price": null,
       "currency": "USD",
       "subscription_period": "month",
       "certificate_price": null,
@@ -3407,7 +3407,7 @@
       "url_verified": false,
       "price_verified": true,
       "source": "Hyperbound – sales certifications",
-      "notes": "Free to access; certificate about $95.",
+      "notes": "Free to access; certificate about $95. Needs check: the catalog URL is dead and no official replacement URL was confirmed.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "northwestern-art-of-sales",
@@ -3529,7 +3529,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": 499,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -3540,8 +3540,8 @@
         "exam"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": true,
+      "url_verified": true,
+      "price_verified": false,
       "source": "AIHR – SHRM certification cost",
       "notes": "$450 early / $499 standard for non-members ($350/$399 members). No degree or HR experience required. Recertify every 3 years (60 PDCs).",
       "prerequisites": [],
@@ -3610,7 +3610,7 @@
       ],
       "language": "en",
       "url_verified": true,
-      "price_verified": false,
+      "price_verified": true,
       "source": "Coursera lecture listing",
       "notes": "Part of the HR Management specialization; free to audit.",
       "prerequisites": [],
@@ -3663,7 +3663,7 @@
     {
       "type": "course",
       "cost_type": "subscription",
-      "price": 323,
+      "price": 323.05,
       "currency": "USD",
       "subscription_period": "year",
       "certificate_price": null,
@@ -3675,7 +3675,7 @@
         "hands-on"
       ],
       "language": "en",
-      "url_verified": false,
+      "url_verified": true,
       "price_verified": true,
       "source": "OnlineCourseing – CFI FMVA cost (Oct 2026)",
       "notes": "Self-Study ~$323/yr (list $497); students ~$249/yr. 100–120 hours. Auto-renews.",
@@ -3733,7 +3733,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -3748,7 +3748,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Capterra (2017; verify)",
-      "notes": "Requires joining the free Xero Partner program.",
+      "notes": "Requires joining the free Xero Partner program. URL is the Xero partner program page, not the certification page; certification cost needs check.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "xero-advisor",
@@ -3777,8 +3777,8 @@
         "video"
       ],
       "language": "en",
-      "url_verified": false,
-      "price_verified": false,
+      "url_verified": true,
+      "price_verified": true,
       "source": null,
       "notes": "Free to audit; certificate via the paid specialization.",
       "prerequisites": [],
@@ -3787,7 +3787,7 @@
       "title": "Introduction to Corporate Finance (audit)",
       "provider": "Wharton (UPenn) / Coursera",
       "url": "https://www.coursera.org/learn/wharton-finance",
-      "est_hours": 12,
+      "est_hours": 9,
       "skills": [
         "finance-basics"
       ],
@@ -3878,7 +3878,7 @@
       ],
       "language": "en",
       "url_verified": true,
-      "price_verified": false,
+      "price_verified": true,
       "source": "Apollo Academy guides page",
       "notes": "",
       "prerequisites": [],
@@ -3912,7 +3912,7 @@
       ],
       "language": "en",
       "url_verified": true,
-      "price_verified": false,
+      "price_verified": true,
       "source": "Apollo Academy guides page",
       "notes": "",
       "prerequisites": [],
@@ -3933,7 +3933,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": 0,
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -3954,7 +3954,7 @@
       "title": "Mastering Social Selling on LinkedIn (webinar)",
       "provider": "Apollo Academy",
       "url": "https://www.apollo.io/academy/webinars/social-selling-on-linkedin",
-      "est_hours": 1,
+      "est_hours": 0.9,
       "skills": [
         "sales"
       ],
