@@ -30,7 +30,34 @@ export function redactText(text: string, secrets: Array<string | undefined> = []
   for (const secret of secrets) {
     if (secret) result = result.split(secret).join('[redacted]');
   }
-  return result.replace(/[a-z][a-z0-9+.-]*:\/\/\S+/gi, '[redacted-url]');
+  return redactUrls(result);
+}
+
+const isSchemeChar = (c: string) => /^[A-Za-z0-9+.-]$/.test(c);
+const isSpace = (c: string) => /^\s$/.test(c);
+
+/** Replaces every `scheme://...` run (up to the next whitespace) with a marker. Single linear pass. */
+function redactUrls(text: string): string {
+  let out = '';
+  let from = 0;
+  let at = text.indexOf('://');
+  while (at !== -1) {
+    let start = at;
+    while (start > from && isSchemeChar(text.charAt(start - 1))) start--;
+    // a scheme must begin with a letter
+    while (start < at && !/^[A-Za-z]$/.test(text.charAt(start))) start++;
+    let end = at + 3;
+    while (end < text.length && !isSpace(text.charAt(end))) end++;
+    if (start < at) {
+      out += text.slice(from, start) + '[redacted-url]';
+      from = end;
+    } else {
+      out += text.slice(from, end);
+      from = end;
+    }
+    at = text.indexOf('://', end);
+  }
+  return out + text.slice(from);
 }
 
 function codeOf(error: unknown): string | undefined {

@@ -1,6 +1,6 @@
 import net from 'node:net';
 import { describe, expect, it } from 'vitest';
-import { CONNECT_TIMEOUT_MS, createClient, formatError } from '../src/connection';
+import { CONNECT_TIMEOUT_MS, createClient, formatError, redactText } from '../src/connection';
 import { runCli } from './helpers';
 
 function netError(code: string, message: string): Error {
@@ -98,5 +98,15 @@ describe('connecting', () => {
     expect(result.stderr).toMatch(/ECONNREFUSED/);
     expect(result.stderr).toMatch(/Session pooler/);
     expect(result.stdout + result.stderr).not.toContain('cli-secret-pw');
+  });
+
+  it('redacts URLs in one linear pass, even for hostile input', () => {
+    const hostile = `${'a'.repeat(200_000)}:/${'a'.repeat(200_000)}`;
+    const started = Date.now();
+    expect(redactText(hostile)).toBe(hostile);
+    expect(redactText(`x ://nothing and postgres://u:p@h/d end`)).toBe(
+      'x ://nothing and [redacted-url] end',
+    );
+    expect(Date.now() - started).toBeLessThan(1000);
   });
 });
