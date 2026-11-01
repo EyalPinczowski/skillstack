@@ -4,7 +4,7 @@ Each extension point is meant to be **one new file plus a config entry, with no 
 
 | Extension | Interface | Where | Status |
 |---|---|---|---|
-| A new calendar | `CalendarProvider` | `apps/api/src/modules/calendar` | Planned (v0.6) |
+| A new calendar | `CalendarProvider` | `apps/api/src/modules/calendar` | Planned (v0.3b) |
 | A new AI model provider | `AIProvider` | `apps/api/src/ai` (contract and guard built; providers in v0.3) | Seam built (v0.2), providers planned (v0.3) |
 | A new notification channel | `NotificationChannel` | `apps/api/src/modules/notifications` | Planned |
 | A progress importer | `ProgressSource` | `apps/api/src/modules/progress` | Planned |

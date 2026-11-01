@@ -725,9 +725,9 @@ Each phase = several feature branches → PRs into `rnd` → tested on the R&D e
 1. **v0.1 – Foundation:** monorepo setup (web, api, shared), CI, **sign-in and accounts with RLS (3.A)**, data model, seed, scheduling engine + tests, tasks API, progress logging and time settings, and a minimal UI connected to it.
 2. **v0.2 – Daily experience:** daily and weekly dashboard, day briefing with links and the AI/template day overview, day review, adjustment rules + suggestions, Playwright e2e tests for the 3 core flows.
 3. **v0.3 – Practices:** dynamic prompts, timer, in-app practice chat with provider layer and fallback, JSON feedback, claude.ai alternative, score trends. Voice input – at the end of the phase, if time allows.
+3b. **v0.3b – Calendar** *(moved here from v0.6 by the owner on 1 Nov 2026, so that calendar events shape capacity before the content and plan-builder phases)*: Google Calendar with minimal scopes and the protection layer. Connecting is one tap per user (the app creates the "Skillstack" calendar itself, with sensible defaults for which calendars block time). Google only for now; until Google verifies the app it is limited to testers (see 3.8). Version numbers v0.4 to v1.0 are unchanged.
 4. **v0.4 – Content, plan and admin:** admin console (3.B), plan and certificate screens, automatic CV tasks, system recommendations, content list.
 5. **v0.5 – Plan builder:** catalog (data, screen, link checker), goal intake wizard, AI plan generation + rule-based fallback, fit check, review and "Start this plan", multiple plans.
-6. **v0.6 – Calendar:** Google Calendar with minimal scopes and the protection layer.
 7. **v1.0 – Showcase:** PWA, polish, in-browser demo mode, "App health" metrics card, full README with screenshots, diagram, ADR summary and sprint results, deployment.
 
 ---

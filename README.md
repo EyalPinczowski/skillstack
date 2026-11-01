@@ -4,7 +4,7 @@
 
 Skillstack is a web app (PWA) that turns a learning goal into a study plan – courses, certificates and practice sized to the time you have – and then runs that plan day by day: what to do today, practice sessions, an end-of-day review, and automatic rescheduling based on what actually happened.
 
-> **Status: early development.** Phase 0 (environments) and v0.1 (foundation) are built on `rnd` and in review; the owner's setup steps are in `docs/reviews/phase-0.md` and `docs/reviews/v0.1.md`. This README grows with each release.
+> **Status: early development.** Phase 0 (environments) is released as v0.0. v0.1 (foundation) and v0.2 (daily experience) are built on `rnd` and awaiting release approval; the reviews are in `docs/reviews/`. This README grows with each release.
 
 ## Why
 
@@ -14,13 +14,13 @@ Study plans usually fail on the second day: something takes longer, something co
 
 | Phase | What | Status |
 |---|---|---|
-| 0 | Environments: `main` / `rnd`, CI, two database schemas, deployments, backups | In review |
-| v0.1 | Foundation: accounts with row-level security, data model, scheduling engine, tasks API, minimal UI | In review |
-| v0.2 | Daily experience: dashboard, day briefing, day review, adjustment rules | Planned |
+| 0 | Environments: `main` / `rnd`, CI, two database schemas, deployments, backups | Released (v0.0) |
+| v0.1 | Foundation: accounts with row-level security, data model, scheduling engine, tasks API, minimal UI | Built on `rnd`, awaiting release approval |
+| v0.2 | Daily experience: dashboard, day briefing, day review, adjustment rules | Built on `rnd`, awaiting release approval |
 | v0.3 | Practices: in-app practice with free AI models and provider fallback | Planned |
+| v0.3b | Google Calendar with minimal scopes and a write guard (moved up from v0.6) | Planned |
 | v0.4 | Content, plan and admin console | Planned |
 | v0.5 | Plan builder: catalog, guided intake, plan generation | Planned |
-| v0.6 | Google Calendar with minimal scopes and a write guard | Planned |
 | v1.0 | Showcase: PWA, demo mode, metrics, full README | Planned |
 
 ## Architecture (planned)

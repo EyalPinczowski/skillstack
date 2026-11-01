@@ -1,6 +1,6 @@
 # 002 – Minimal calendar scopes and a write guard
 
-**Status:** Planned · built with the calendar feature (v0.6)
+**Status:** Planned · built with the calendar feature (v0.3b)
 
 ## Context
 Syncing study blocks to Google Calendar is useful, but a bug that edits or deletes someone's real events would destroy trust.
