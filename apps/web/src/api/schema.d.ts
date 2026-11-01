@@ -4630,6 +4630,1920 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plans/{planId}/practice/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The job description saved for the plan (Tier 2)
+         * @description An empty string and `updatedAt: null` until one is saved. It is personal content: never logged, never in events, and removed of contact details before any model would see it.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            jobDescription: string;
+                            /** Format: date-time */
+                            updatedAt: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        /**
+         * Save the job description (an empty string clears it)
+         * @description `redactionsPreview` is how many personal details (emails, phone numbers, links, your own name) are removed from the text before a model could see it.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        jobDescription: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            jobDescription: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            redactionsPreview: number;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/tasks/{taskId}/practice/prompt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The ready-made prompt for a practice task
+         * @description Built from the task, the job description, the `next_focus` of the last finished session of the same kind in this plan that left one, and the other tasks worked on in the last 7 days. Personal details are removed. 422 when the task is not a practice. Nothing is saved.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    taskId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            persona: {
+                                id: string;
+                                label: string;
+                            };
+                            prompt: string;
+                            inputs: {
+                                nextFocus: string | null;
+                                /** Format: uuid */
+                                nextFocusFrom: string | null;
+                                topics: string[];
+                                jobDescriptionIncluded: boolean;
+                                redactions: number;
+                            };
+                            feedbackFormat: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/tasks/{taskId}/practice/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a practice session (idempotent on the client-generated id)
+         * @description Channels `external` (copy the prompt to another assistant, paste the feedback back) and `self` (rubric). 201 when created; 200 with the stored session for a retry of the same id, task and channel; 409 when the id was used for other data or the task already has an active session (the message names it). 422 when the task is not a practice. The stored prompt never contains the job description. Writes a `practice.started` event.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    taskId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        channel: "external" | "self";
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                            messages: {
+                                /** Format: uuid */
+                                id: string;
+                                seq: number;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "note";
+                                content: string;
+                                providerId: string | null;
+                                model: string | null;
+                                redacted: boolean;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                            messages: {
+                                /** Format: uuid */
+                                id: string;
+                                seq: number;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "note";
+                                content: string;
+                                providerId: string | null;
+                                model: string | null;
+                                redacted: boolean;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/practice/sessions/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One practice session with its messages and feedback */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    sessionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                            messages: {
+                                /** Format: uuid */
+                                id: string;
+                                seq: number;
+                                /** @enum {string} */
+                                role: "user" | "assistant" | "note";
+                                content: string;
+                                providerId: string | null;
+                                model: string | null;
+                                redacted: boolean;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                            feedback: {
+                                /** @enum {string} */
+                                source: "model_json" | "model_repaired" | "pasted_block" | "free_text" | "self_rubric";
+                                score: number | null;
+                                strengths: string;
+                                improve: string;
+                                nextFocus: string;
+                                raw: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            } | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/practice/sessions/{sessionId}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Paste the feedback block and finish the session
+         * @description A `===FEEDBACK===` block is parsed (`parsed: true`, source `pasted_block`); any other text is saved as plain text without an error (`parsed: false`, source `free_text`, no score). The call also finishes the session: `markDone` (default false) is the only way it marks the task done, and `logHours` (0 to 12) logs time on it. Pasted feedback replaces a self-check, so there is no rubric here. 201 when finished now; 200 for a retry with the same text and options; 409 for other text or options, or an abandoned session.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    sessionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        text: string;
+                        /** @default false */
+                        markDone?: boolean;
+                        /** @default null */
+                        logHours?: number | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                            feedback: {
+                                /** @enum {string} */
+                                source: "model_json" | "model_repaired" | "pasted_block" | "free_text" | "self_rubric";
+                                score: number | null;
+                                strengths: string;
+                                improve: string;
+                                nextFocus: string;
+                                raw: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            } | null;
+                            loggedHours: number | null;
+                            task: {
+                                /** @enum {string} */
+                                status: "pending" | "in_progress" | "done" | "skipped";
+                                doneHours: number;
+                            };
+                            replayed: boolean;
+                            parsed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                            feedback: {
+                                /** @enum {string} */
+                                source: "model_json" | "model_repaired" | "pasted_block" | "free_text" | "self_rubric";
+                                score: number | null;
+                                strengths: string;
+                                improve: string;
+                                nextFocus: string;
+                                raw: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            } | null;
+                            loggedHours: number | null;
+                            task: {
+                                /** @enum {string} */
+                                status: "pending" | "in_progress" | "done" | "skipped";
+                                doneHours: number;
+                            };
+                            replayed: boolean;
+                            parsed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/practice/sessions/{sessionId}/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finish a session with a self-check, an entered score or no feedback
+         * @description `markDone` is required: the task is marked done only when it is true, through the tasks service, and is otherwise left as it is (logging hours still moves a pending task to in progress, as everywhere). `rubric.checkedSteps` ticks steps of the task (or four generic steps when it has none) and is scored as 10 x ticked / total; `enteredScore` is a score you got elsewhere, normalised to 0 to 10; send at most one of them. Without either, no feedback is saved. 201 when finished now; 200 for a retry with the same feedback and options; 409 otherwise, for an abandoned session, or to mark a skipped task done.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    sessionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        markDone: boolean;
+                        /** @default null */
+                        logHours?: number | null;
+                        rubric?: {
+                            checkedSteps: number[];
+                        };
+                        enteredScore?: {
+                            score: number;
+                            max: number;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                            feedback: {
+                                /** @enum {string} */
+                                source: "model_json" | "model_repaired" | "pasted_block" | "free_text" | "self_rubric";
+                                score: number | null;
+                                strengths: string;
+                                improve: string;
+                                nextFocus: string;
+                                raw: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            } | null;
+                            loggedHours: number | null;
+                            task: {
+                                /** @enum {string} */
+                                status: "pending" | "in_progress" | "done" | "skipped";
+                                doneHours: number;
+                            };
+                            replayed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                            feedback: {
+                                /** @enum {string} */
+                                source: "model_json" | "model_repaired" | "pasted_block" | "free_text" | "self_rubric";
+                                score: number | null;
+                                strengths: string;
+                                improve: string;
+                                nextFocus: string;
+                                raw: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            } | null;
+                            loggedHours: number | null;
+                            task: {
+                                /** @enum {string} */
+                                status: "pending" | "in_progress" | "done" | "skipped";
+                                doneHours: number;
+                            };
+                            replayed: boolean;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/practice/sessions/{sessionId}/abandon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Give up a session: nothing is logged and the task is untouched
+         * @description Idempotent. 409 for a session that is already finished.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    planId: string;
+                    sessionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            session: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                planId: string;
+                                taskId: string;
+                                kind: string;
+                                persona: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** @enum {string} */
+                                status: "active" | "finished" | "abandoned";
+                                plannedMinutes: number;
+                                /** Format: date-time */
+                                startedAt: string;
+                                /** Format: date-time */
+                                endedAt: string | null;
+                                prompt: string;
+                                inputs: {
+                                    /** Format: uuid */
+                                    nextFocusFromSession: string | null;
+                                    topicTaskIds: string[];
+                                    jobDescriptionIncluded: boolean;
+                                    redactions: number;
+                                };
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/practice/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Finished practice sessions, newest first (no text)
+         * @description Optionally one `kind` and a plan-local date range (by the day the session started). `limit` defaults to 50, at most 200.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    kind?: string;
+                    from?: string;
+                    to?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    planId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            sessions: {
+                                /** Format: uuid */
+                                id: string;
+                                taskId: string;
+                                kind: string;
+                                /** @enum {string} */
+                                channel: "in_app" | "external" | "self";
+                                /** Format: date-time */
+                                startedAt: string;
+                                minutes: number;
+                                score: number | null;
+                                /** @enum {string|null} */
+                                source: "model_json" | "model_repaired" | "pasted_block" | "free_text" | "self_rubric" | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plans/{planId}/practice/trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Score trend per practice kind
+         * @description Scored sessions only (free text has no score), oldest first, from the newest 1000 in the range. `last`, `average` and `delta` are computed in the shared package.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                };
+                header?: never;
+                path: {
+                    planId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            kinds: {
+                                kind: string;
+                                points: {
+                                    date: string;
+                                    score: number;
+                                    /** @enum {string} */
+                                    source: "model_json" | "model_repaired" | "pasted_block" | "free_text" | "self_rubric";
+                                }[];
+                                last: number;
+                                average: number;
+                                delta: number | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plans/{planId}/tasks": {
         parameters: {
             query?: never;
