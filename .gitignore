@@ -40,3 +40,6 @@ Thumbs.db
 # Playwright output (e2e/)
 e2e/test-results/
 e2e/playwright-report/
+
+# Python bytecode (catalog build)
+__pycache__/
