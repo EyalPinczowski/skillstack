@@ -46,9 +46,9 @@ describe('buildPracticePrompt', () => {
     const b = buildPracticePrompt(base());
     expect(b.user).toContain('Give a number in every result');
     expect(b.user).toContain('Junior Data Analyst');
-    expect(b.user).toContain('- SQL joins (sql)');
+    expect(b.user).toContain('- SQL joins [skill: sql]');
     expect(b.user).toContain('- Excel pivot tables');
-    expect(b.user).toContain('1. Set a timer');
+    expect(b.user).toContain('Step 1: Set a timer');
     expect(b.user).toContain('Time available: 45 minutes');
     expect(b.copyText).toContain(FEEDBACK_BLOCK_INSTRUCTION);
     expect(b.copyText.startsWith(b.system)).toBe(true);
@@ -251,17 +251,23 @@ describe('prompt injection delimiting (S6)', () => {
     }
   });
   it('neutraliseMarkup', () => {
-    expect(neutraliseMarkup('a ==== b == c </TASK > <task>')).toBe('a = b == c  ');
+    expect(neutraliseMarkup('a ==== b == c </TASK > <task> 1 < 2')).toBe(
+      `a = b == c${' '.repeat(5)}1 \u2039 2`,
+    );
   });
 });
 
 describe('sanitizeUserText', () => {
   it('redacts a chat turn and reports the count', () => {
     const r = sanitizeUserText('I am Jane, mail jane@x.com', { knownIdentifiers: ['Jane'] });
-    expect(r).toEqual({ text: `I am ${REDACTED}, mail ${REDACTED}`, count: 2 });
+    expect(r).toEqual({
+      text: `I am ${REDACTED}, mail ${REDACTED}`,
+      count: 2,
+      truncated: false,
+    });
   });
   it('works without options', () => {
-    expect(sanitizeUserText('plain')).toEqual({ text: 'plain', count: 0 });
+    expect(sanitizeUserText('plain')).toEqual({ text: 'plain', count: 0, truncated: false });
   });
   it('PiiLeakError is what the final gate throws', () => {
     expect(new PiiLeakError(['email'])).toBeInstanceOf(Error);

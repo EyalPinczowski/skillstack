@@ -73,19 +73,28 @@ export interface BuiltPracticePrompt {
   redactions: number;
 }
 
-const OUR_TAGS = /<\/?\s*(?:task|job_description|last_focus|week_topics)\s*>/gi;
-
 /**
- * Keeps user text from posing as structure: our section tags are removed and runs of three or
- * more equals signs (the feedback block markers) are shortened.
+ * Keeps user text from posing as structure. Anything that looks like a tag (with or without
+ * attributes) becomes a single space, never an empty string, so text on both sides cannot be
+ * joined into a name or address. Any `<` or `>` left over becomes a single guillemet, so no
+ * tag can form; entities such as `&lt;` stay plain text. Runs of three or more equals signs
+ * (the feedback block markers) are shortened. Run it BEFORE redaction.
  */
 export function neutraliseMarkup(text: string): string {
-  return text.replace(OUR_TAGS, '').replace(/={3,}/g, '=');
+  return text
+    .replace(/<[^<>]{0,200}>/g, ' ')
+    .replace(/</g, '\u2039')
+    .replace(/>/g, '\u203A')
+    .replace(/={3,}/g, '=');
 }
+
+/** The longest text redacted in one go (a chat turn or a long field); the rest is dropped. */
+export const MAX_USER_TEXT_LENGTH = 16 * 1024;
 
 /**
  * Redacts one piece of user-controlled text and verifies the result. Use it for every chat turn
- * too. Throws `PiiLeakError` when something personal survives.
+ * too. Text over `MAX_USER_TEXT_LENGTH` is cut and `truncated` is true. Throws `PiiLeakError`
+ * when something personal survives, known identifiers included.
  */
 export function sanitizeUserText(
   text: string,
@@ -93,10 +102,12 @@ export function sanitizeUserText(
 ): {
   text: string;
   count: number;
+  truncated: boolean;
 } {
-  const result = redactPii(text, options);
+  const truncated = text.length > MAX_USER_TEXT_LENGTH;
+  const result = redactPii(truncated ? text.slice(0, MAX_USER_TEXT_LENGTH) : text, options);
   assertNoPii(result.text, options);
-  return result;
+  return { ...result, truncated };
 }
 
 /** Builds the prompt for one practice from the allowlisted input. Throws on invalid input. */
@@ -107,9 +118,9 @@ export function buildPracticePrompt(
   const parsed = PracticePromptInputSchema.parse(input);
   let redactions = 0;
   const clean = (text: string): string => {
-    const r = sanitizeUserText(text, options);
+    const r = sanitizeUserText(neutraliseMarkup(text), options);
     redactions += r.count;
-    return neutraliseMarkup(r.text);
+    return r.text;
   };
 
   const persona =
@@ -128,7 +139,7 @@ export function buildPracticePrompt(
   }
   if (parsed.task.howToSteps.length > 0) {
     lines.push('Steps I plan to follow:');
-    parsed.task.howToSteps.forEach((step, i) => lines.push(`${i + 1}. ${clean(step)}`));
+    parsed.task.howToSteps.forEach((step, i) => lines.push(`Step ${i + 1}: ${clean(step)}`));
   }
   lines.push('</task>');
   if (parsed.jobDescription) {
@@ -141,7 +152,7 @@ export function buildPracticePrompt(
     lines.push('', '<week_topics>');
     for (const topic of parsed.weekTopics) {
       const title = clean(topic.title);
-      lines.push(topic.skillId ? `- ${title} (${clean(topic.skillId)})` : `- ${title}`);
+      lines.push(topic.skillId ? `- ${title} [skill: ${clean(topic.skillId)}]` : `- ${title}`);
     }
     lines.push('</week_topics>');
   }

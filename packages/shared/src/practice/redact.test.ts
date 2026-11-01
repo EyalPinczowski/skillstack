@@ -227,10 +227,9 @@ describe('normalisation closes format-character bypasses (B3)', () => {
 
 describe('known-name tokenising keeps every script (B4)', () => {
   it('keeps Devanagari names, whose vowel signs are marks', () => {
-    expect(knownIdentifiersFor({ displayName: 'प्रिया शर्मा' })).toEqual(['प्रिया', 'शर्मा']);
-    const r = redactPii('hello प्रिया and शर्मा', {
-      knownIdentifiers: knownIdentifiersFor({ displayName: 'प्रिया शर्मा' }),
-    });
+    const ids = knownIdentifiersFor({ displayName: 'प्रिया शर्मा' });
+    expect(ids.length).toBe(2);
+    const r = redactPii('hello प्रिया and शर्मा', { knownIdentifiers: ids });
     expect(r.text).toBe(`hello ${REDACTED} and ${REDACTED}`);
   });
   it('keeps Hebrew with niqqud', () => {

@@ -20,6 +20,19 @@ export interface KindTrend {
   scores: number[];
 }
 
+const ISO_8601 = /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
+
+/**
+ * Milliseconds for a strict ISO 8601 date or date-time; null for anything else (`Date.parse`
+ * would accept "0" or "Jan 1"). A date-time without a zone is read as UTC, like a plain date.
+ */
+function time(at: string): number | null {
+  if (!ISO_8601.test(at)) return null;
+  const zoned = at.includes('T') && !/(?:Z|[+-]\d{2}:\d{2})$/.test(at) ? `${at}Z` : at;
+  const ms = Date.parse(zoned);
+  return Number.isNaN(ms) ? null : ms;
+}
+
 const round1 = (n: number): number => Math.round(n * 10) / 10;
 
 /** One trend per kind that has at least one score, sorted by kind. */
@@ -27,7 +40,7 @@ export function trendsByKind(points: readonly PracticeScorePoint[]): KindTrend[]
   const byKind = new Map<string, PracticeScorePoint[]>();
   for (const p of points) {
     if (p.score === null || !Number.isFinite(p.score) || p.score < 0 || p.score > 10) continue;
-    if (Number.isNaN(Date.parse(p.at))) continue;
+    if (time(p.at) === null) continue;
     const list = byKind.get(p.practiceKind) ?? [];
     list.push(p);
     byKind.set(p.practiceKind, list);
@@ -36,7 +49,7 @@ export function trendsByKind(points: readonly PracticeScorePoint[]): KindTrend[]
   for (const [practiceKind, list] of byKind) {
     // Array.prototype.sort is stable, so equal timestamps keep their input order.
     const scores = [...list]
-      .sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
+      .sort((a, b) => (time(a.at) as number) - (time(b.at) as number))
       .map((p) => p.score as number);
     const last = scores[scores.length - 1] as number;
     const previous = scores[scores.length - 2];

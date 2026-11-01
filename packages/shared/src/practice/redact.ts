@@ -4,29 +4,34 @@
  * Pure and deterministic, no I/O. Every pattern is linear-time: quantifiers are bounded and
  * no group is repeated inside another repeated group, so there is no catastrophic backtracking.
  *
- * Text is normalised before matching: NFKC, invisible and bidi format characters removed
- * (every Default_Ignorable_Code_Point), non-ASCII decimal digits mapped to ASCII, and dash
- * punctuation mapped to '-'. The returned text is the normalised text.
+ * Matching runs on a normalised copy of the text: NFKC (except superscripts, subscripts,
+ * fractions and circled digits, which stay as they are), every default-ignorable code point and
+ * combining mark removed, non-ASCII decimal digits mapped to ASCII, dash punctuation mapped to
+ * '-', and blank or space-like characters mapped to a space. Found spans are mapped back by
+ * position and replaced in the ORIGINAL text, so everything outside a removed span is sent
+ * unchanged (`10⁹`, `E=mc²`, `½`, Persian ZWNJ, emoji joiners, niqqud).
  *
  * Detection rules:
  * - emails, `scheme://` URLs, `www.` hosts, and any `host.tld/path` with a 2 to 24 letter TLD;
  * - bare hosts without a path only for an allowlist of lowercase TLDs (so ASP.NET, VB.NET and
  *   System.IO survive, and `LinkedIn.COM` without a path does not match);
- * - `@handles` of 3 to 32 characters, except code-looking ones (followed by `(`, CSS at-rules,
- *   after DECLARE/SET/SELECT, or inside backticks);
- * - digit runs of 9 or more with separators (space, dot, dash, slash, parentheses);
- * - the user's known identifiers, matched as whole words (letters and marks on both sides).
+ * - `@handles` of 3 to 32 characters, except code: a handle followed by `(`, `.x` or `/x`
+ *   (`@app.route`, `@angular/core`), CSS at-rules, a decorator at the start of a line before
+ *   def/class/function/public..., T-SQL variables right after DECLARE/SET/SELECT/EXEC or after
+ *   `=`, `<`, `>`, `,` or `(` on a line with a SQL keyword, and anything inside backticks;
+ * - digit runs of 9 or more with separators (space, dot, dash, slash, parentheses, `_`, `~`,
+ *   middle dots, fraction slash, and a comma directly between digits);
+ * - the user's known identifiers, matched as whole words (letters on both sides, marks ignored).
  *
  * Limits (also stated in the privacy page):
  * - names the app does not know (a recruiter in a job description, a friend in a chat turn)
  *   cannot be detected;
  * - obfuscated details are not detected: "name at example dot com", digits spelled as words,
- *   HTML entities, percent-encoding, `git@github.com:user/repo`;
+ *   HTML entities, percent-encoding, `git@github.com:user/repo`, a number split by a newline;
  * - homoglyphs (a Cyrillic letter inside "Eyal") and accent-folded names do not match;
- * - a name written with niqqud or other optional marks does not match the same name without them;
- * - false positives are accepted: runs of 9+ digits in a number list ("10 20 30 40 50"),
- *   long numbers with thousands separators, and every occurrence of a user name that is also an
- *   ordinary word. Dash characters in user text become '-'.
+ * - false positives are accepted: runs of 9+ digits in a number list ("10 20 30 40 50"), long
+ *   numbers with thousands separators, `snake_case_ids_123_456_789`, every occurrence of a user
+ *   name that is also an ordinary word, and a real handle on a line that looks like SQL.
  */
 
 export const REDACTED = '[removed]';
@@ -53,7 +58,8 @@ export interface RedactResult {
   count: number;
 }
 
-const MAX_PASSES = 3;
+/** Redaction repeats because removing one span can expose another (`@abc@abc@abc`). */
+export const MAX_PASSES = 5;
 /** What stands in for a removed span while checking, so digits on both sides never join up. */
 const SENTINEL = '|';
 
@@ -84,34 +90,88 @@ const CSS_AT_RULES = new Set([
   'namespace',
   'property',
 ]);
-const PHONE = /(?<!\d)\+?\(?\d[\d \t()./-]{7,40}\d/g;
+const PHONE = /(?<!\d)\+?\(?\d(?:[\d \t()./_~·•⁄-]|(?<=\d),(?=\d)){7,40}\d/g;
 const ISO_DATE = /(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)/g;
 const SLASH_DATE = /(?<!\d)\d{1,2}[./]\d{1,2}[./]\d{4}(?!\d)/g;
 const MIN_PHONE_DIGITS = 9;
+
 const IGNORABLE = /\p{Default_Ignorable_Code_Point}/gu;
+const MARKS = /\p{M}/gu;
 const DECIMAL = /\p{Nd}/gu;
 const DASHES = /[\p{Pd}−]/gu;
+const SPACES = /[⠀\p{Zs}]/gu;
+/** A base character and the combining marks after it (or a run of stray marks). */
+const CHUNK = /[^\p{M}]\p{M}*|\p{M}+/uy;
+/** Compatibility characters whose meaning NFKC would change: kept as they are. */
+const KEEP_AS_IS = /^[²³¹¼-¾⁰-₟⅐-↏①-⓿❶-➓㈠-㈩㉀-㊿]/u;
 
 /** The value (0 to 9) of a non-ASCII decimal digit: its offset in its block of ten. */
 function digitValue(ch: string): string {
   let cp = ch.codePointAt(0) as number;
-  const previousIsDigit = (c: number): boolean => /\p{Nd}/u.test(String.fromCodePoint(c - 1));
   let offset = 0;
-  while (previousIsDigit(cp)) {
+  while (/\p{Nd}/u.test(String.fromCodePoint(cp - 1))) {
     cp -= 1;
     offset += 1;
   }
   return String(offset % 10);
 }
 
-/** Unicode form used for all matching: see the header comment. */
-export function normaliseForMatching(text: string): string {
-  return text
+const chunkCache = new Map<string, string>();
+
+function normaliseChunk(chunk: string): string {
+  const cached = chunkCache.get(chunk);
+  if (cached !== undefined) return cached;
+  const base = KEEP_AS_IS.test(chunk) ? chunk : chunk.normalize('NFKC');
+  const out = base
     .replace(IGNORABLE, '')
-    .normalize('NFKC')
-    .replace(IGNORABLE, '')
+    .replace(MARKS, '')
     .replace(DECIMAL, (d) => (d >= '0' && d <= '9' ? d : digitValue(d)))
-    .replace(DASHES, '-');
+    .replace(DASHES, '-')
+    .replace(SPACES, ' ');
+  if (chunkCache.size > 5000) chunkCache.clear();
+  chunkCache.set(chunk, out);
+  return out;
+}
+
+interface Normalised {
+  text: string;
+  /** For each UTF-16 unit of `text`, where its source starts and ends in the original. */
+  from: number[];
+  to: number[];
+}
+
+function normaliseWithMap(original: string): Normalised {
+  const parts: string[] = [];
+  const from: number[] = [];
+  const to: number[] = [];
+  const n = original.length;
+  let i = 0;
+  while (i < n) {
+    const code = original.charCodeAt(i);
+    // ASCII not followed by a combining mark (all marks are U+0300 or above): no work needed.
+    if (code < 0x80 && (i + 1 >= n || original.charCodeAt(i + 1) < 0x300)) {
+      parts.push(original[i] as string);
+      from.push(i);
+      to.push(i + 1);
+      i += 1;
+      continue;
+    }
+    CHUNK.lastIndex = i;
+    const chunk = (CHUNK.exec(original) as RegExpExecArray)[0];
+    const out = normaliseChunk(chunk);
+    parts.push(out);
+    for (let k = 0; k < out.length; k += 1) {
+      from.push(i);
+      to.push(i + chunk.length);
+    }
+    i += chunk.length;
+  }
+  return { text: parts.join(''), from, to };
+}
+
+/** Text as it is compared: see the header comment. */
+export function normaliseForMatching(text: string): string {
+  return normaliseWithMap(text).text;
 }
 
 function escapeRegExp(s: string): string {
@@ -130,20 +190,59 @@ function isPhone(candidate: string): boolean {
   return !versionLike;
 }
 
-function isCodeHandle(match: string, offset: number, full: string): boolean {
-  const name = match.slice(1).toLowerCase();
-  if (CSS_AT_RULES.has(name)) return true;
-  if (full[offset + match.length] === '(') return true;
-  const before = full.slice(Math.max(0, offset - 80), offset);
-  if (/\b(?:declare|set|select)\b[^;\n]*$/i.test(before)) return true;
-  const ticks = full.slice(0, offset).split('`').length - 1;
-  return ticks % 2 === 1;
+const DECORATED =
+  /^\s*(?:def|class|function|public|private|protected|static|async|export|final|abstract|override)\b/i;
+const SQL_WORD =
+  /\b(?:select|where|from|insert|update|delete|exec|execute|declare|join|having|values)\b/i;
+
+function backticksBefore(ticks: readonly number[], offset: number): number {
+  let lo = 0;
+  let hi = ticks.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if ((ticks[mid] as number) < offset) lo = mid + 1;
+    else hi = mid;
+  }
+  return lo;
 }
 
-function keptHandles(text: string): string[] {
-  return [...text.matchAll(HANDLE)]
-    .filter((m) => !isCodeHandle(m[0], m.index, text))
-    .map((m) => m[0]);
+function backtickPositions(text: string): number[] {
+  const ticks: number[] = [];
+  for (let i = text.indexOf('`'); i !== -1; i = text.indexOf('`', i + 1)) ticks.push(i);
+  return ticks;
+}
+
+/** Code that merely looks like a handle. Looks at a bounded window, never the whole text. */
+function isCodeHandle(
+  match: string,
+  offset: number,
+  full: string,
+  ticks: readonly number[],
+): boolean {
+  if (CSS_AT_RULES.has(match.slice(1).toLowerCase())) return true;
+  const end = offset + match.length;
+  if (full[end] === '(') return true;
+  if ((full[end] === '.' || full[end] === '/') && /[A-Za-z0-9_]/.test(full[end + 1] ?? '')) {
+    return true;
+  }
+  if (backticksBefore(ticks, offset) % 2 === 1) return true;
+  const windowStart = Math.max(0, offset - 200);
+  const seg = full.slice(windowStart, offset);
+  const newline = seg.lastIndexOf('\n');
+  const linePrefix = newline >= 0 ? seg.slice(newline + 1) : windowStart === 0 ? seg : 'x';
+  if (linePrefix.trim() === '' && DECORATED.test(full.slice(end, end + 80))) return true;
+  const before = seg.slice(-120);
+  if (/\b(?:declare|set|select|exec|execute)\s+$/i.test(before.slice(-12))) return true;
+  return SQL_WORD.test(before) && /[=<>,(]\s*$/.test(before);
+}
+
+function handleSpans(text: string): [number, number][] {
+  const ticks = backtickPositions(text);
+  const spans: [number, number][] = [];
+  for (const m of text.matchAll(HANDLE)) {
+    if (!isCodeHandle(m[0], m.index, text, ticks)) spans.push([m.index, m.index + m[0].length]);
+  }
+  return spans;
 }
 
 function knownIdentifierPattern(ids: readonly string[]): RegExp | null {
@@ -153,36 +252,57 @@ function knownIdentifierPattern(ids: readonly string[]): RegExp | null {
   if (clean.length === 0) return null;
   clean.sort((a, b) => b.length - a.length);
   const alternation = clean.map(escapeRegExp).join('|');
-  return new RegExp(`(?<![\\p{L}\\p{M}])(?:${alternation})(?![\\p{L}\\p{M}])`, 'giu');
+  return new RegExp(`(?<![\\p{L}])(?:${alternation})(?![\\p{L}])`, 'giu');
 }
 
-function redactOnce(text: string, known: RegExp | null): RedactResult {
-  let count = 0;
-  const hit = (): string => {
-    count += 1;
-    return REDACTED;
-  };
-  let out = text;
-  out = out.replace(EMAIL, hit);
-  out = out.replace(URL_SCHEME, hit);
-  out = out.replace(WWW, hit);
-  out = out.replace(PATH_URL, hit);
-  out = out.replace(BARE_HOST, hit);
-  out = out.replace(HANDLE, (m, offset: number, full: string) =>
-    isCodeHandle(m, offset, full) ? m : hit(),
-  );
-  if (known) out = out.replace(known, hit);
-  out = out.replace(PHONE, (m) => (isPhone(m) ? hit() : m));
-  return { text: out, count };
+function spansOf(text: string, re: RegExp): [number, number][] {
+  return [...text.matchAll(re)].map((m) => [m.index, m.index + m[0].length]);
+}
+
+/** Every span to remove from the normalised text. */
+function findSpans(text: string, known: RegExp | null): [number, number][] {
+  const spans = [
+    ...spansOf(text, EMAIL),
+    ...spansOf(text, URL_SCHEME),
+    ...spansOf(text, WWW),
+    ...spansOf(text, PATH_URL),
+    ...spansOf(text, BARE_HOST),
+    ...handleSpans(text),
+    ...(known ? spansOf(text, known) : []),
+    ...[...text.matchAll(PHONE)]
+      .filter((m) => isPhone(m[0]))
+      .map((m): [number, number] => [m.index, m.index + m[0].length]),
+  ];
+  return spans;
+}
+
+function redactOnce(original: string, known: RegExp | null): RedactResult {
+  const norm = normaliseWithMap(original);
+  const spans = findSpans(norm.text, known)
+    .map(([s, e]): [number, number] => [norm.from[s] as number, norm.to[e - 1] as number])
+    .sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const merged: [number, number][] = [];
+  for (const [s, e] of spans) {
+    const last = merged[merged.length - 1];
+    if (last && s < last[1]) last[1] = Math.max(last[1], e);
+    else merged.push([s, e]);
+  }
+  let out = '';
+  let at = 0;
+  for (const [s, e] of merged) {
+    out += original.slice(at, s) + REDACTED;
+    at = e;
+  }
+  return { text: out + original.slice(at), count: merged.length };
 }
 
 /**
  * Replaces emails, URLs, handles, phone numbers and the known identifiers with `[removed]`.
- * Runs up to three passes, because removing one span can expose another (`@ab4com@abi`).
+ * Only the matched spans change; the rest of the text is returned exactly as given.
  */
 export function redactPii(text: string, options: RedactOptions = {}): RedactResult {
   const known = knownIdentifierPattern(options.knownIdentifiers ?? []);
-  let current = normaliseForMatching(text);
+  let current = text;
   let total = 0;
   for (let pass = 0; pass < MAX_PASSES; pass += 1) {
     const r = redactOnce(current, known);
@@ -212,7 +332,7 @@ export function findPii(text: string, options: RedactOptions = {}): PiiKind[] {
   ) {
     kinds.push('url');
   }
-  if (keptHandles(probe).length > 0) kinds.push('handle');
+  if (handleSpans(probe).length > 0) kinds.push('handle');
   if ((probe.match(PHONE) ?? []).some(isPhone)) kinds.push('phone');
   const known = knownIdentifierPattern(options.knownIdentifiers ?? []);
   if (known && test(known, probe)) kinds.push('identifier');
@@ -239,11 +359,11 @@ export function knownIdentifiersFor(user: {
   if (email) {
     ids.push(email);
     const local = normaliseForMatching(email.split('@')[0] as string);
-    const distinctive = local.length >= 5 || /[^\p{L}\p{M}]/u.test(local);
+    const distinctive = local.length >= 5 || /\P{L}/u.test(local);
     if (distinctive && local.length >= 3) ids.push(local);
   }
-  for (const token of normaliseForMatching(user.displayName ?? '').split(/[^\p{L}\p{M}]+/u)) {
-    if ([...token.replace(/\p{M}/gu, '')].length >= 3) ids.push(token);
+  for (const token of normaliseForMatching(user.displayName ?? '').split(/\P{L}+/u)) {
+    if ([...token].length >= 3) ids.push(token);
   }
   return ids;
 }
