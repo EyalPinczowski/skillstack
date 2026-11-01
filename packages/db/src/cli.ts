@@ -43,6 +43,9 @@ function requireSchema(value: string | undefined): ReturnType<typeof parseEnviro
   }
 }
 
+/** Values the error handler must redact too (the admin email when running in GitHub Actions). */
+const hiddenValues: string[] = [];
+
 async function run(argv: string[], env: NodeJS.ProcessEnv): Promise<void> {
   const [command, ...rest] = argv;
   if (command === undefined || command === '--help' || command === '-h') {
@@ -107,10 +110,17 @@ async function run(argv: string[], env: NodeJS.ProcessEnv): Promise<void> {
   }
 
   if (command === 'promote-admin') {
+    // In GitHub Actions the run page is public: the address (an environment secret) must not
+    // appear in the output, not even inside an error message.
+    const hideEmail = env.GITHUB_ACTIONS === 'true';
+    if (hideEmail) {
+      hiddenValues.push(values.email!, values.email!.trim(), values.email!.trim().toLowerCase());
+    }
     try {
       const result = await promoteAdmin({ schema, connectionString, email: values.email! });
       const listed = result.addedToAllowlist ? 'added to' : 'already on';
-      console.log(`${result.email}: ${listed} the allowlist of ${schema}.`);
+      const who = hideEmail ? '(email hidden)' : result.email;
+      console.log(`${who}: ${listed} the allowlist of ${schema}.`);
       console.log(
         result.promoted
           ? 'Role set to admin.'
@@ -146,6 +156,7 @@ run(process.argv.slice(2), env).catch((error: unknown) => {
     passwordOf(env.DATABASE_URL),
     env.APP_PASSWORD,
     env.BACKUP_PASSWORD,
+    ...hiddenValues,
   ];
   const message = formatError(error, secrets);
   console.error(`Error: ${message}`);
