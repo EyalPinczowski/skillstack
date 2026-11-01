@@ -14,3 +14,4 @@ export * from './scheduling/cv';
 export * from './scheduling/adjustments';
 export * from './export/ics';
 export * from './export/printable';
+export * from './practice/redact';
