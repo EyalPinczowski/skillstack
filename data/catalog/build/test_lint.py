@@ -30,14 +30,20 @@ class CheckItems(unittest.TestCase):
         self.assertEqual(lint.check_items([item("a"), item("b", ["a"])]), [])
 
     def test_missing_url_allowed_only_when_unverified_and_flagged(self):
-        ok = item("a", url=None, type="course", notes="No url yet. Needs check: url.")
+        ok = item("a", url=None, type="course", notes="No url yet. Needs check: url and price.")
         self.assertEqual(lint.check_items([ok]), [])
         no_flag = item("a", url=None, type="course", notes="")
         self.assertTrue(any("missing url" in e for e in lint.check_items([no_flag])))
-        verified = item("a", url=None, type="course", url_verified=True, notes="needs check")
+        price_only = item("a", url=None, type="course", notes="Needs check: price.")
+        self.assertTrue(any("missing url" in e for e in lint.check_items([price_only])))
+        verified = item("a", url=None, type="course", url_verified=True, notes="needs check: url")
         self.assertTrue(any("missing url" in e for e in lint.check_items([verified])))
         practice = item("a", url=None, type="practice", notes="")
         self.assertEqual(lint.check_items([practice]), [])
+
+    def test_missing_url_with_a_verification_date_fails(self):
+        bad = item("a", url=None, type="course", notes="Needs check: url.", last_verified_at="2026-11-01")
+        self.assertTrue(any("must be null when the item has no url" in e for e in lint.check_items([bad])))
 
     def test_missing_prerequisite_fails(self):
         errs = lint.check_items([item("b", ["ghost"])])
@@ -121,6 +127,19 @@ def _roles():
     import os
     with open(os.path.join(os.path.dirname(__file__), "..", "roles.json")) as f:
         return json.load(f)["roles"]
+
+
+class RolePathUrls(unittest.TestCase):
+    def test_item_without_url_in_any_path_list_fails(self):
+        nourl = item("n", url=None, type="course", notes="Needs check: url.")
+        ok = item("o", type="course")
+        for lst in ("core", "optional", "free_only"):
+            path = {"core": [], "optional": [], "practice": [], "free_only": []}
+            path[lst] = ["n"]
+            errs = lint.check_role_paths([nourl, ok], [{"id": "r", "suggested_path": path}])
+            self.assertTrue(any("has no url" in e for e in errs), (lst, errs))
+        path = {"core": ["o"], "optional": [], "practice": [], "free_only": []}
+        self.assertEqual(lint.check_role_paths([nourl, ok], [{"id": "r", "suggested_path": path}]), [])
 
 
 class RealCatalog(unittest.TestCase):
