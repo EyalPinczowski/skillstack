@@ -13,6 +13,10 @@ const PLAN_A = 'a0000000-0000-4000-8000-000000000001';
 const PLAN_DRIFT = 'a0000000-0000-4000-8000-000000000002';
 /** Like PLAN_DRIFT, but one remaining task is an anchor that cannot get longer. */
 const PLAN_ANCHOR = 'a0000000-0000-4000-8000-000000000003';
+/** Done tasks whose hours came partly with the plan file (imported) and partly from logs. */
+const PLAN_IMPORTED = 'a0000000-0000-4000-8000-000000000004';
+/** Done tasks 50% shorter than estimated, plus an in-progress task with 4 h already done. */
+const PLAN_SHORTER = 'a0000000-0000-4000-8000-000000000005';
 const PLAN_B = 'b0000000-0000-4000-8000-000000000001';
 const LOG = (n: number) => `c0000000-0000-4000-8000-0000000000${String(n).padStart(2, '0')}`;
 
@@ -33,6 +37,7 @@ interface Suggestion {
   id: string;
   rule: string;
   key: string;
+  explanation: string;
   proposedChange: { kind: string };
   alternatives: { kind: string }[];
   evidence: { reviewDates: string[]; taskIds: string[] };
@@ -107,6 +112,8 @@ describe.skipIf(!dbAvailable)('day review and adjustment suggestions (real Postg
       await plan(A, PLAN_A);
       await plan(A, PLAN_DRIFT);
       await plan(A, PLAN_ANCHOR);
+      await plan(A, PLAN_IMPORTED);
+      await plan(A, PLAN_SHORTER);
       await plan(B, PLAN_B);
       for (let i = 1; i <= 8; i++) await task(A, PLAN_A, `c${i}`, i, 2);
       await task(B, PLAN_B, 'b-only', 1, 2);
@@ -121,6 +128,26 @@ describe.skipIf(!dbAvailable)('day review and adjustment suggestions (real Postg
         }
         await task(A, p, 'd4', 4, 2);
       }
+      // 3 h done on each (2 h imported, 1 h logged) against 2 h estimated: 50% longer, not shorter.
+      for (let i = 1; i <= 3; i++) {
+        await task(A, PLAN_IMPORTED, `i${i}`, i, 2, 'done', 3);
+        await c.query(
+          `insert into rnd.logs (user_id, id, plan_id, task_id, date, hours)
+           values ($1, gen_random_uuid(), $2, $3, $4, 1)`,
+          [A, PLAN_IMPORTED, `i${i}`, `2026-11-0${i}`],
+        );
+      }
+      await task(A, PLAN_IMPORTED, 'i4', 4, 2);
+      // 2 h done on each of 4 h estimated: factor 0.5, but the open task has 4 h of its 5 h done.
+      for (let i = 1; i <= 3; i++) {
+        await task(A, PLAN_SHORTER, `s${i}`, i, 4, 'done', 2);
+        await c.query(
+          `insert into rnd.logs (user_id, id, plan_id, task_id, date, hours)
+           values ($1, gen_random_uuid(), $2, $3, $4, 2)`,
+          [A, PLAN_SHORTER, `s${i}`, `2026-11-0${i}`],
+        );
+      }
+      await task(A, PLAN_SHORTER, 's4', 4, 5, 'in_progress', 4);
       await task(A, PLAN_DRIFT, 'd5', 5, 2);
       await c.query(
         `insert into rnd.tasks (user_id, plan_id, id, title, type, est_hours, sort_order,
@@ -572,6 +599,29 @@ describe.skipIf(!dbAvailable)('day review and adjustment suggestions (real Postg
       ]);
       // The finished tasks are evidence of an accepted suggestion and are not offered again.
       expect(await suggestions(PLAN_DRIFT)).toEqual([]);
+    });
+
+    it('estimate drift counts hours imported with the plan, not only the logs', async () => {
+      clock = at(WED);
+      const [suggestion] = await suggestions(PLAN_IMPORTED);
+      expect(suggestion!.rule).toBe('estimate_drift');
+      expect(suggestion!.proposedChange).toMatchObject({ factor: 1.5, taskIds: ['i4'] });
+      expect(suggestion!.explanation).toContain('9 h actual vs 6 h estimated');
+    });
+
+    it('a shorter-estimates suggestion never takes a task below the hours already done', async () => {
+      clock = at(WED);
+      const [suggestion] = await suggestions(PLAN_SHORTER);
+      expect(suggestion!.proposedChange).toMatchObject({ factor: 0.5, taskIds: ['s4'] });
+      const res = await call('POST', sug(suggestion!.id, 'accept', PLAN_SHORTER), await asA(), {
+        option: 0,
+      });
+      expect(res.statusCode).toBe(201);
+      const est = await rows<{ est_hours: string; done_hours: string }>(
+        `select est_hours, done_hours from rnd.tasks where plan_id = $1 and id = 's4'`,
+        [PLAN_SHORTER],
+      );
+      expect(est.map((t) => [Number(t.est_hours), Number(t.done_hours)])).toEqual([[4, 4]]);
     });
 
     it('estimate drift on an anchor that would end after 23:59 answers 422 and changes nothing', async () => {

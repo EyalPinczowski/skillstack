@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { parsePlanFile, type PlanFile } from '@skillstack/shared';
+import { parsePlanFile, TAXONOMY_SKILL_IDS, type PlanFile } from '@skillstack/shared';
 import { ZodError } from 'zod';
 import { HttpError } from '../../errors';
 import { MAX_OVERRIDES_PER_PLAN, MAX_TASKS_PER_PLAN } from './schemas';
@@ -38,6 +38,24 @@ function canonical(value: unknown): string {
 }
 
 /**
+ * The plan's skill ids without repeats (first occurrence wins), or undefined when there are none,
+ * so `[]` and a missing field mean the same thing. Every id must be in the taxonomy; the message
+ * names the position and echoes only the offending id (cut short), nothing else.
+ */
+function checkedSkillIds(ids: string[] | undefined): string[] | undefined {
+  if (ids === undefined) return undefined;
+  const unknown = ids.map((id, i) => ({ id, i })).filter(({ id }) => !TAXONOMY_SKILL_IDS.has(id));
+  if (unknown.length > 0) {
+    const where = unknown.slice(0, 5).map(({ i }) => `skillIds.${i}`);
+    throw unprocessable(
+      `Invalid plan file. ${where.join(', ')}: unknown skill id (first: "${unknown[0]!.id.slice(0, 40)}"). Use ids from the skill taxonomy.`,
+    );
+  }
+  const unique = [...new Set(ids)];
+  return unique.length > 0 ? unique : undefined;
+}
+
+/**
  * Everything beyond the shared schema that the database would otherwise reject with a 500:
  * blank names, an end before the start, duplicate override dates, characters Postgres cannot
  * store, and the size limits.
@@ -68,6 +86,8 @@ export function validateImport(
   if (dates.size !== plan.overrides.length) {
     throw unprocessable('Day overrides must have distinct dates.');
   }
+  const skillIds = checkedSkillIds(plan.skillIds);
+  plan = { ...plan, skillIds };
   // Postgres text and jsonb cannot hold a NUL character; JSON.stringify writes it as \u0000.
   if (JSON.stringify(plan).includes('\\u0000')) {
     throw unprocessable('The plan contains a character that cannot be stored.');
@@ -82,6 +102,7 @@ export function validateImport(
 /** The plan's headline numbers, stored in `plans.summary` (spec 4: hours, certs). */
 export function summarize(plan: PlanFile): Record<string, unknown> {
   return {
+    ...(plan.skillIds && plan.skillIds.length > 0 ? { skillIds: plan.skillIds } : {}),
     hours: Math.round(plan.tasks.reduce((sum, t) => sum + t.estHours, 0) * 100) / 100,
     certs: plan.tasks.filter((t) => t.isCertificate).length,
   };

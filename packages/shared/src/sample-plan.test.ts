@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 // The fictional demo plan (spec section 7). Read via a relative JSON import (resolveJsonModule).
 import demoPlanJson from '../../../data/sample-plans/demo-plan.json';
+import { pickPodcast } from './podcasts';
 import { parsePlanFile } from './schemas';
+import { TAXONOMY_SKILL_IDS } from './taxonomy';
 import { schedule } from './scheduling/engine';
 
 const plan = parsePlanFile(demoPlanJson);
@@ -9,6 +11,19 @@ const today = '2026-11-01';
 const result = schedule({ tasks: plan.tasks, pattern: plan.weekPattern, today });
 
 describe('demo sample plan', () => {
+  it('carries taxonomy skill ids, so the briefing can show an idea podcast', () => {
+    expect(plan.skillIds).toEqual([
+      'sql',
+      'excel',
+      'bi-visualization',
+      'python',
+      'interviewing',
+      'jira',
+    ]);
+    for (const id of plan.skillIds ?? []) expect(TAXONOMY_SKILL_IDS.has(id)).toBe(true);
+    expect(pickPodcast({ userSkillIds: plan.skillIds ?? [], date: today })).not.toBeNull();
+  });
+
   it('parses and has the shape the spec describes', () => {
     expect(plan.formatVersion).toBe(1);
     expect(plan.tasks.length).toBeGreaterThanOrEqual(28);
@@ -23,14 +38,32 @@ describe('demo sample plan', () => {
     }
   });
 
-  it('never presents an unverified link as verified and has no invented lessons', () => {
+  it('never presents an unverified link as verified', () => {
     for (const t of plan.tasks) {
-      expect(t.lessons).toEqual([]);
       // Catalog practice templates have no link at all; every other catalog item without one is flagged.
       if (t.externalRef?.startsWith('catalog:') && !t.url && t.provider !== 'Skillstack practice') {
         expect(t.notes ?? '').toMatch(/needs check/i);
       }
     }
+  });
+
+  it('marks a lesson link verified only when it is an https link', () => {
+    const lessons = plan.tasks.flatMap((t) => t.lessons.map((l) => ({ task: t, lesson: l })));
+    expect(lessons.length).toBeGreaterThan(0);
+    for (const { task, lesson } of lessons) {
+      expect(task.type).toBe('course');
+      if (!lesson.needsCheck) {
+        expect(lesson.url, `${task.id} is verified`).toMatch(/^https:\/\//);
+      }
+      if (!lesson.url) expect(lesson.needsCheck, `${task.id} has no link`).toBe(true);
+    }
+  });
+
+  it('keeps a course without a verified lesson link free of lessons', () => {
+    const excel = plan.tasks.find((t) => t.id === 'excel')!;
+    expect(excel.lessons).toEqual([]);
+    expect(excel.url).toBeUndefined();
+    expect(excel.notes ?? '').toMatch(/needs check/i);
   });
 
   it('gives every practice how-to steps and a prompt template', () => {
