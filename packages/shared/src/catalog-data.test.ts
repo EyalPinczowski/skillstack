@@ -283,6 +283,9 @@ interface ExpRole {
   sources?: { system: string }[];
 }
 
+interface RolePathFull {
+  suggested_path: { core: string[]; optional: string[]; free_only: string[] };
+}
 const expItems = structItems as ExpItem[];
 const expRoles = (JSON.parse(readFileSync(`${dataDir}roles.json`, 'utf8')) as { roles: ExpRole[] })
   .roles;
@@ -325,7 +328,7 @@ const NEW_SKILLS = [
 
 describe('catalog expansion (batch 3)', () => {
   it('has the expected totals', () => {
-    expect(expItems).toHaveLength(180);
+    expect(expItems).toHaveLength(178);
     expect(expRoles).toHaveLength(27);
     expect(skillIds.size).toBe(59);
   });
@@ -375,9 +378,7 @@ describe('catalog expansion (batch 3)', () => {
     const noUrl = expItems.filter((i) => i.type !== 'practice' && !i.url);
     expect(noUrl.map((i) => i.id).sort()).toEqual([
       'futurelearn-understanding-gdpr',
-      'google-digital-garage-digital-marketing',
       'opensap-building-tomorrows-erp',
-      'servicenow-welcome-to-servicenow',
       'splunk-intro-to-splunk-elearning',
       'tableau-free-training-videos',
       'tryhackme-soc-level-1',
@@ -405,13 +406,87 @@ describe('catalog expansion (batch 3)', () => {
     }
   });
 
-  it('puts the order hints from the proposal in as recommended edges', () => {
+  it('records the order hints from the proposal as prerequisite edges', () => {
     const byId = new Map(expItems.map((i) => [i.id, i]));
     expect(byId.get('google-technical-writing-two')!.prerequisite_kinds).toEqual({
-      'google-tech-writing': 'recommended',
+      'google-tech-writing': 'required',
     });
     expect(byId.get('sc-900-practice-assessment')!.prerequisite_kinds).toEqual({
       'sc-900': 'recommended',
     });
+  });
+
+  const allPaths = (key: 'core' | 'optional' | 'free_only') =>
+    expRoles.flatMap((r) => (r as unknown as RolePathFull).suggested_path[key]);
+
+  it('drops retired or gone items and never ranks an item without a url into a role path', () => {
+    const ids = new Set(expItems.map((i) => i.id));
+    expect(ids.has('servicenow-welcome-to-servicenow')).toBe(false);
+    expect(ids.has('google-digital-garage-digital-marketing')).toBe(false);
+    const noUrl = new Set(expItems.filter((i) => i.type !== 'practice' && !i.url).map((i) => i.id));
+    for (const key of ['core', 'optional', 'free_only'] as const) {
+      for (const id of allPaths(key)) expect(noUrl.has(id), `${key}: ${id}`).toBe(false);
+    }
+  });
+
+  it('stores unknown prices for TryHackMe and openSAP as null and non-free, outside free_only', () => {
+    for (const id of ['tryhackme-soc-level-1', 'opensap-building-tomorrows-erp']) {
+      const it = expItems.find((i) => i.id === id)!;
+      expect(it.price, id).toBeNull();
+      expect(it.cost_type, id).not.toBe('free');
+      expect(allPaths('free_only'), id).not.toContain(id);
+    }
+  });
+
+  it('treats title-only pages as unverified and keeps them and the AIPB exam out of core', () => {
+    for (const id of [
+      'cisco-cybersecurity-essentials',
+      'netacad-networking-essentials',
+      'kaggle-data-cleaning',
+    ]) {
+      const it = expItems.find((i) => i.id === id)!;
+      expect(it.url_verified, id).toBe(false);
+      expect(it.last_verified_at, id).toBeNull();
+    }
+    for (const id of [
+      'cisco-cybersecurity-essentials',
+      'netacad-networking-essentials',
+      'kaggle-data-cleaning',
+      'aipb-certified-bookkeeper',
+    ]) {
+      expect(allPaths('core'), id).not.toContain(id);
+    }
+  });
+
+  it('only claims Coursera Plus where the research saw it', () => {
+    const assumed = [
+      'wharton-intro-operations-management',
+      'coursera-fia-operations-management',
+      'rutgers-supply-chain-management-spec',
+      'rutgers-supply-chain-sourcing',
+      'rutgers-procurement-basics',
+      'rutgers-global-procurement-sourcing-spec',
+      'coursera-ibm-introduction-to-business-analysis',
+      'coursera-uva-basic-statistics',
+      'coursera-hrci-learning-and-development',
+      'coursera-core-sales-techniques-customer-engagement',
+    ];
+    for (const id of assumed) {
+      const n = expItems.find((i) => i.id === id)!.notes;
+      expect(n, id).toContain('Coursera Plus membership assumed; needs check');
+      expect(n, id).not.toContain('Included with Coursera Plus per');
+      expect(n, id).not.toContain('Treat cost as unspecified');
+    }
+    const seen = expItems.find((i) => i.id === 'coursera-fundamentals-of-business-analysis')!;
+    expect(seen.notes).toContain('Included with Coursera Plus per the item page');
+  });
+
+  it('puts Technical Writing One before Two in the technical-writer core', () => {
+    const core = (expRoles.find((r) => r.id === 'technical-writer') as unknown as RolePathFull)
+      .suggested_path.core;
+    expect(core.indexOf('google-tech-writing')).toBeGreaterThanOrEqual(0);
+    expect(core.indexOf('google-tech-writing')).toBeLessThan(
+      core.indexOf('google-technical-writing-two'),
+    );
   });
 });

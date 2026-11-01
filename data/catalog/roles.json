@@ -1,10 +1,10 @@
 {
   "meta": {
     "version": "0.1.0",
-    "generated": "2026-10-29",
+    "generated": "2026-11-01",
     "currency_default": "USD",
-    "attribution": "Some skills and roles adapt information from the O*NET 31.0 Database by USDOL/ETA, used under CC BY 4.0 (O*NET is a trademark of USDOL/ETA; Skillstack has modified the information and USDOL/ETA has not approved or endorsed it), and from the ESCO classification of the European Commission (adapted by Skillstack, marked as modified). See README.md, Attribution.",
-    "verification_note": "url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
+    "attribution": "Some skills and roles include information from O*NET OnLine by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under the CC BY 4.0 license (https://creativecommons.org/licenses/by/4.0/); O*NET is a trademark of USDOL/ETA, Skillstack has modified the information and USDOL/ETA has not approved or endorsed it. Some mappings use the ESCO classification of the European Commission (adapted by Skillstack, marked as modified; ESCO version needs check). See README.md, Attribution.",
+    "verification_note": "url_verified/price_verified = confirmed from a source found during research (latest link check and batch 3 research: 2026-11-01). False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
   },
   "roles": [
     {
@@ -97,20 +97,20 @@
       "suggested_path": {
         "core": [
           "google-data-analytics",
-          "lean-six-sigma-yellow-belt",
           "google-project-management",
           "excel-skills-for-business",
           "wharton-intro-operations-management",
+          "lean-six-sigma-yellow-belt",
           "power-bi-learn-path",
           "pl-300"
         ],
         "optional": [
           "asana-certification-program",
+          "cfi-fundamentals-challenge",
+          "lean-six-sigma-white-belt",
           "itil-4-foundation",
           "ms-learn-data-analytics-microsoft",
-          "zapier-ai-builder",
-          "cfi-fundamentals-challenge",
-          "mos-excel"
+          "kaggle-intro-sql"
         ],
         "practice": [
           "practice-ops-assignment",
@@ -119,12 +119,12 @@
           "practice-automation-build"
         ],
         "free_only": [
-          "power-bi-learn-path",
-          "ms-learn-data-analytics-microsoft",
-          "zapier-ai-builder",
           "cfi-fundamentals-challenge",
           "lean-six-sigma-white-belt",
-          "hackerrank-sql-basic"
+          "ms-learn-data-analytics-microsoft",
+          "kaggle-intro-sql",
+          "kaggle-advanced-sql",
+          "anthropic-ai-fluency"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -217,18 +217,19 @@
           "google-it-support",
           "itil-4-foundation",
           "comptia-a-plus-v15",
-          "postman-api-fundamentals",
-          "hackerrank-rest-api",
+          "aws-cloud-practitioner-essentials",
+          "aws-cloud-practitioner",
           "kaggle-intro-sql",
-          "hackerrank-sql-basic"
+          "postman-api-fundamentals",
+          "hackerrank-rest-api"
         ],
         "optional": [
-          "aws-cloud-practitioner",
-          "jira-fundamentals",
-          "sqlbolt",
-          "az-900",
           "atlassian-get-started-with-jira-live",
-          "coursera-agile-with-atlassian-jira"
+          "openlearn-effective-communication-workplace",
+          "hackerrank-sql-basic",
+          "cisco-networking-basics",
+          "google-tech-writing",
+          "kaggle-python"
         ],
         "practice": [
           "practice-techops-assignment",
@@ -237,12 +238,12 @@
           "practice-mock-behavioral"
         ],
         "free_only": [
-          "postman-api-fundamentals",
-          "hackerrank-rest-api",
-          "hackerrank-sql-basic",
-          "jira-fundamentals",
           "kaggle-intro-sql",
-          "sqlbolt"
+          "hackerrank-rest-api",
+          "atlassian-get-started-with-jira-live",
+          "openlearn-effective-communication-workplace",
+          "hackerrank-sql-basic",
+          "aws-cloud-practitioner-essentials"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -328,20 +329,21 @@
       "suggested_path": {
         "core": [
           "google-project-management",
-          "scrum-guide",
-          "pspo-1",
           "google-data-analytics",
           "pendo-ai-for-pm",
           "productled-plg-fundamentals",
-          "jira-fundamentals"
+          "atlassian-get-started-with-jira-live",
+          "scrum-guide",
+          "scrum-open",
+          "psm-1"
         ],
         "optional": [
-          "atlassian-get-started-with-jira-live",
-          "coursera-agile-with-atlassian-jira",
-          "psm-1",
           "pendo-pm-basics",
+          "coursera-agile-with-atlassian-jira",
+          "pspo-1",
           "pendo-product-analytics",
-          "google-ux-design"
+          "google-ux-design",
+          "iiba-ecba"
         ],
         "practice": [
           "practice-product-prd",
@@ -352,10 +354,10 @@
         "free_only": [
           "pendo-ai-for-pm",
           "productled-plg-fundamentals",
-          "jira-fundamentals",
           "atlassian-get-started-with-jira-live",
           "pendo-pm-basics",
-          "google-project-management-audit"
+          "scrum-guide",
+          "anthropic-claude-code-in-action"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -433,19 +435,21 @@
       "suggested_path": {
         "core": [
           "google-project-management",
-          "asana-certification-program",
-          "capm",
-          "jira-fundamentals",
           "atlassian-get-started-with-jira-live",
-          "coursera-agile-with-atlassian-jira"
+          "asana-certification-program",
+          "scrum-guide",
+          "scrum-open",
+          "psm-1",
+          "coursera-agile-with-atlassian-jira",
+          "openlearn-effective-communication-workplace"
         ],
         "optional": [
           "google-project-management-audit",
-          "psm-1",
+          "capm",
           "excel-skills-for-business",
           "asana-structure-work-with-projects",
-          "openlearn-effective-communication-workplace",
-          "coursera-packt-getting-started-with-jira"
+          "coursera-packt-getting-started-with-jira",
+          "jira-fundamentals"
         ],
         "practice": [
           "practice-ops-assignment",
@@ -454,12 +458,12 @@
           "practice-jira-board"
         ],
         "free_only": [
-          "google-project-management-audit",
-          "jira-fundamentals",
           "atlassian-get-started-with-jira-live",
-          "asana-structure-work-with-projects",
+          "google-project-management-audit",
           "openlearn-effective-communication-workplace",
-          "scrum-guide"
+          "scrum-guide",
+          "asana-structure-work-with-projects",
+          "jira-fundamentals"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -537,14 +541,16 @@
           "power-bi-learn-path",
           "pl-300",
           "excel-skills-for-business",
-          "ms-learn-data-analytics-microsoft"
+          "kaggle-python",
+          "kaggle-pandas",
+          "kaggle-data-visualization"
         ],
         "optional": [
+          "ms-learn-data-analytics-microsoft",
           "coursera-stanford-introduction-to-statistics",
           "coursera-uva-basic-statistics",
-          "kaggle-pandas",
-          "kaggle-data-visualization",
-          "kaggle-data-cleaning",
+          "kaggle-intro-sql",
+          "kaggle-advanced-sql",
           "hackerrank-sql-basic"
         ],
         "practice": [
@@ -554,11 +560,11 @@
           "practice-excel-test"
         ],
         "free_only": [
-          "power-bi-learn-path",
-          "ms-learn-data-analytics-microsoft",
           "kaggle-pandas",
           "kaggle-data-visualization",
-          "kaggle-data-cleaning",
+          "ms-learn-data-analytics-microsoft",
+          "kaggle-intro-sql",
+          "kaggle-advanced-sql",
           "hackerrank-sql-basic"
         ]
       },
@@ -646,19 +652,19 @@
       "suggested_path": {
         "core": [
           "anthropic-claude-code-in-action",
-          "google-ai-professional",
           "aws-ai-practitioner",
           "anthropic-building-with-api",
           "anthropic-intro-mcp",
+          "google-ai-professional",
           "ai-901"
         ],
         "optional": [
           "anthropic-ai-fluency",
           "pendo-ai-for-pm",
-          "postman-api-fundamentals",
           "aws-cloud-practitioner",
-          "google-genai-path",
-          "deeplearning-crewai"
+          "deeplearning-crewai",
+          "openlearn-effective-communication-workplace",
+          "gcp-cloud-digital-leader"
         ],
         "practice": [
           "practice-star-bank",
@@ -672,7 +678,7 @@
           "anthropic-intro-mcp",
           "anthropic-ai-fluency",
           "pendo-ai-for-pm",
-          "postman-api-fundamentals"
+          "deeplearning-crewai"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -747,16 +753,16 @@
           "salesforce-admin",
           "hubspot-customer-success",
           "hubspot-inbound-sales",
-          "successhacker-csm-101",
-          "northwestern-art-of-sales"
+          "zendesk-customer-service-essentials",
+          "openlearn-effective-communication-workplace"
         ],
         "optional": [
-          "zendesk-customer-service-essentials",
-          "wharton-improving-communication-skills",
-          "openlearn-effective-communication-workplace",
           "anthropic-ai-fluency",
-          "google-ai-essentials",
-          "hubspot-service-hub-admin"
+          "hubspot-service-hub-admin",
+          "productled-plg-fundamentals",
+          "hubspot-ai-driven-customer-service",
+          "wharton-improving-communication-skills",
+          "google-ai-essentials"
         ],
         "practice": [
           "practice-star-bank",
@@ -768,9 +774,9 @@
           "trailhead-customer-success",
           "hubspot-customer-success",
           "hubspot-inbound-sales",
-          "northwestern-art-of-sales",
           "zendesk-customer-service-essentials",
-          "openlearn-effective-communication-workplace"
+          "openlearn-effective-communication-workplace",
+          "anthropic-ai-fluency"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -832,13 +838,13 @@
         "core": [
           "hubspot-inbound-sales",
           "hubspot-sales-software",
-          "salesforce-sdr-certificate",
-          "northwestern-art-of-sales",
           "trailhead-sales-fundamentals",
-          "apollo-ai-prospecting"
+          "salesforce-sdr-certificate",
+          "apollo-ai-prospecting",
+          "salesforce-admin"
         ],
         "optional": [
-          "salesforce-admin",
+          "northwestern-art-of-sales",
           "udemy-sales-prospecting",
           "apollo-cold-email",
           "apollo-outbound-program",
@@ -854,9 +860,9 @@
         "free_only": [
           "hubspot-inbound-sales",
           "hubspot-sales-software",
-          "northwestern-art-of-sales",
           "trailhead-sales-fundamentals",
           "apollo-ai-prospecting",
+          "northwestern-art-of-sales",
           "apollo-cold-email"
         ]
       },
@@ -946,12 +952,12 @@
           "hubspot-email-marketing"
         ],
         "optional": [
-          "google-analytics-cert",
+          "anthropic-ai-fluency",
+          "google-analytics-academy-help",
+          "pendo-product-analytics",
           "coursera-stanford-introduction-to-statistics",
           "coursera-uva-basic-statistics",
-          "anthropic-ai-fluency",
-          "google-ai-essentials",
-          "hubspot-content-marketing-cert"
+          "google-ai-essentials"
         ],
         "practice": [
           "practice-star-bank",
@@ -964,7 +970,7 @@
           "semrush-seo-essentials-exam",
           "hubspot-inbound-marketing",
           "hubspot-email-marketing",
-          "google-analytics-cert"
+          "anthropic-ai-fluency"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1035,22 +1041,23 @@
       ],
       "suggested_path": {
         "core": [
-          "jira-fundamentals",
           "istqb-ctfl",
           "atlassian-get-started-with-jira-live",
-          "coursera-agile-with-atlassian-jira",
           "scrum-guide",
           "scrum-open",
           "psm-1",
-          "postman-api-fundamentals"
+          "coursera-agile-with-atlassian-jira",
+          "kaggle-intro-sql",
+          "postman-api-fundamentals",
+          "hackerrank-rest-api"
         ],
         "optional": [
-          "hackerrank-rest-api",
-          "hackerrank-sql-basic",
-          "kaggle-intro-sql",
-          "github-foundations",
           "google-tech-writing",
-          "google-technical-writing-two"
+          "hackerrank-sql-basic",
+          "jira-fundamentals",
+          "github-foundations",
+          "google-technical-writing-two",
+          "linux-foundation-intro-linux"
         ],
         "practice": [
           "practice-qa-test-plan",
@@ -1059,12 +1066,12 @@
           "practice-mock-behavioral"
         ],
         "free_only": [
-          "jira-fundamentals",
           "atlassian-get-started-with-jira-live",
-          "postman-api-fundamentals",
+          "kaggle-intro-sql",
           "hackerrank-rest-api",
+          "google-tech-writing",
           "hackerrank-sql-basic",
-          "kaggle-intro-sql"
+          "jira-fundamentals"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1131,31 +1138,28 @@
       "suggested_path": {
         "core": [
           "google-cybersecurity",
-          "comptia-security-plus",
-          "tryhackme-soc-level-1",
-          "cisco-cybersecurity-essentials",
           "cisco-intro-cybersecurity",
-          "isc2-cc"
+          "cisco-networking-basics",
+          "comptia-security-plus",
+          "isc2-cc",
+          "sc-900"
         ],
         "optional": [
-          "sc-900",
-          "cisco-networking-basics",
+          "cisco-cybersecurity-essentials",
           "linux-foundation-intro-linux",
-          "netacad-networking-essentials",
           "coursera-abcs-of-gdpr",
-          "splunk-intro-to-splunk-elearning"
+          "netacad-networking-essentials"
         ],
         "practice": [
-          "practice-soc-alert-triage",
           "sc-900-practice-assessment",
+          "practice-soc-alert-triage",
           "practice-star-bank",
           "practice-mock-behavioral"
         ],
         "free_only": [
-          "tryhackme-soc-level-1",
-          "cisco-cybersecurity-essentials",
           "cisco-intro-cybersecurity",
           "cisco-networking-basics",
+          "cisco-cybersecurity-essentials",
           "linux-foundation-intro-linux",
           "netacad-networking-essentials"
         ]
@@ -1226,30 +1230,31 @@
           "google-cybersecurity",
           "google-it-support",
           "comptia-a-plus-v15",
-          "comptia-security-plus",
-          "cisco-cybersecurity-essentials",
+          "aws-cloud-practitioner-essentials",
+          "aws-cloud-practitioner",
+          "cisco-networking-basics",
           "itil-4-foundation"
         ],
         "optional": [
-          "aws-cloud-practitioner",
-          "az-900",
-          "cisco-networking-basics",
-          "aws-cloud-practitioner-essentials",
           "cisco-intro-cybersecurity",
-          "isc2-cc"
+          "az-900",
+          "comptia-security-plus",
+          "isc2-cc",
+          "linux-foundation-intro-linux",
+          "sc-900"
         ],
         "practice": [
+          "sc-900-practice-assessment",
           "practice-star-bank",
           "practice-mock-english",
-          "practice-mock-behavioral",
-          "sc-900-practice-assessment"
+          "practice-mock-behavioral"
         ],
         "free_only": [
-          "cisco-cybersecurity-essentials",
           "cisco-networking-basics",
           "aws-cloud-practitioner-essentials",
           "cisco-intro-cybersecurity",
           "linux-foundation-intro-linux",
+          "cisco-cybersecurity-essentials",
           "netacad-networking-essentials"
         ]
       },
@@ -1323,22 +1328,22 @@
       ],
       "suggested_path": {
         "core": [
-          "coursera-skillup-business-analysis-process-modeling",
           "openlearn-business-communication-swot",
           "iiba-ecba",
-          "ms-learn-data-analytics-microsoft",
+          "coursera-skillup-business-analysis-process-modeling",
           "scrum-guide",
           "scrum-open",
           "psm-1",
-          "lean-six-sigma-yellow-belt"
+          "openlearn-effective-communication-workplace",
+          "lean-six-sigma-white-belt"
         ],
         "optional": [
+          "google-tech-writing",
+          "ms-learn-data-analytics-microsoft",
+          "kaggle-intro-sql",
           "wharton-improving-communication-skills",
           "coursera-ibm-introduction-to-business-analysis",
-          "coursera-fundamentals-of-business-analysis",
-          "openlearn-effective-communication-workplace",
-          "lean-six-sigma-white-belt",
-          "hackerrank-sql-basic"
+          "coursera-fundamentals-of-business-analysis"
         ],
         "practice": [
           "practice-requirements-doc",
@@ -1348,11 +1353,11 @@
         ],
         "free_only": [
           "openlearn-business-communication-swot",
-          "ms-learn-data-analytics-microsoft",
           "openlearn-effective-communication-workplace",
           "lean-six-sigma-white-belt",
-          "hackerrank-sql-basic",
-          "google-tech-writing"
+          "google-tech-writing",
+          "ms-learn-data-analytics-microsoft",
+          "kaggle-intro-sql"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1427,17 +1432,17 @@
           "power-bi-learn-path",
           "pl-300",
           "salesforce-admin",
-          "ms-learn-data-analytics-microsoft",
           "hubspot-sales-software",
-          "salesforce-sdr-certificate"
+          "apollo-outbound-program",
+          "trailhead-sales-fundamentals"
         ],
         "optional": [
-          "apollo-outbound-program",
-          "trailhead-sales-fundamentals",
-          "hackerrank-sql-basic",
+          "ms-learn-data-analytics-microsoft",
           "make-automation-foundation",
-          "zapier-ai-builder",
-          "kaggle-data-cleaning"
+          "salesforce-sdr-certificate",
+          "kaggle-intro-sql",
+          "hackerrank-sql-basic",
+          "zapier-ai-builder"
         ],
         "practice": [
           "practice-crm-cleanup",
@@ -1446,12 +1451,12 @@
           "practice-automation-build"
         ],
         "free_only": [
-          "ms-learn-data-analytics-microsoft",
           "hubspot-sales-software",
           "apollo-outbound-program",
           "trailhead-sales-fundamentals",
-          "hackerrank-sql-basic",
-          "make-automation-foundation"
+          "ms-learn-data-analytics-microsoft",
+          "make-automation-foundation",
+          "kaggle-intro-sql"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1518,13 +1523,13 @@
           "hrci-aphr-prep-free",
           "hrci-aphr",
           "shrm-cp",
-          "wharton-improving-communication-skills"
+          "openlearn-effective-communication-workplace"
         ],
         "optional": [
           "umn-recruiting-onboarding-audit",
-          "coursera-hrci-learning-and-development",
-          "openlearn-effective-communication-workplace",
           "anthropic-ai-fluency",
+          "wharton-improving-communication-skills",
+          "coursera-hrci-learning-and-development",
           "google-ai-essentials",
           "mos-excel"
         ],
@@ -1611,20 +1616,20 @@
       "suggested_path": {
         "core": [
           "excel-skills-for-business",
-          "lean-six-sigma-yellow-belt",
           "power-bi-learn-path",
           "pl-300",
           "rutgers-supply-chain-management-spec",
           "wharton-intro-operations-management",
+          "lean-six-sigma-yellow-belt",
           "ms-learn-data-analytics-microsoft"
         ],
         "optional": [
           "rutgers-supply-chain-operations",
-          "mos-excel",
-          "mitx-supply-chain-fundamentals",
+          "lean-six-sigma-white-belt",
           "rutgers-supply-chain-sourcing",
           "rutgers-global-procurement-sourcing-spec",
-          "lean-six-sigma-white-belt"
+          "coursera-fia-operations-management",
+          "coursera-procurement-specs-to-pos"
         ],
         "practice": [
           "practice-inventory-case",
@@ -1635,10 +1640,10 @@
         "free_only": [
           "rutgers-supply-chain-operations",
           "ms-learn-data-analytics-microsoft",
-          "mitx-supply-chain-fundamentals",
           "lean-six-sigma-white-belt",
           "odoo-self-paced-course",
-          "sap-learning-two-tier-erp"
+          "sap-learning-two-tier-erp",
+          "sap-learning-sourcing-procurement"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1707,16 +1712,16 @@
           "excel-skills-for-business",
           "power-bi-learn-path",
           "pl-300",
-          "ms-learn-data-analytics-microsoft",
-          "quickbooks-proadvisor"
+          "quickbooks-proadvisor",
+          "wharton-corporate-finance-audit"
         ],
         "optional": [
-          "xero-advisor",
-          "mos-excel",
           "wharton-financial-accounting",
-          "wharton-corporate-finance-audit",
+          "ms-learn-data-analytics-microsoft",
           "openlearn-intro-bookkeeping-accounting",
-          "openlearn-fundamentals-of-accounting"
+          "openlearn-fundamentals-of-accounting",
+          "xero-advisor",
+          "odoo-self-paced-course"
         ],
         "practice": [
           "practice-variance-analysis",
@@ -1726,11 +1731,11 @@
         ],
         "free_only": [
           "cfi-fundamentals-challenge",
-          "ms-learn-data-analytics-microsoft",
           "quickbooks-proadvisor",
-          "xero-advisor",
           "wharton-financial-accounting",
-          "wharton-corporate-finance-audit"
+          "wharton-corporate-finance-audit",
+          "ms-learn-data-analytics-microsoft",
+          "openlearn-intro-bookkeeping-accounting"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1795,17 +1800,17 @@
       ],
       "suggested_path": {
         "core": [
-          "northwestern-art-of-sales",
-          "coursera-core-sales-techniques-customer-engagement",
           "aws-cloud-practitioner-essentials",
           "aws-cloud-practitioner",
-          "postman-api-fundamentals",
+          "coursera-core-sales-techniques-customer-engagement",
           "gcp-cloud-digital-leader",
+          "northwestern-art-of-sales",
           "az-900"
         ],
         "optional": [
           "hackerrank-rest-api",
           "wharton-improving-communication-skills",
+          "postman-api-fundamentals",
           "github-foundations"
         ],
         "practice": [
@@ -1815,10 +1820,10 @@
           "practice-objection-handling"
         ],
         "free_only": [
+          "aws-cloud-practitioner-essentials",
           "northwestern-art-of-sales",
-          "postman-api-fundamentals",
           "hackerrank-rest-api",
-          "aws-cloud-practitioner-essentials"
+          "postman-api-fundamentals"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -1886,15 +1891,15 @@
         "core": [
           "anthropic-claude-code-in-action",
           "make-automation-foundation",
-          "zapier-ai-builder",
-          "postman-api-fundamentals",
           "anthropic-ai-fluency",
+          "power-automate-path",
+          "deeplearning-crewai",
           "n8n-essentials"
         ],
         "optional": [
-          "power-automate-path",
-          "deeplearning-crewai",
+          "zapier-ai-builder",
           "google-tech-writing",
+          "postman-api-fundamentals",
           "github-foundations"
         ],
         "practice": [
@@ -1906,9 +1911,9 @@
         "free_only": [
           "anthropic-claude-code-in-action",
           "make-automation-foundation",
-          "zapier-ai-builder",
-          "postman-api-fundamentals",
           "anthropic-ai-fluency",
+          "power-automate-path",
+          "deeplearning-crewai",
           "n8n-essentials"
         ]
       },
@@ -2008,14 +2013,14 @@
         "core": [
           "zendesk-customer-service-essentials",
           "hubspot-service-hub-admin",
+          "hubspot-ai-driven-customer-service",
           "trailhead-agentforce-service-basics",
           "trailhead-service-small-business",
-          "hubspot-ai-driven-customer-service",
-          "hubspot-scale-support-path"
+          "openlearn-effective-communication-workplace"
         ],
         "optional": [
+          "hubspot-scale-support-path",
           "wharton-improving-communication-skills",
-          "openlearn-effective-communication-workplace",
           "coursera-abcs-of-gdpr"
         ],
         "practice": [
@@ -2026,10 +2031,10 @@
         "free_only": [
           "zendesk-customer-service-essentials",
           "hubspot-service-hub-admin",
+          "hubspot-ai-driven-customer-service",
           "trailhead-agentforce-service-basics",
           "trailhead-service-small-business",
-          "hubspot-ai-driven-customer-service",
-          "hubspot-scale-support-path"
+          "openlearn-effective-communication-workplace"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -2139,24 +2144,22 @@
           "zendesk-customer-service-essentials",
           "hubspot-service-hub-admin",
           "comptia-a-plus-v15",
-          "servicenow-welcome-to-servicenow",
+          "atlassian-get-started-with-jira-live",
           "sc-900",
-          "atlassian-get-started-with-jira-live"
+          "coursera-packt-getting-started-with-jira"
         ],
         "optional": [
-          "coursera-packt-getting-started-with-jira",
           "netacad-networking-essentials"
         ],
         "practice": [
           "practice-star-bank",
           "practice-mock-english",
-          "practice-mock-behavioral",
-          "sc-900-practice-assessment"
+          "sc-900-practice-assessment",
+          "practice-mock-behavioral"
         ],
         "free_only": [
           "zendesk-customer-service-essentials",
           "hubspot-service-hub-admin",
-          "servicenow-welcome-to-servicenow",
           "atlassian-get-started-with-jira-live",
           "netacad-networking-essentials"
         ]
@@ -2248,15 +2251,15 @@
       ],
       "suggested_path": {
         "core": [
-          "google-workspace-learning-center",
           "openlearn-business-communication-swot",
+          "google-workspace-learning-center",
+          "openlearn-effective-communication-workplace",
           "asana-structure-work-with-projects",
           "wharton-improving-communication-skills",
-          "openlearn-effective-communication-workplace",
-          "coursera-abcs-of-gdpr"
+          "openlearn-intro-bookkeeping-accounting"
         ],
         "optional": [
-          "openlearn-intro-bookkeeping-accounting"
+          "coursera-abcs-of-gdpr"
         ],
         "practice": [
           "practice-star-bank",
@@ -2264,10 +2267,10 @@
           "practice-mock-behavioral"
         ],
         "free_only": [
-          "google-workspace-learning-center",
           "openlearn-business-communication-swot",
-          "asana-structure-work-with-projects",
+          "google-workspace-learning-center",
           "openlearn-effective-communication-workplace",
+          "asana-structure-work-with-projects",
           "openlearn-intro-bookkeeping-accounting"
         ]
       },
@@ -2282,6 +2285,7 @@
         "Accounts Payable Clerk",
         "Accounts Payable Specialist",
         "Accounts Receivable Clerk",
+        "Accounting Assistant",
         "Accounting Associate",
         "Billing Clerk"
       ],
@@ -2337,7 +2341,7 @@
         "payroll",
         "sap"
       ],
-      "overlap_note": "Overlaps finance-operations (junior financial analyst); this role is ledger-and-transaction work, finance-operations is reporting and modelling. Needs check: Job Zone 3 per O*NET (medium preparation). Alias Accounting Assistant left out because finance-operations already uses it.",
+      "overlap_note": "Overlaps finance-operations (junior financial analyst); this role is ledger-and-transaction work, finance-operations is reporting and modelling. Needs check: Job Zone 3 per O*NET (medium preparation).",
       "sources": [
         {
           "system": "O*NET",
@@ -2360,9 +2364,11 @@
         "core": [
           "openlearn-intro-bookkeeping-accounting",
           "openlearn-fundamentals-of-accounting",
+          "quickbooks-proadvisor"
+        ],
+        "optional": [
           "aipb-certified-bookkeeper"
         ],
-        "optional": [],
         "practice": [
           "practice-star-bank",
           "practice-mock-english",
@@ -2370,7 +2376,8 @@
         ],
         "free_only": [
           "openlearn-intro-bookkeeping-accounting",
-          "openlearn-fundamentals-of-accounting"
+          "openlearn-fundamentals-of-accounting",
+          "quickbooks-proadvisor"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -2605,16 +2612,13 @@
       "suggested_path": {
         "core": [
           "semrush-academy-seo-courses",
-          "hubspot-content-marketing-cert",
-          "hubspot-social-media-cert",
           "openlearn-business-communication-swot",
           "semrush-seo-essentials-exam",
-          "google-digital-garage-digital-marketing"
+          "hubspot-content-marketing-cert",
+          "hubspot-social-media-cert",
+          "google-analytics-academy-help"
         ],
-        "optional": [
-          "google-analytics-academy-help",
-          "tableau-free-training-videos"
-        ],
+        "optional": [],
         "practice": [
           "practice-star-bank",
           "practice-mock-english",
@@ -2622,11 +2626,11 @@
         ],
         "free_only": [
           "semrush-academy-seo-courses",
-          "hubspot-content-marketing-cert",
-          "hubspot-social-media-cert",
           "openlearn-business-communication-swot",
           "semrush-seo-essentials-exam",
-          "google-digital-garage-digital-marketing"
+          "hubspot-content-marketing-cert",
+          "hubspot-social-media-cert",
+          "google-analytics-academy-help"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."
@@ -2715,6 +2719,7 @@
       ],
       "suggested_path": {
         "core": [
+          "google-tech-writing",
           "google-technical-writing-two",
           "wharton-improving-communication-skills"
         ],
@@ -2725,7 +2730,8 @@
           "practice-mock-behavioral"
         ],
         "free_only": [
-          "google-technical-writing-two"
+          "google-technical-writing-two",
+          "google-tech-writing"
         ]
       },
       "suggested_path_note": "Auto-ranked by skill weight, role tag and certificate recognition. A starting point for the plan builder, not a final plan."

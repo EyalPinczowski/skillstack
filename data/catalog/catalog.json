@@ -1,10 +1,10 @@
 {
   "meta": {
     "version": "0.1.0",
-    "generated": "2026-10-29",
+    "generated": "2026-11-01",
     "currency_default": "USD",
-    "attribution": "Some skills and roles adapt information from the O*NET 31.0 Database by USDOL/ETA, used under CC BY 4.0 (O*NET is a trademark of USDOL/ETA; Skillstack has modified the information and USDOL/ETA has not approved or endorsed it), and from the ESCO classification of the European Commission (adapted by Skillstack, marked as modified). See README.md, Attribution.",
-    "verification_note": "url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
+    "attribution": "Some skills and roles include information from O*NET OnLine by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under the CC BY 4.0 license (https://creativecommons.org/licenses/by/4.0/); O*NET is a trademark of USDOL/ETA, Skillstack has modified the information and USDOL/ETA has not approved or endorsed it. Some mappings use the ESCO classification of the European Commission (adapted by Skillstack, marked as modified; ESCO version needs check). See README.md, Attribution.",
+    "verification_note": "url_verified/price_verified = confirmed from a source found during research (latest link check and batch 3 research: 2026-11-01). False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."
   },
   "items": [
     {
@@ -3462,7 +3462,8 @@
         "qa-tester",
         "technical-operations",
         "product-operations",
-        "automation-specialist"
+        "automation-specialist",
+        "technical-writer"
       ]
     },
     {
@@ -4221,7 +4222,8 @@
         "finance-basics"
       ],
       "roles": [
-        "finance-operations"
+        "finance-operations",
+        "bookkeeping-clerk"
       ]
     },
     {
@@ -5011,7 +5013,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Opened page shows only the title and 'Log in / Sign up for free courses'. A search listing (not the opened page) described it as free with 14 lessons, 54 videos, 11 quizzes, 8 hr 23 min and a certification valid two years: treat those as unverified. Account sign-up required. Not stated on the opened page text. 8 hr 23 min only in search listing, not confirmed on opened page. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (8 h 23 min comes from a search listing only). Search-listing details (lessons, certificate validity) are unverified. Needs check: price.",
+      "notes": "Opened page shows only the title and 'Log in / Sign up for free courses'. A search listing (not the opened page) described it as free with 14 lessons, 54 videos, 11 quizzes, 8 hr 23 min and a certification valid two years: treat those as unverified. Account sign-up required. Not stated on the opened page text. 8 hr 23 min only in search listing, not confirmed on opened page. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (8 h 23 min comes from a search listing only). Search-listing details (certificate type, lessons, hours, validity) are unverified: needs check. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5049,7 +5051,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Opened page shows only the title and sign-up links. A search listing described 10 lessons, 38 videos, 29 quizzes, 5 hr 18 min and free: unverified. Account sign-up required. Not stated on the opened page text. 5 hr 18 min only in search listing. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (5 h 18 min comes from a search listing only). Needs check: price.",
+      "notes": "Opened page shows only the title and sign-up links. A search listing described 10 lessons, 38 videos, 29 quizzes, 5 hr 18 min and free: unverified. Account sign-up required. Not stated on the opened page text. 5 hr 18 min only in search listing. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (5 h 18 min comes from a search listing only). Certificate type, lesson counts and hours come from a search listing only: needs check. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5322,7 +5324,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "'1 week at 10 hours a week'; No prior experience required; prepares for Atlassian University badge APB-330. Page says 'Enroll now' and 'Included with Coursera Plus', no price or audit option listed. Coursera shows 'Enroll for free' but the certificate needs the paid Certificate experience; the page does not state a price (Coursera FAQ wording varies by course). Treat cost as unspecified until a human confirms. Stated as 1 week at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "'1 week at 10 hours a week'; No prior experience required; prepares for Atlassian University badge APB-330. Page says 'Enroll now' and 'Included with Coursera Plus', no price or audit option listed. Page shows 'Enroll for free'; the certificate needs the paid Certificate experience. Stated as 1 week at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [
         "atlassian-get-started-with-jira-live"
@@ -5440,7 +5442,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Page: 'Enroll for free'; 'Included with Coursera Plus'; Beginner; '1 week at 10 hours a week' (4 modules); no prior experience; shareable certificate. Coursera shows 'Enroll for free' but the certificate needs the paid Certificate experience; the page does not state a price (Coursera FAQ wording varies by course). Treat cost as unspecified until a human confirms. Fills the weight-4/5 'communication' gap (only 2 catalog items teach it). Stated as 1 week at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "Page: 'Enroll for free'; 'Included with Coursera Plus'; Beginner; '1 week at 10 hours a week' (4 modules); no prior experience; shareable certificate. Page shows 'Enroll for free'; the certificate needs the paid Certificate experience. Fills the weight-4/5 'communication' gap (only 2 catalog items teach it). Stated as 1 week at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5487,7 +5489,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Beginner; 2 weeks at 10 hours a week; no prior experience. Coursera shows 'Enroll for free' but the certificate needs the paid Certificate experience; the page does not state a price (Coursera FAQ wording varies by course). Treat cost as unspecified until a human confirms. The catalog's only operations-management item is unverified. Stated as 2 weeks at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "Beginner; 2 weeks at 10 hours a week; no prior experience. Page shows 'Enroll for free'; the certificate needs the paid Certificate experience. The catalog's only operations-management item is unverified. Stated as 2 weeks at 10 hours a week. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5526,7 +5528,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Intermediate; page says 'Some related experience required'; 2 weeks at 10 hours a week, 5 modules. Coursera shows 'Enroll for free' but the certificate needs the paid Certificate experience; the page does not state a price (Coursera FAQ wording varies by course). Treat cost as unspecified until a human confirms. Stated as 2 weeks at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "Intermediate; page says 'Some related experience required'; 2 weeks at 10 hours a week, 5 modules. Page shows 'Enroll for free'; the certificate needs the paid Certificate experience. Stated as 2 weeks at 10 hours a week. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5563,7 +5565,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "5 courses: Supply Chain Logistics; Operations; Planning; Sourcing; Management Strategy. '2 months to complete' at 10 hours a week (about 80 h if taken literally; not stated as hours). Beginner, no prior experience. Coursera shows 'Enroll for free' but the certificate needs the paid Certificate experience; the page does not state a price (Coursera FAQ wording varies by course). Treat cost as unspecified until a human confirms. 2 months at 10 h/week; hours not stated. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Hours are a Skillstack estimate (2 months at 10 h/week is stated; 80 h is derived). Needs check: price.",
+      "notes": "5 courses: Supply Chain Logistics; Operations; Planning; Sourcing; Management Strategy. '2 months to complete' at 10 hours a week (about 80 h if taken literally; not stated as hours). Beginner, no prior experience. Page shows 'Enroll for free'; the certificate needs the paid Certificate experience. 2 months at 10 h/week; hours not stated. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Hours are a Skillstack estimate (2 months at 10 h/week is stated; 80 h is derived). Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [
         "rutgers-supply-chain-operations",
@@ -5646,7 +5648,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "1 week at 10 h/week; no prior experience. Coursera shows 'Enroll for free' but the certificate needs the paid Certificate experience; the page does not state a price (Coursera FAQ wording varies by course). Treat cost as unspecified until a human confirms. Stated as 1 week at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "1 week at 10 h/week; no prior experience. Page shows 'Enroll for free'; the certificate needs the paid Certificate experience. Stated as 1 week at 10 hours a week. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5684,7 +5686,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "About 6 hours, self-paced; part of the Global Procurement and Sourcing Specialization; page: 'Enroll for free', certificate requires purchasing the Certificate experience; financial aid available; no prior experience. No price shown. 6 hours stated. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "About 6 hours, self-paced; part of the Global Procurement and Sourcing Specialization; page: 'Enroll for free', certificate requires purchasing the Certificate experience; financial aid available; no prior experience. No price shown. 6 hours stated. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5722,7 +5724,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "7 courses (Procurement & Sourcing Introduction, Procurement Basics, Strategic Sourcing, Supplier Management, Supply Market Analysis, Procurement Negotiation, Conclusions). Duration 4 weeks at 10 h/week on the header, 7 weeks in the FAQ (conflict). Page header says 'Enroll for free' but the FAQ says the course cannot be taken for free (enrollment fee, financial aid available). No price shown. 4 or 7 weeks at 10 h/week (conflicting). Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Hours are a Skillstack estimate (4 weeks at 10 h/week on the header (7 weeks in the FAQ); 40 h uses the header). Needs check: price.",
+      "notes": "7 courses (Procurement & Sourcing Introduction, Procurement Basics, Strategic Sourcing, Supplier Management, Supply Market Analysis, Procurement Negotiation, Conclusions). Duration 4 weeks at 10 h/week on the header, 7 weeks in the FAQ (conflict). Page header says 'Enroll for free' but the FAQ says the course cannot be taken for free (enrollment fee, financial aid available). No price shown. 4 or 7 weeks at 10 h/week (conflicting). Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. The FAQ says the course cannot be taken for free (enrollment fee, financial aid available). Hours are a Skillstack estimate (4 weeks at 10 h/week on the header (7 weeks in the FAQ); 40 h uses the header). Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5761,7 +5763,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "2 hours; 'Enroll for free', included with Coursera Plus; no prerequisites specified. Coursera shows 'Enroll for free' but the certificate needs the paid Certificate experience; the page does not state a price (Coursera FAQ wording varies by course). Treat cost as unspecified until a human confirms. 2 hours stated. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "2 hours; 'Enroll for free', included with Coursera Plus; no prerequisites specified. Page shows 'Enroll for free'; the certificate needs the paid Certificate experience. 2 hours stated. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5799,7 +5801,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "About 1 week at 10 h/week; 'Enroll for free'; certificate requires purchase; financial aid available; basic computer skills and Office tools recommended. No price on the page. Stated as 1 week at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "About 1 week at 10 h/week; 'Enroll for free'; certificate requires purchase; financial aid available; basic computer skills and Office tools recommended. No price on the page. Stated as 1 week at 10 hours a week. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5949,7 +5951,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "9 modules, about 2 weeks at 10 h/week; 'Enroll for free', certificate needs the Certificate experience; no prerequisites. Stated as 2 weeks at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "9 modules, about 2 weeks at 10 h/week; 'Enroll for free', certificate needs the Certificate experience; no prerequisites. Stated as 2 weeks at 10 hours a week. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -5987,7 +5989,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "4 modules, about 2 weeks at 10 h/week; part of the HRCI Human Resource Associate Professional Certificate; 'Enroll for free' but no audit option stated; certificate by purchase. Stated as 2 weeks at 10 hours a week. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "4 modules, about 2 weeks at 10 h/week; part of the HRCI Human Resource Associate Professional Certificate; 'Enroll for free' but no audit option stated; certificate by purchase. Stated as 2 weeks at 10 hours a week. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -6102,7 +6104,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "About 3 hours, 3 modules; Module 3 covers structuring persuasive sales demos. 'Enroll for free'; no separate audit option listed; certificate needs purchase. Closest verified item for the presales-demos skill (0 learning items in catalog). About 3 hours stated. Included with Coursera Plus per the item page; no price is stated there, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
+      "notes": "About 3 hours, 3 modules; Module 3 covers structuring persuasive sales demos. 'Enroll for free'; no separate audit option listed; certificate needs purchase. Closest verified item for the presales-demos skill (0 learning items in catalog). About 3 hours stated. Coursera Plus membership assumed; needs check. The item page states no price, so the shared Coursera Plus price of the existing items is used. Free audit not confirmed: do not treat as free. Needs check: price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -6302,13 +6304,13 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Pre-class units add up to 73 minutes (Introduction 2, Self-editing 10, Organizing large docs 20, Illustrating 10, Creating sample code 10, Using LLMs in tech writing 20, Summary 1). Technical Writing One is recommended first. The index page https://developers.google.com/tech-writing says 'Google occasionally provides free in-class lessons to everyone'; the Two page does not state free or certificate. Not stated on this page. 73 min computed from the unit times on the page. Price not stated on the page; stored as free (0) but unverified. Google recommends Technical Writing One first (recommended edge). Needs check: price.",
+      "notes": "Pre-class units add up to 73 minutes (Introduction 2, Self-editing 10, Organizing large docs 20, Illustrating 10, Creating sample code 10, Using LLMs in tech writing 20, Summary 1). Technical Writing One is recommended first. The index page https://developers.google.com/tech-writing says 'Google occasionally provides free in-class lessons to everyone'; the Two page does not state free or certificate. Not stated on this page. 73 min computed from the unit times on the page. Price not stated on the page; stored as free (0) but unverified. Google recommends Technical Writing One first; stored as a required edge so One comes before Two in a plan. Needs check: price.",
       "prerequisites": [
         "google-tech-writing"
       ],
       "free_alternative_ids": [],
       "prerequisite_kinds": {
-        "google-tech-writing": "recommended"
+        "google-tech-writing": "required"
       },
       "last_verified_at": "2026-11-01",
       "subscription_group": null,
@@ -6616,14 +6618,14 @@
         "online"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Opened page returned only its title in the fetch. A search listing said free, about 4 hours, certificate on completion and builds on Pandas: all unverified, so prerequisites are left empty. The catalog already has kaggle-pandas that it would follow. Not stated on the fetched text. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (about 4 h comes from a search listing only). Needs check: price.",
+      "notes": "Opened page returned only its title in the fetch. A search listing said free, about 4 hours, certificate on completion and builds on Pandas: all unverified, so prerequisites are left empty. The catalog already has kaggle-pandas that it would follow. Not stated on the fetched text. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (about 4 h comes from a search listing only). The opened page returned only its title, so the url is not treated as verified. Needs check: url and price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
-      "last_verified_at": "2026-11-01",
+      "last_verified_at": null,
       "subscription_group": null,
       "skill_depth": {},
       "id": "kaggle-data-cleaning",
@@ -6656,14 +6658,14 @@
         "online"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Opened page returned only the title. A search listing said the course was refreshed as the 'Junior Cybersecurity Analyst Career Path' (listed as 120 hours, beginner) and that learners are redirected: unverified. Use only as a pointer to re-check. May be replaced by Junior Cybersecurity Analyst Career Path (unverified). Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (a search listing mentions a 120-hour replacement path (unverified); 30 h is a rough guess for this course). Needs check: price.",
+      "notes": "Opened page returned only the title. A search listing said the course was refreshed as the 'Junior Cybersecurity Analyst Career Path' (listed as 120 hours, beginner) and that learners are redirected: unverified. Use only as a pointer to re-check. May be replaced by Junior Cybersecurity Analyst Career Path (unverified). Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (a search listing mentions a 120-hour replacement path (unverified); 30 h is a rough guess for this course). The opened page returned only its title, so the url is not treated as verified. Needs check: url and price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
-      "last_verified_at": "2026-11-01",
+      "last_verified_at": null,
       "subscription_group": null,
       "skill_depth": {},
       "id": "cisco-cybersecurity-essentials",
@@ -6694,14 +6696,14 @@
         "online"
       ],
       "language": "en",
-      "url_verified": true,
+      "url_verified": false,
       "price_verified": false,
       "source": "Official page opened 2026-11-01",
-      "notes": "Opened page returned only the title; duration, price, level not confirmed. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (the page states no duration). Needs check: price.",
+      "notes": "Opened page returned only the title; duration, price, level not confirmed. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (the page states no duration). The opened page returned only its title, so the url is not treated as verified. Needs check: url and price.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
-      "last_verified_at": "2026-11-01",
+      "last_verified_at": null,
       "subscription_group": null,
       "skill_depth": {},
       "id": "netacad-networking-essentials",
@@ -6794,8 +6796,8 @@
     },
     {
       "type": "course",
-      "cost_type": "free",
-      "price": 0,
+      "cost_type": "one_time",
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -6809,7 +6811,7 @@
       "url_verified": false,
       "price_verified": false,
       "source": "Search listing only; page could not be opened",
-      "notes": "URL withheld: https://open.sap.com/courses/s4hintro1?locale=de returned HTTP 503. Search listing: free, 4-6 h effort, 2020 course dates, so probably archived. Possibly archived (2020 course dates in listing). Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (4-6 h comes from a search listing only). Needs check: url and price. No url yet (the page could not be opened).",
+      "notes": "URL withheld: https://open.sap.com/courses/s4hintro1?locale=de returned HTTP 503. Search listing: free, 4-6 h effort, 2020 course dates, so probably archived. Possibly archived (2020 course dates in listing). Price unknown: a search listing said free, but the course is possibly archived and nothing was confirmed. Hours are a Skillstack estimate (4-6 h comes from a search listing only). Needs check: url and price. No url yet (the page could not be opened).",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -6869,8 +6871,8 @@
     },
     {
       "type": "course",
-      "cost_type": "free",
-      "price": 0,
+      "cost_type": "subscription",
+      "price": null,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -6884,7 +6886,7 @@
       "url_verified": false,
       "price_verified": false,
       "source": "Search listing only; page could not be opened",
-      "notes": "URL withheld: only TryHackMe blog posts appeared in search and none was opened; the path page URL was never seen. Blog snippet: rebuilt path with 14 modules; recommended prep for the SAL1 certification (price in snippets $349 / EUR 349 conflicting). All unverified. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (the page states no duration). TryHackMe may charge for premium content; amount unknown. Needs check: url and price. No url yet (the page could not be opened).",
+      "notes": "URL withheld: only TryHackMe blog posts appeared in search and none was opened; the path page URL was never seen. Blog snippet: rebuilt path with 14 modules; recommended prep for the SAL1 certification (price in snippets $349 / EUR 349 conflicting). All unverified. Price unknown: TryHackMe has premium (paid) content and no price was confirmed, so the cost is stored as a subscription with no price. Hours are a Skillstack estimate (the page states no duration). TryHackMe may charge for premium content; amount unknown. Needs check: url and price. No url yet (the page could not be opened).",
       "prerequisites": [],
       "free_alternative_ids": [],
       "prerequisite_kinds": {},
@@ -6922,43 +6924,6 @@
       "url_verified": false,
       "price_verified": false,
       "source": "Search listing only; page could not be opened",
-      "notes": "Not opened. Search listing: course page says 'This course is retired'; ServiceNow Administration Fundamentals pricing conflicting in community posts. Do not add until re-checked. Reported retired. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (the page states no duration). Needs check: url and price. No url yet (the page could not be opened).",
-      "prerequisites": [],
-      "free_alternative_ids": [],
-      "prerequisite_kinds": {},
-      "last_verified_at": null,
-      "subscription_group": null,
-      "skill_depth": {},
-      "id": "servicenow-welcome-to-servicenow",
-      "title": "Welcome to ServiceNow (Now Learning)",
-      "provider": "ServiceNow University",
-      "url": null,
-      "est_hours": 3,
-      "skills": [
-        "ticketing-helpdesk"
-      ],
-      "roles": [
-        "technical-support-specialist",
-        "it-sysadmin"
-      ]
-    },
-    {
-      "type": "course",
-      "cost_type": "free",
-      "price": 0,
-      "currency": "USD",
-      "subscription_period": null,
-      "certificate_price": null,
-      "certificate_type": "none",
-      "recognition": "low",
-      "level": "unspecified",
-      "format": [
-        "online"
-      ],
-      "language": "en",
-      "url_verified": false,
-      "price_verified": false,
-      "source": "Search listing only; page could not be opened",
       "notes": "URL withheld: https://www.futurelearn.com/courses/general-data-protection-regulation returned HTTP 403. Search listing: 4 weeks at about 3 h/week, free access period; unverified. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (4 weeks at about 3 h/week comes from a search listing only). Needs check: url and price. No url yet (the page could not be opened).",
       "prerequisites": [],
       "free_alternative_ids": [],
@@ -6977,43 +6942,6 @@
       "roles": [
         "people-operations",
         "it-sysadmin"
-      ]
-    },
-    {
-      "type": "course",
-      "cost_type": "free",
-      "price": 0,
-      "currency": "USD",
-      "subscription_period": null,
-      "certificate_price": null,
-      "certificate_type": "none",
-      "recognition": "low",
-      "level": "unspecified",
-      "format": [
-        "online"
-      ],
-      "language": "en",
-      "url_verified": false,
-      "price_verified": false,
-      "source": "Search listing only; page could not be opened",
-      "notes": "URL withheld: https://learndigital.withgoogle.com/digitalgarage/course/digital-marketing returned a 301 redirect to https://grow.google/ (so the old course URL is gone). Search listings say the course moved to Skillshop and certificate validation ended: unverified. Old URL redirects to grow.google; may be moved. Price not stated on the page; stored as free (0) but unverified. Hours are a Skillstack estimate (the page states no duration). Needs check: url and price. No url yet (the page could not be opened).",
-      "prerequisites": [],
-      "free_alternative_ids": [],
-      "prerequisite_kinds": {},
-      "last_verified_at": null,
-      "subscription_group": null,
-      "skill_depth": {},
-      "id": "google-digital-garage-digital-marketing",
-      "title": "Fundamentals of digital marketing (Google Digital Garage)",
-      "provider": "Google",
-      "url": null,
-      "est_hours": 20,
-      "skills": [
-        "digital-marketing"
-      ],
-      "roles": [
-        "marketing-coordinator",
-        "growth-marketing"
       ]
     }
   ]

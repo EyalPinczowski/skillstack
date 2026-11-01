@@ -28,15 +28,21 @@ REC={"high":3,"medium":2,"low":1}
 def score(item, role):
     w=sum(role["skills"].get(s,0) for s in item["skills"])
     tag = 2 if role["id"] in item["roles"] or "*" in item["roles"] else 0
-    return w + tag + REC[item["recognition"]]
+    # Verified items outrank unverified ones, so a new unverified item cannot push a verified one out.
+    verified = (4 if item["url_verified"] else 0) + (2 if item["price_verified"] else 0)
+    return w + tag + REC[item["recognition"]] + verified
+# Kept out of `core` (they stay in optional / free_only): the page returned only a title, or the
+# credential needs prior work experience, so they are not a safe first step.
+NOT_FOR_CORE={"aipb-certified-bookkeeper","cisco-cybersecurity-essentials","netacad-networking-essentials","kaggle-data-cleaning"}
 roles_out=[]
 for r in ROLES:
-    ranked=sorted([i for i in ITEMS if (r["id"] in i["roles"] or "*" in i["roles"])], key=lambda i:-score(i,r))
+    ranked=sorted([i for i in ITEMS if (r["id"] in i["roles"] or "*" in i["roles"])
+                       and (i["url"] or i["type"]=="practice")], key=lambda i:-score(i,r))
     # Pick the 6 best items by score, as before; each pick brings its transitive required
     # prerequisites along as a bundle (prerequisites first), so core may hold more than 6 ids.
     core=[]; picked=set()
     for i in ranked:
-        if i["type"]=="practice": continue
+        if i["type"]=="practice" or i["id"] in NOT_FOR_CORE: continue
         if i["cost_type"]=="free_audit" and any(i["id"] in x["free_alternative_ids"] for x in ITEMS): continue
         for x in lint.ordered_required_closure(i["id"], by_id):
             if x not in core: core.append(x)
@@ -82,9 +88,9 @@ for s in skills:
     docs.append({"id":f"skill:{s['id']}","kind":"skill","ref_id":s["id"],
         "text":f"Skill: {s['name']} ({s['category']}). Related terms: {', '.join(s['keywords'])}.","metadata":{"category":s["category"]}})
 
-meta={"version":"0.1.0","generated":"2026-10-29","currency_default":"USD",
-      "attribution":"Some skills and roles adapt information from the O*NET 31.0 Database by USDOL/ETA, used under CC BY 4.0 (O*NET is a trademark of USDOL/ETA; Skillstack has modified the information and USDOL/ETA has not approved or endorsed it), and from the ESCO classification of the European Commission (adapted by Skillstack, marked as modified). See README.md, Attribution.",
-      "verification_note":"url_verified/price_verified = confirmed from a source found during research on 2026-10-29. False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."}
+meta={"version":"0.1.0","generated":"2026-11-01","currency_default":"USD",
+      "attribution":"Some skills and roles include information from O*NET OnLine by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under the CC BY 4.0 license (https://creativecommons.org/licenses/by/4.0/); O*NET is a trademark of USDOL/ETA, Skillstack has modified the information and USDOL/ETA has not approved or endorsed it. Some mappings use the ESCO classification of the European Commission (adapted by Skillstack, marked as modified; ESCO version needs check). See README.md, Attribution.",
+      "verification_note":"url_verified/price_verified = confirmed from a source found during research (latest link check and batch 3 research: 2026-11-01). False = plausible but must be checked before showing as verified. Prices change; re-check before purchase."}
 json.dump({"meta":meta,"items":ITEMS},open(f"{OUT}/catalog.json","w"),indent=2,ensure_ascii=False)
 json.dump({"meta":meta,"roles":roles_out},open(f"{OUT}/roles.json","w"),indent=2,ensure_ascii=False)
 json.dump({"meta":meta,"skills":skills},open(f"{OUT}/skills.json","w"),indent=2,ensure_ascii=False)
