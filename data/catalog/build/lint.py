@@ -84,6 +84,10 @@ def check_items(items, skill_ids=None):
                     errs.append(f"{iid}: prerequisite_kinds[{p}] is {k!r}, expected one of {PREREQ_KINDS}")
         if it["url_verified"] and not (it["url"] or "").startswith("https://"):
             errs.append(f"{iid}: url_verified is true but the url is not an https url")
+        if it.get("type") != "practice" and not it["url"]:
+            # A learning item without a url is allowed only while it is unverified and says so.
+            if it["url_verified"] or "needs check" not in (it.get("notes") or "").lower():
+                errs.append(f"{iid}: missing url (allowed only when url_verified is false and notes say 'needs check')")
         lv = it.get("last_verified_at")
         if lv is not None and not (isinstance(lv, str) and DATE_RE.match(lv)):
             errs.append(f"{iid}: last_verified_at must be YYYY-MM-DD or null, got {lv!r}")

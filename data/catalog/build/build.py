@@ -17,7 +17,6 @@ for it in ITEMS:
         if r!="*" and r not in rid: errs.append(f"{it['id']}: unknown role {r}")
     for p in it["prerequisites"]+it["free_alternative_ids"]:
         if p not in iid: errs.append(f"{it['id']}: unknown ref {p}")
-    if it["type"]!="practice" and not it["url"]: errs.append(f"{it['id']}: missing url")
 for r in ROLES:
     for s in r["skills"]:
         if s not in sid: errs.append(f"role {r['id']}: unknown skill {s}")

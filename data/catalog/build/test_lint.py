@@ -29,6 +29,16 @@ class CheckItems(unittest.TestCase):
     def test_clean_fixture_passes(self):
         self.assertEqual(lint.check_items([item("a"), item("b", ["a"])]), [])
 
+    def test_missing_url_allowed_only_when_unverified_and_flagged(self):
+        ok = item("a", url=None, type="course", notes="No url yet. Needs check: url.")
+        self.assertEqual(lint.check_items([ok]), [])
+        no_flag = item("a", url=None, type="course", notes="")
+        self.assertTrue(any("missing url" in e for e in lint.check_items([no_flag])))
+        verified = item("a", url=None, type="course", url_verified=True, notes="needs check")
+        self.assertTrue(any("missing url" in e for e in lint.check_items([verified])))
+        practice = item("a", url=None, type="practice", notes="")
+        self.assertEqual(lint.check_items([practice]), [])
+
     def test_missing_prerequisite_fails(self):
         errs = lint.check_items([item("b", ["ghost"])])
         self.assertTrue(any("ghost does not exist" in e for e in errs), errs)
