@@ -3,6 +3,12 @@ import { addDays, compareDates, diffDays, parseTime, type LocalDate } from './da
 import { isStudyDay } from './scheduling/capacity';
 import type { ScheduleWarning } from './scheduling/engine';
 import {
+  BriefingPodcastSchema,
+  pickPodcast,
+  toBriefingPodcast,
+  type PodcastEntry,
+} from './podcasts';
+import {
   LocalDateSchema,
   TaskTypeSchema,
   TimeSchema,
@@ -65,6 +71,8 @@ export const BriefingSchema = z.object({
   overview: z.string(),
   tasks: z.array(BriefingTaskSchema),
   suggestedOrder: z.array(z.object({ taskId: z.string(), start: TimeSchema, end: TimeSchema })),
+  /** One "Idea of the day" podcast; absent when no show fits the plan's skills. */
+  podcast: BriefingPodcastSchema.optional(),
   source: z.literal('template'),
 });
 
@@ -85,6 +93,12 @@ export interface BriefingInput {
   warnings?: ScheduleWarning[];
   /** Last scheduled date of the plan, when known. */
   finishDate?: LocalDate | null;
+  /** Skill ids of the plan (taxonomy ids). Without them no podcast is suggested. */
+  skillIds?: string[];
+  /** Podcast ids shown on earlier days, oldest first (only used to avoid a repeat). */
+  podcastHistory?: string[];
+  /** Replaces the shipped podcast list (tests). */
+  podcasts?: readonly PodcastEntry[];
 }
 
 const NOUNS: Record<Task['type'], [one: string, many: string]> = {
@@ -331,11 +345,19 @@ export function buildBriefing(input: BriefingInput): Briefing {
   }
   if (warningSentence) sentences.push(warningSentence);
 
+  const podcast = pickPodcast({
+    userSkillIds: input.skillIds ?? [],
+    date,
+    history: input.podcastHistory,
+    podcasts: input.podcasts,
+  });
+
   return {
     date,
     overview: sentences.join(' '),
     tasks,
     suggestedOrder: blocks.map((b) => ({ taskId: b.taskId, start: b.start, end: b.end })),
+    ...(podcast ? { podcast: toBriefingPodcast(podcast) } : {}),
     source: 'template',
   };
 }

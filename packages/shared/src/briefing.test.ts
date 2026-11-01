@@ -408,3 +408,45 @@ describe('buildBriefing properties', () => {
     );
   });
 });
+
+describe('buildBriefing podcast (Idea of the day)', () => {
+  const show = (id: string, skills: string[]) => ({
+    id,
+    title: `Show ${id}`,
+    publisher: 'Pub',
+    official_url: `https://example.test/${id}`,
+    spotify_url: `https://open.spotify.com/show/${id}`,
+    skills,
+    skill_link: 'Ideas around the skill.',
+    one_line: 'A line.',
+    themes: [],
+    checked_on: '2026-11-01',
+    free: 'unverified' as const,
+    notes: '',
+  });
+  const podcasts = [show('a', ['python']), show('b', ['git'])];
+
+  it('includes one podcast with exactly the briefing fields when a show fits', () => {
+    const b = buildBriefing(input({ skillIds: ['python'], podcasts }));
+    expect(b.podcast).toEqual({
+      title: 'Show a',
+      publisher: 'Pub',
+      skillLink: 'Ideas around the skill.',
+      oneLine: 'A line.',
+      spotifyUrl: 'https://open.spotify.com/show/a',
+    });
+    expect(BriefingSchema.parse(b)).toEqual(b);
+  });
+
+  it('omits the podcast when no show fits, or when the plan has no skills', () => {
+    expect('podcast' in buildBriefing(input({ skillIds: ['sql'], podcasts }))).toBe(false);
+    expect('podcast' in buildBriefing(input({ podcasts }))).toBe(false);
+  });
+
+  it('does not change the tasks, order or overview', () => {
+    const plain = buildBriefing(input());
+    const withShow = buildBriefing(input({ skillIds: ['python'], podcasts }));
+    expect(withShow.podcast).toBeDefined();
+    expect({ ...withShow, podcast: undefined }).toEqual({ ...plain, podcast: undefined });
+  });
+});
