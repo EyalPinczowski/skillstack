@@ -145,6 +145,17 @@ Use this if you prefer to host the frontend on Cloudflare. The API (Render) and 
 11. **Tell Supabase.** In Supabase, Authentication > URL Configuration (see `docs/setup/supabase.md`), add the Cloudflare address to the Site URL / Redirect URLs, with the sign-in callback path the app uses. Without this, sign-in redirects fail.
 12. **Check security headers.** Open the site, DevTools > Network > the document request > Headers: expect `x-content-type-options`, `x-frame-options: DENY`, `referrer-policy`, `permissions-policy`, `strict-transport-security` and `content-security-policy: frame-ancestors 'none'`. Reload a deep link (for example `/plan`) to confirm the SPA fallback works.
 
+## Lessons from the first R&D deploy (Cloudflare, 1 Nov 2026)
+
+These were found by doing the setup once; each is what actually happened, not a documented guarantee.
+
+- **Production branch.** The dashboard defaults to `main`. `wrangler.jsonc` and `_headers` exist only on `rnd` until the first release, so a build from `main` fails with "The Cloudflare application detection logic has been run in the root of a workspace" (wrangler found no config). Set **Settings > Build > Branch control > Production branch** to `rnd` for the R&D Worker.
+- **Retry build replays the old branch.** After changing the branch, a "Retry build" of an old row still builds `main`. A new push to `rnd` (or a merged PR) starts a build from `rnd`.
+- **Build command is not filled in by default.** Without it, Workers Builds only runs `pnpm install` and skips the Vite build. Set it explicitly (step 5).
+- **Deploy command must carry the Worker's name.** The Worker's dashboard name must equal the name passed with `--name`, for example `npx wrangler deploy --name skillstack-web-rnd`. The banner "Update wrangler.jsonc ... name" can be ignored for the R&D Worker.
+- **Include paths** under Build watch paths filter by folder, not branch. Leave it at `*`.
+- **API token.** If Settings > Build shows "Configured API token unavailable", create a new token there (use the default Workers Builds token; do not click anything labelled Upgrade or Paid) before retrying.
+
 ## Vercel vs Cloudflare (verified facts only)
 
 |                           | Vercel Hobby                                                    | Cloudflare Workers (Free)                                                   |
