@@ -48,7 +48,7 @@
     {
       "type": "course",
       "cost_type": "free_audit",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": 59,
@@ -619,7 +619,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -653,7 +653,7 @@
     {
       "type": "cert_exam",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -693,7 +693,7 @@
     {
       "type": "cert_exam",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -729,7 +729,7 @@
     {
       "type": "course",
       "cost_type": "subscription",
-      "price": null,
+      "price": 59,
       "currency": "USD",
       "subscription_period": "month",
       "certificate_price": null,
@@ -744,7 +744,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Coursera Plus pricing",
-      "notes": "4 courses, essentials to advanced.",
+      "notes": "4 courses, essentials to advanced. Price unverified.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "excel-skills-for-business",
@@ -1371,7 +1371,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2354,7 +2354,7 @@
     {
       "type": "cert_exam",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2497,7 +2497,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": null,
+      "price": 439,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2511,7 +2511,7 @@
       "url_verified": false,
       "price_verified": false,
       "source": "HackerDNA Security+ cost 2026",
-      "notes": "$439 US voucher after the June 2026 increase; resellers ~$365–395. Needs check: the exam version is changing (V8 launch), so exam version and price may change; price not stated on the page.",
+      "notes": "$439 US voucher after the June 2026 increase; resellers ~$365–395. Needs check: the exam version is changing (V8 launch), so exam version and price may change; price not stated on the page. Price unverified.",
       "prerequisites": [],
       "free_alternative_ids": [
         "cisco-intro-cybersecurity"
@@ -2566,7 +2566,7 @@
     {
       "type": "course",
       "cost_type": "free_audit",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2601,7 +2601,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": null,
+      "price": 99,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -2615,7 +2615,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "DEV – GitHub Foundations",
-      "notes": "Reported $99; free for verified students via GitHub Education. Confirm current price. URL is the GitHub Education page (free voucher for verified students, no public price on it); public price needs check on the GitHub certification page.",
+      "notes": "Reported $99; free for verified students via GitHub Education. Confirm current price. URL is the GitHub Education page (free voucher for verified students, no public price on it); public price needs check on the GitHub certification page. Price unverified.",
       "prerequisites": [],
       "free_alternative_ids": [],
       "id": "github-foundations",
@@ -2672,7 +2672,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -3357,7 +3357,7 @@
     {
       "type": "course",
       "cost_type": "subscription",
-      "price": null,
+      "price": 59,
       "currency": "USD",
       "subscription_period": "month",
       "certificate_price": null,
@@ -3371,7 +3371,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "Hyperbound – sales certifications for SDRs",
-      "notes": "Free to enroll/audit; certificate requires payment (Coursera).",
+      "notes": "Free to enroll/audit; certificate requires payment (Coursera). Price unverified.",
       "prerequisites": [],
       "free_alternative_ids": [
         "hubspot-inbound-sales"
@@ -3529,7 +3529,7 @@
     {
       "type": "cert_exam",
       "cost_type": "one_time",
-      "price": null,
+      "price": 499,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -3543,7 +3543,7 @@
       "url_verified": true,
       "price_verified": false,
       "source": "AIHR – SHRM certification cost",
-      "notes": "$450 early / $499 standard for non-members ($350/$399 members). No degree or HR experience required. Recertify every 3 years (60 PDCs).",
+      "notes": "$450 early / $499 standard for non-members ($350/$399 members). No degree or HR experience required. Recertify every 3 years (60 PDCs). Price unverified.",
       "prerequisites": [],
       "free_alternative_ids": [
         "umn-hr-management"
@@ -3733,7 +3733,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,
@@ -3933,7 +3933,7 @@
     {
       "type": "course",
       "cost_type": "free",
-      "price": null,
+      "price": 0,
       "currency": "USD",
       "subscription_period": null,
       "certificate_price": null,

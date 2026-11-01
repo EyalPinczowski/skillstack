@@ -7,6 +7,7 @@ interface CatalogItem {
   type: string;
   url: string | null;
   price: number | null;
+  cost_type: string;
   url_verified: boolean;
   price_verified: boolean;
 }
@@ -28,6 +29,11 @@ describe('catalog verification flags', () => {
 
   it('never marks a missing price (check price) as verified', () => {
     const bad = items.filter((i) => i.price === null && i.price_verified);
+    expect(bad.map((i) => i.id)).toEqual([]);
+  });
+
+  it('keeps a numeric price on free items so price caps do not drop them', () => {
+    const bad = items.filter((i) => i.cost_type === 'free' && i.price === null);
     expect(bad.map((i) => i.id)).toEqual([]);
   });
 });
