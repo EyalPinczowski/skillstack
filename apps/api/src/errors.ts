@@ -1,3 +1,4 @@
+import { PiiLeakError } from '@skillstack/shared';
 import type { FastifyInstance } from 'fastify';
 import {
   hasZodFastifySchemaValidationErrors,
@@ -56,6 +57,18 @@ export function installErrorHandling(app: FastifyInstance): void {
         .status(400)
         .send(
           body(request.id, 'validation_error', 'The request did not match the expected shape.'),
+        );
+    }
+    if (error instanceof PiiLeakError) {
+      // Fails closed: no model call was made. The kinds stay out of the answer.
+      return reply
+        .status(422)
+        .send(
+          body(
+            request.id,
+            'pii_blocked',
+            'Personal details were found in the text. Remove names and contact details and try again.',
+          ),
         );
     }
     if (error instanceof HttpError) {
