@@ -11,6 +11,7 @@ describe('a decorator needs code on the next line (1)', () => {
     'Find me:\n@janedoe\nclass of 2019 alumna',
     'Find me:\n@janedoe\nClass of 2019 alumna',
     'Find me:\n@janedoe\nDef leppard fan',
+    'Find me:\n@janedoe\ndef leppard is a band',
     'Find me:\n@janedoe\nPUBLIC NOTICE',
   ])('redacted: %j', (text) => {
     expect(redactPii(text).count).toBe(1);
@@ -36,8 +37,9 @@ describe('a host right after a dot or an ellipsis is still a host (2)', () => {
     ['My site...janedoe.studio', 'My site...[removed]'],
     ['Portfolio:.janedoe.dev', 'Portfolio:.[removed]'],
     ['see (janedoe.dev)', 'see ([removed])'],
-  ])('%s', (text) => {
-    expect(redactPii(text).count).toBe(1);
+    ['Find me\u2026janedoe.com/portfolio', 'Find me\u2026[removed]'],
+  ])('%s', (text, expected) => {
+    expect(redactPii(text).text).toBe(expected);
     expect(findPii(text)).toEqual(['url']);
   });
   it('a dot after a letter still means the middle of a host', () => {
