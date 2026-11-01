@@ -15,3 +15,4 @@ export * from './scheduling/adjustments';
 export * from './export/ics';
 export * from './export/printable';
 export * from './practice/redact';
+export * from './practice/feedback';
