@@ -12,6 +12,8 @@ describe('a decorator needs code on the next line (1)', () => {
     'Find me:\n@janedoe\nClass of 2019 alumna',
     'Find me:\n@janedoe\nDef leppard fan',
     'Find me:\n@janedoe\ndef leppard is a band',
+    'Find me:\n@janedoe\nDef Leppard (the band) fan',
+    'Find me:\n@janedoe\nPublic Speaker Bio (short)',
     'Find me:\n@janedoe\nPUBLIC NOTICE',
   ])('redacted: %j', (text) => {
     expect(redactPii(text).count).toBe(1);
