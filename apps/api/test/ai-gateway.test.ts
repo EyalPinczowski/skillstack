@@ -43,14 +43,17 @@ const USER_A = '11111111-1111-4111-8111-111111111111';
 const USER_B = '22222222-2222-4222-8222-222222222222';
 
 const request = (over: Partial<Parameters<typeof buildSafeRequest>[0]> = {}): SafeAIRequest =>
-  buildSafeRequest({
-    purpose: 'practice_message',
-    system: 'You are a practice coach.',
-    messages: [{ role: 'user', content: 'Ask me a question about caching.' }],
-    maxOutputTokens: 300,
-    json: false,
-    ...over,
-  });
+  buildSafeRequest(
+    {
+      purpose: 'practice_message',
+      system: 'You are a practice coach.',
+      messages: [{ role: 'user', content: 'Ask me a question about caching.' }],
+      maxOutputTokens: 300,
+      json: false,
+      ...over,
+    },
+    [],
+  );
 
 /** An in-memory stand-in for the database counters, with the same atomic rules. */
 function memoryUsage(log: string[] = []) {
@@ -240,6 +243,96 @@ describe('fallback and cooldown', () => {
     const result = await gateway.generate({ userId: USER_A, request: request() });
     expect(result.providerId).toBe('two');
     expect(result.switched?.reason).toBe('error');
+  });
+});
+
+describe('cooldown rules (review fixes)', () => {
+  const NOW = new Date('2026-11-01T10:00:00Z');
+
+  it.each([
+    ['a zero retry-after', new Date(NOW.getTime())],
+    ['a past retry-after', new Date(NOW.getTime() - 1000)],
+    ['a 1 s retry-after', new Date(NOW.getTime() + 1000)],
+  ])('%s cools for at least 5 seconds, not until midnight', async (_name, retryAt) => {
+    const { gateway } = setup(
+      [
+        provider('one', () => Promise.reject(new ProviderQuotaError(retryAt))),
+        provider('two', ok()),
+      ],
+      {},
+      { now: () => NOW },
+    );
+    await gateway.generate({ userId: USER_A, request: request() });
+    expect(gateway.providers()[0]!.cooldownUntil).toEqual(new Date(NOW.getTime() + 5000));
+  });
+
+  it('caps a huge retry-after at 24 hours', async () => {
+    const { gateway } = setup(
+      [
+        provider('one', () =>
+          Promise.reject(new ProviderQuotaError(new Date('2027-01-01T00:00:00Z'))),
+        ),
+        provider('two', ok()),
+      ],
+      {},
+      { now: () => NOW },
+    );
+    await gateway.generate({ userId: USER_A, request: request() });
+    expect(gateway.providers()[0]!.cooldownUntil).toEqual(new Date('2026-11-02T10:00:00Z'));
+  });
+
+  it('a request-specific failure (such as a 400) sets no shared cooldown', async () => {
+    const calls: string[] = [];
+    const { gateway } = setup(
+      [
+        provider('one', () => Promise.reject(new ProviderUnavailableError(true)), calls),
+        provider('two', ok(), calls),
+      ],
+      {},
+      { now: () => NOW },
+    );
+    const first = await gateway.generate({ userId: USER_A, request: request() });
+    expect(first.switched).toEqual({ from: 'one', to: 'two', reason: 'error' });
+    expect(gateway.providers()[0]!.cooldownUntil).toBeNull();
+    calls.length = 0;
+    await gateway.generate({ userId: USER_B, request: request() });
+    expect(calls).toEqual(['one', 'two']); // the next user still gets the first provider
+  });
+
+  it('a 5xx or network failure still cools the provider', async () => {
+    const { gateway } = setup(
+      [
+        provider('one', () => Promise.reject(new ProviderUnavailableError())),
+        provider('two', ok()),
+      ],
+      {},
+      { now: () => NOW },
+    );
+    await gateway.generate({ userId: USER_A, request: request() });
+    expect(gateway.providers()[0]!.cooldownUntil).toEqual(new Date(NOW.getTime() + 60_000));
+  });
+});
+
+describe('error bodies', () => {
+  it('the user-cap answer carries the fallbacks', async () => {
+    const app = buildApp(testConfig(), { db: null });
+    app.get('/cap', async () => {
+      throw new AIUserCapError('practice_message');
+    });
+    app.get('/gone', async () => {
+      throw new AIAbortedError();
+    });
+    await app.ready();
+    const cap = await app.inject({ method: 'GET', url: '/cap' });
+    expect(cap.statusCode).toBe(429);
+    expect(cap.json().error).toMatchObject({
+      code: 'ai_user_cap',
+      fallbacks: ['copy_prompt', 'self_rubric'],
+    });
+    const gone = await app.inject({ method: 'GET', url: '/gone' });
+    expect(gone.statusCode).toBe(499);
+    expect(gone.json().error.code).toBe('client_closed_request');
+    await app.close();
   });
 });
 

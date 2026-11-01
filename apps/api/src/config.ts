@@ -100,7 +100,8 @@ const envSchema = z.object({
     .optional(),
   // Lets paid AI providers register (spec 12.2). Off unless the owner sets it; no paid provider exists yet.
   AI_ALLOW_PAID: booleanString('false'),
-  // Required (greater than 0) when AI_ALLOW_PAID=true, or the API refuses to start. No paid provider exists.
+  // Required (greater than 0) when AI_ALLOW_PAID=true, or the API refuses to start. Startup check
+  // only: no paid provider exists, so nothing enforces or spends against this cap yet.
   AI_PAID_MONTHLY_CAP_USD: z.coerce.number().min(0).max(100_000).optional(),
   // The order providers are tried in. Empty (the default) means no provider: AI is off everywhere.
   AI_PROVIDERS: providerList,
@@ -240,6 +241,11 @@ function loadAIConfig(e: z.infer<typeof envSchema>, env: NodeJS.ProcessEnv): AIC
   }
   if (e.AI_FAKE_PROVIDER && e.APP_ENV === 'operational') {
     problems.push('AI_FAKE_PROVIDER: must not be true when APP_ENV=operational (R&D only)');
+  }
+  if (e.AI_FAKE_PROVIDER && e.AI_PROVIDERS.length > 0 && !e.AI_PROVIDERS.includes('fake')) {
+    problems.push(
+      'AI_FAKE_PROVIDER: true but AI_PROVIDERS does not list "fake" (add it or unset the flag)',
+    );
   }
   if (e.AI_PROVIDERS.includes('fake') && !e.AI_FAKE_PROVIDER) {
     problems.push('AI_PROVIDERS: "fake" needs AI_FAKE_PROVIDER=true (and APP_ENV=rnd)');

@@ -53,7 +53,7 @@ export function isSafeAIRequest(value: unknown): value is SafeAIRequest {
  */
 export function buildSafeRequest(
   parts: SafeAIRequestParts,
-  knownIdentifiers: readonly string[] = [],
+  knownIdentifiers: readonly string[],
 ): SafeAIRequest {
   const parsed = partsSchema.parse(parts);
   const options = { knownIdentifiers };

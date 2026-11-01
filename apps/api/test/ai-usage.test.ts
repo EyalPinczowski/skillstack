@@ -18,21 +18,27 @@ const B = '22222222-2222-4222-8222-222222222222';
 const C = '33333333-3333-4333-8333-333333333333';
 
 const chat = (text = 'Ask me about caching.') =>
-  buildSafeRequest({
-    purpose: 'practice_message',
-    system: 'Coach.',
-    messages: [{ role: 'user', content: text }],
-    maxOutputTokens: 200,
-    json: false,
-  });
+  buildSafeRequest(
+    {
+      purpose: 'practice_message',
+      system: 'Coach.',
+      messages: [{ role: 'user', content: text }],
+      maxOutputTokens: 200,
+      json: false,
+    },
+    [],
+  );
 const overview = (text = 'Overview for today.') =>
-  buildSafeRequest({
-    purpose: 'day_overview',
-    system: 'Coach.',
-    messages: [{ role: 'user', content: text }],
-    maxOutputTokens: 200,
-    json: false,
-  });
+  buildSafeRequest(
+    {
+      purpose: 'day_overview',
+      system: 'Coach.',
+      messages: [{ role: 'user', content: text }],
+      maxOutputTokens: 200,
+      json: false,
+    },
+    [],
+  );
 
 describe.skipIf(!dbAvailable)('AI usage, budgets and cache (real Postgres)', () => {
   let testDb: TestDb;

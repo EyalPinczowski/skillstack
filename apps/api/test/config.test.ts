@@ -304,6 +304,12 @@ describe('AI configuration', () => {
     expect(ai.budgets).toEqual({ fake: 1000 });
   });
 
+  it('refuses the fake flag when AI_PROVIDERS is set without fake', () => {
+    expect(() =>
+      loadConfig({ APP_ENV: 'rnd', AI_FAKE_PROVIDER: 'true', AI_PROVIDERS: 'groq' }),
+    ).toThrow(/AI_FAKE_PROVIDER/);
+  });
+
   it('reads one explicit budget per listed provider; none means the provider is not used', () => {
     const ai = loadConfig({ AI_PROVIDERS: 'groq,cloudflare-ai', AI_BUDGET_GROQ_DAILY: '200' }).ai;
     expect(ai.providerOrder).toEqual(['groq', 'cloudflare-ai']);

@@ -8,7 +8,12 @@ import { z } from 'zod';
 import { NO_NUL_MESSAGE } from './validation';
 
 export const errorResponseSchema = z.object({
-  error: z.object({ code: z.string(), message: z.string(), requestId: z.string() }),
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+    requestId: z.string(),
+    fallbacks: z.array(z.string()).optional(),
+  }),
 });
 
 /** An error whose code and message are safe to show to the client. */
@@ -17,6 +22,8 @@ export class HttpError extends Error {
     public readonly statusCode: number,
     public readonly code: string,
     message: string,
+    /** Extra fields safe to show to the client, merged into the error body. */
+    public readonly extra?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'HttpError';
@@ -72,7 +79,10 @@ export function installErrorHandling(app: FastifyInstance): void {
         );
     }
     if (error instanceof HttpError) {
-      return reply.status(error.statusCode).send(body(request.id, error.code, error.message));
+      const b = body(request.id, error.code, error.message);
+      return reply
+        .status(error.statusCode)
+        .send(error.extra ? { error: { ...b.error, ...error.extra } } : b);
     }
     const status = (error as { statusCode?: unknown }).statusCode;
     if (

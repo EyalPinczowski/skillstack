@@ -1,16 +1,26 @@
 import { HttpError } from '../errors';
 import { nextUtcMidnight, type AIUsageStore } from './budget';
 import { cacheKey, CACHE_TTL_MS, type AICache } from './cache';
-import { ProviderQuotaError, type AIProvider, type AIPurpose, type AIResponse } from './provider';
+import {
+  ProviderQuotaError,
+  ProviderUnavailableError,
+  type AIProvider,
+  type AIPurpose,
+  type AIResponse,
+} from './provider';
 import type { AIRegistry } from './registry';
 import { isSafeAIRequest, type SafeAIRequest } from './safe-request';
 
 /** 429: the user used today's calls for this purpose. Other users are unaffected. */
 export class AIUserCapError extends HttpError {
   /** What the client can offer instead (spec 9). */
-  readonly fallbacks = ['copy_prompt', 'self_rubric'] as const;
+  get fallbacks(): readonly string[] {
+    return ['copy_prompt', 'self_rubric'];
+  }
   constructor(public readonly purpose: AIPurpose) {
-    super(429, 'ai_user_cap', 'You have used today’s AI calls for this. Try again tomorrow.');
+    super(429, 'ai_user_cap', 'You have used today’s AI calls for this. Try again tomorrow.', {
+      fallbacks: ['copy_prompt', 'self_rubric'],
+    });
     this.name = 'AIUserCapError';
   }
 }
@@ -32,9 +42,10 @@ export class AIUnavailableError extends HttpError {
 }
 
 /** The caller's own signal aborted (the client went away). Not a provider failure. */
-export class AIAbortedError extends Error {
+export class AIAbortedError extends HttpError {
   constructor() {
-    super('The AI request was aborted.');
+    // 499 (client closed request): a quiet answer, not an unhandled 500.
+    super(499, 'client_closed_request', 'The request was cancelled.');
     this.name = 'AIAbortedError';
   }
 }
@@ -108,6 +119,7 @@ export interface AIGateway {
 }
 
 const UNAVAILABLE_COOLDOWN_MS = 60_000;
+const MIN_RETRY_AFTER_MS = 5000;
 const MAX_COOLDOWN_MS = 24 * 3600_000;
 const MAX_REPLY_CHARS = 20_000;
 
@@ -304,14 +316,24 @@ export function createAIGateway(deps: GatewayDeps): AIGateway {
           if (error instanceof ProviderQuotaError) {
             reason = 'quota';
             const retry = error.retryAfter?.getTime();
+            // A stated retry-after is honoured, but never shorter than a few seconds (0 or 1
+            // would make the cooldown pointless) and never longer than a day. Midnight UTC
+            // only when the provider said nothing.
             until =
-              retry !== undefined && Number.isFinite(retry) && retry > at.getTime()
-                ? Math.min(retry, at.getTime() + MAX_COOLDOWN_MS)
+              retry !== undefined && Number.isFinite(retry)
+                ? Math.min(
+                    Math.max(retry, at.getTime() + MIN_RETRY_AFTER_MS),
+                    at.getTime() + MAX_COOLDOWN_MS,
+                  )
                 : nextUtcMidnight(at).getTime();
           } else if (error instanceof TimedOut) {
             reason = 'timeout';
           }
-          cooldowns.set(provider.id, { until, reason });
+          // A failure caused by this one request (a 400, say) says nothing about the provider,
+          // and the cooldown is shared by every user: skip it and just try the next provider.
+          const requestSpecific =
+            error instanceof ProviderUnavailableError && error.requestSpecific;
+          if (!requestSpecific) cooldowns.set(provider.id, { until, reason });
           // Ids and a code only: the error's own text can echo the request or a key.
           warn({ providerId: provider.id, reason }, 'ai provider failed');
           attempts.push({ providerId: provider.id, outcome: reason });
