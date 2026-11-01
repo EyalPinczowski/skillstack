@@ -14,6 +14,8 @@ export const MAX_NEXT_FOCUS_LENGTH = 500;
 export const MAX_FREE_TEXT_LENGTH = 8000;
 /** How many `{` positions are tried before giving up on a model answer. */
 const MAX_OBJECT_ATTEMPTS = 8;
+/** Longer input is cut before any scanning, so hostile text cannot cost more than this. */
+export const MAX_PARSE_INPUT_LENGTH = 64 * 1024;
 
 export const FeedbackSchema = z.object({
   score: z.number().min(0).max(10),
@@ -58,7 +60,8 @@ const KEY_ALIASES: Record<string, keyof Feedback> = {
 
 /** `next_focus`, `nextFocus`, `Next Focus` and `next-focus` all become `nextfocus`. */
 function canonicalKey(key: string): keyof Feedback | undefined {
-  return KEY_ALIASES[key.toLowerCase().replace(/[^a-z]/g, '')];
+  const k = key.toLowerCase().replace(/[^a-z]/g, '');
+  return Object.hasOwn(KEY_ALIASES, k) ? KEY_ALIASES[k] : undefined;
 }
 
 const SCORE_TEXT = /^(\d+(?:\.\d+)?)\s*(?:\/\s*(\d+(?:\.\d+)?)|(%))?$/;
@@ -146,6 +149,7 @@ const SMART_QUOTES: Record<string, string> = {
   '’': "'",
 };
 const FRACTION_OR_PERCENT = /-?\d+(?:\.\d+)?\s*(?:\/\s*\d+(?:\.\d+)?|%)/y;
+const DIGIT_RUN = /\d+/y;
 const BARE_WORD = /[A-Za-z_$][\w$-]*/y;
 const ESCAPES: Record<string, string> = { '\n': '\\n', '\r': '', '\t': '\\t' };
 
@@ -205,6 +209,14 @@ function objectToJson(src: string, start: number): string | null {
       i += fraction[0].length;
       continue;
     }
+    // A digit run that is not a fraction or percent is copied whole, so a long run is scanned once.
+    DIGIT_RUN.lastIndex = i;
+    const digits = DIGIT_RUN.exec(src);
+    if (digits) {
+      out += digits[0];
+      i += digits[0].length;
+      continue;
+    }
     BARE_WORD.lastIndex = i;
     const word = BARE_WORD.exec(src);
     if (word) {
@@ -232,13 +244,14 @@ function replaceSmartQuotes(text: string): string {
  */
 export function parseModelFeedback(text: string): FeedbackParseResult {
   const raw = text;
+  const input = text.slice(0, MAX_PARSE_INPUT_LENGTH);
   try {
-    const direct = FeedbackSchema.safeParse(JSON.parse(raw.trim()));
+    const direct = FeedbackSchema.safeParse(JSON.parse(input.trim()));
     if (direct.success) return { ok: true, feedback: direct.data, repaired: false, flags: [], raw };
   } catch {
     // Not plain JSON; fall through to the repair path.
   }
-  const src = replaceSmartQuotes(raw);
+  const src = replaceSmartQuotes(input);
   let from = src.indexOf('{');
   for (let attempt = 0; attempt < MAX_OBJECT_ATTEMPTS && from !== -1; attempt += 1) {
     const json = objectToJson(src, from);
@@ -268,8 +281,44 @@ export function parseModelFeedback(text: string): FeedbackParseResult {
 // The pasted ===FEEDBACK=== block
 // ---------------------------------------------------------------------------
 
-const BLOCK_START = /={3,}[ \t]*feedback[ \t]*={3,}/gi;
-const BLOCK_END = /={3,}[ \t]*end[ \t]*={3,}/i;
+const MIN_MARKER_EQUALS = 3;
+
+/** ASCII-only lowercase: never changes the length, so indexes stay valid. */
+function asciiLower(text: string): string {
+  return text.replace(/[A-Z]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 32));
+}
+
+/**
+ * Finds `===word===` (3 or more equals signs on each side, spaces and tabs allowed around the
+ * word) at or after `from`. Linear: it looks for the word and walks outwards from each hit.
+ * Returns the span of the whole marker. With `last`, the last marker wins instead of the first.
+ */
+function findMarker(
+  lower: string,
+  word: string,
+  from: number,
+  last: boolean,
+): { start: number; end: number } | null {
+  let found: { start: number; end: number } | null = null;
+  let at = lower.indexOf(word, from);
+  while (at !== -1) {
+    let left = at;
+    while (left > from && (lower[left - 1] === ' ' || lower[left - 1] === '\t')) left -= 1;
+    const equalsEnd = left;
+    while (left > from && lower[left - 1] === '=') left -= 1;
+    let right = at + word.length;
+    while (right < lower.length && (lower[right] === ' ' || lower[right] === '\t')) right += 1;
+    const equalsStart = right;
+    while (right < lower.length && lower[right] === '=') right += 1;
+    if (equalsEnd - left >= MIN_MARKER_EQUALS && right - equalsStart >= MIN_MARKER_EQUALS) {
+      found = { start: left, end: right };
+      if (!last) return found;
+    }
+    at = lower.indexOf(word, at + word.length);
+  }
+  return found;
+}
+
 const KEY_LINE = /^[ \t]*([A-Za-z][A-Za-z _-]{1,19}?)[ \t]*:[ \t]*(.*)$/;
 const BULLET = /^[-*•][ \t]+/;
 
@@ -280,13 +329,12 @@ const BULLET = /^[-*•][ \t]+/;
  */
 export function parseFeedbackBlock(text: string): FeedbackParseResult {
   const raw = text;
-  const norm = text.replace(/\r\n?/g, '\n');
-  const starts = [...norm.matchAll(BLOCK_START)];
-  const last = starts[starts.length - 1];
-  if (!last) return freeTextResult(raw);
-  let body = norm.slice(last.index + last[0].length);
-  const end = BLOCK_END.exec(body);
-  if (end) body = body.slice(0, end.index);
+  const norm = text.slice(0, MAX_PARSE_INPUT_LENGTH).replace(/\r\n?/g, '\n');
+  const start = findMarker(asciiLower(norm), 'feedback', 0, true);
+  if (!start) return freeTextResult(raw);
+  let body = norm.slice(start.end);
+  const end = findMarker(asciiLower(body), 'end', 0, false);
+  if (end) body = body.slice(0, end.start);
 
   const fields: Partial<Record<keyof Feedback, string[]>> = {};
   let current: keyof Feedback | undefined;
