@@ -23,14 +23,32 @@ describe('demo sample plan', () => {
     }
   });
 
-  it('never presents an unverified link as verified and has no invented lessons', () => {
+  it('never presents an unverified link as verified', () => {
     for (const t of plan.tasks) {
-      expect(t.lessons).toEqual([]);
       // Catalog practice templates have no link at all; every other catalog item without one is flagged.
       if (t.externalRef?.startsWith('catalog:') && !t.url && t.provider !== 'Skillstack practice') {
         expect(t.notes ?? '').toMatch(/needs check/i);
       }
     }
+  });
+
+  it('marks a lesson link verified only when it is an https link', () => {
+    const lessons = plan.tasks.flatMap((t) => t.lessons.map((l) => ({ task: t, lesson: l })));
+    expect(lessons.length).toBeGreaterThan(0);
+    for (const { task, lesson } of lessons) {
+      expect(task.type).toBe('course');
+      if (!lesson.needsCheck) {
+        expect(lesson.url, `${task.id} is verified`).toMatch(/^https:\/\//);
+      }
+      if (!lesson.url) expect(lesson.needsCheck, `${task.id} has no link`).toBe(true);
+    }
+  });
+
+  it('keeps a course without a verified lesson link free of lessons', () => {
+    const excel = plan.tasks.find((t) => t.id === 'excel')!;
+    expect(excel.lessons).toEqual([]);
+    expect(excel.url).toBeUndefined();
+    expect(excel.notes ?? '').toMatch(/needs check/i);
   });
 
   it('gives every practice how-to steps and a prompt template', () => {
