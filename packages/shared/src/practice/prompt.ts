@@ -82,6 +82,8 @@ export interface BuiltPracticePrompt {
  */
 export function neutraliseMarkup(text: string): string {
   return text
+    .replace(/[\uFF1C\uFE64]/g, '<')
+    .replace(/[\uFF1E\uFE65]/g, '>')
     .replace(/<[^<>]{0,200}>/g, ' ')
     .replace(/</g, '\u2039')
     .replace(/>/g, '\u203A')
@@ -90,11 +92,24 @@ export function neutraliseMarkup(text: string): string {
 
 /** The longest text redacted in one go (a chat turn or a long field); the rest is dropped. */
 export const MAX_USER_TEXT_LENGTH = 16 * 1024;
+/** How far back from the limit the cut looks for whitespace, so no address is cut in half. */
+const CUT_WINDOW = 512;
+
+/** Cuts at a whitespace boundary near the limit, or `CUT_WINDOW` early when there is none. */
+function cutAtBoundary(text: string): string {
+  const limit = MAX_USER_TEXT_LENGTH;
+  for (let i = limit; i > limit - CUT_WINDOW; i -= 1) {
+    if (/\s/.test(text[i] as string)) return text.slice(0, i);
+  }
+  return text.slice(0, limit - CUT_WINDOW);
+}
 
 /**
- * Redacts one piece of user-controlled text and verifies the result. Use it for every chat turn
- * too. Text over `MAX_USER_TEXT_LENGTH` is cut and `truncated` is true. Throws `PiiLeakError`
- * when something personal survives, known identifiers included.
+ * Prepares one piece of user-controlled text for a model and verifies the result. Use it for
+ * every chat turn and every prompt field. In order: markup is neutralised (`neutraliseMarkup`),
+ * text over `MAX_USER_TEXT_LENGTH` is cut back to a whitespace boundary (`truncated` is true),
+ * personal details are redacted, and the result is checked again, known identifiers included.
+ * Throws `PiiLeakError` when something personal survives.
  */
 export function sanitizeUserText(
   text: string,
@@ -104,8 +119,9 @@ export function sanitizeUserText(
   count: number;
   truncated: boolean;
 } {
-  const truncated = text.length > MAX_USER_TEXT_LENGTH;
-  const result = redactPii(truncated ? text.slice(0, MAX_USER_TEXT_LENGTH) : text, options);
+  const neutral = neutraliseMarkup(text);
+  const truncated = neutral.length > MAX_USER_TEXT_LENGTH;
+  const result = redactPii(truncated ? cutAtBoundary(neutral) : neutral, options);
   assertNoPii(result.text, options);
   return { ...result, truncated };
 }
@@ -118,7 +134,7 @@ export function buildPracticePrompt(
   const parsed = PracticePromptInputSchema.parse(input);
   let redactions = 0;
   const clean = (text: string): string => {
-    const r = sanitizeUserText(neutraliseMarkup(text), options);
+    const r = sanitizeUserText(text, options);
     redactions += r.count;
     return r.text;
   };

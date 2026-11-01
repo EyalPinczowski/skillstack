@@ -209,7 +209,7 @@ describe('buildPracticePrompt: personal details never get through', () => {
           weekTopics: [
             {
               title: where === 'topicTitle' ? payload : 'Topic',
-              skillId: where === 'skillId' ? payload : 'sk',
+              skillId: where === 'skillId' ? `${e} ${p}` : 'sk',
             },
           ],
           jobDescription: where === 'jobDescription' ? payload : 'Job',

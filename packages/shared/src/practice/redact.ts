@@ -13,14 +13,18 @@
  *
  * Detection rules:
  * - emails, `scheme://` URLs, `www.` hosts, and any `host.tld/path` with a 2 to 24 letter TLD;
- * - bare hosts without a path only for an allowlist of lowercase TLDs (so ASP.NET, VB.NET and
- *   System.IO survive, and `LinkedIn.COM` without a path does not match);
- * - `@handles` of 3 to 32 characters, except code: a handle followed by `(`, `.x` or `/x`
- *   (`@app.route`, `@angular/core`), CSS at-rules, a decorator at the start of a line before
- *   def/class/function/public..., T-SQL variables right after DECLARE/SET/SELECT/EXEC or after
- *   `=`, `<`, `>`, `,` or `(` on a line with a SQL keyword, and anything inside backticks;
+ * - bare hosts without a path: any letters-only TLD of 2 to 24 characters. An allowlisted TLD
+ *   (com, net, io, ...) matches in any case, so `ASP.NET` and `System.IO` are redacted; any other
+ *   TLD must be lowercase and not a common file extension, so `notes.txt`, `main.py`,
+ *   `Console.WriteLine` and `Math.PI` survive;
+ * - `@handles` of 3 to 32 characters. Exempt only: anything inside a closed ``` block; an npm
+ *   scope (`@types/node`) right after a quote or an install command; and a decorator alone on
+ *   its line directly above a def/class/function line. Everything else is redacted, including
+ *   inline-backtick code, `@media` and T-SQL variables outside a fence: a wrong exemption leaks
+ *   a handle, a wrong redaction only costs a code token;
  * - digit runs of 9 or more with separators (space, dot, dash, slash, parentheses, `_`, `~`,
- *   middle dots, fraction slash, and a comma directly between digits);
+ *   middle dots, fraction slash, a comma between digits), and digit groups of 2+ joined by 1 to 3
+ *   punctuation or symbol characters (`054 ∙ 123 * 4567`, `1990, 2005, 2010`);
  * - the user's known identifiers, matched as whole words (letters on both sides, marks ignored).
  *
  * Limits (also stated in the privacy page):
@@ -29,7 +33,10 @@
  * - obfuscated details are not detected: "name at example dot com", digits spelled as words,
  *   HTML entities, percent-encoding, `git@github.com:user/repo`, a number split by a newline;
  * - homoglyphs (a Cyrillic letter inside "Eyal") and accent-folded names do not match;
- * - false positives are accepted: runs of 9+ digits in a number list ("10 20 30 40 50"), long
+ * - not detected: phone numbers written in superscript or circled digits, and display-name
+ *   tokens shorter than 3 letters;
+ * - false positives are accepted: lists of 2+ digit numbers (`1990, 2005, 2010`), `end.Next`
+ *   typed without a space after the full stop, runs of 9+ digits in a number list ("10 20 30 40 50"), long
  *   numbers with thousands separators, `snake_case_ids_123_456_789`, every occurrence of a user
  *   name that is also an ordinary word, and a real handle on a line that looks like SQL.
  */
@@ -61,35 +68,35 @@ export interface RedactResult {
 /** Redaction repeats because removing one span can expose another (`@abc@abc@abc`). */
 export const MAX_PASSES = 5;
 /** What stands in for a removed span while checking, so digits on both sides never join up. */
-const SENTINEL = '|';
+const SENTINEL = '\n';
 
 const EMAIL = /[\p{L}\p{N}._%+-]{1,64}@[\p{L}\p{N}-]{1,63}(?:\.[\p{L}\p{N}-]{1,63})+/gu;
-const URL_SCHEME = /\b(?:https?|ftp|file):\/\/[^\s<>"]{1,2000}/giu;
+const URL_SCHEME = /(?:https?|ftp|file):\/\/[^\s<>"]{1,2000}/giu;
 const WWW = /\bwww\.[^\s<>"]{1,2000}/giu;
 const PATH_URL =
-  /(?<![\p{L}\p{N}@.-])(?:[\p{L}\p{N}-]{1,63}\.){1,5}\p{L}{2,24}\/[^\s<>"]{1,2000}/gu;
-const TLDS =
-  'com|org|net|io|co|dev|app|ai|edu|gov|info|biz|me|uk|de|fr|il|us|ca|au|nl|ru|xyz|tech|' +
-  'ly|ee|site|page|in|to|gg|sh|tv|so|eu|ch|it|es|pl|se';
-// Lowercase only: ASP.NET, VB.NET, ML.NET and System.IO are code, not hosts.
-const BARE_HOST = new RegExp(
-  `(?<![\\p{L}\\p{N}@.-])(?:[\\p{L}\\p{N}-]{1,63}\\.){1,5}(?:${TLDS})(?![\\p{L}\\p{N}-])`,
-  'gu',
+  /(?<![\p{L}\p{N}@.-])(?:[\p{L}\p{N}-]{1,63}\.){1,30}\p{L}{2,24}\/[^\s<>"]{1,2000}/gu;
+/** TLDs that are always a host, in any case. */
+const TLDS = new Set(
+  (
+    'com|org|net|io|co|dev|app|ai|edu|gov|info|biz|me|uk|de|fr|il|us|ca|au|nl|ru|xyz|tech|' +
+    'ly|ee|site|page|in|to|gg|sh|tv|so|eu|ch|it|es|pl|se'
+  ).split('|'),
 );
+/** Common file extensions: `notes.txt` and `main.py` are files, not hosts. */
+const FILE_EXTENSIONS = new Set(
+  (
+    'txt|py|js|ts|tsx|jsx|md|json|csv|xlsx|xls|docx|doc|pptx|pdf|png|jpg|jpeg|gif|svg|html|' +
+    'htm|css|java|cs|cpp|rb|go|rs|sql|yml|yaml|xml|log|ini|cfg|toml|zip|tar|gz|exe|dll|' +
+    'ipynb|rtf|bak|tmp'
+  ).split('|'),
+);
+// Any letters-only TLD of 2 to 24 characters. An allowlisted TLD matches in any case; any other
+// must be lowercase and not a file extension (see `hostSpans`).
+const BARE_HOST =
+  /(?<![\p{L}\p{N}@.-])(?:[\p{L}\p{N}-]{1,63}\.){1,30}(\p{L}{2,24})(?![\p{L}\p{N}-])/gu;
 const HANDLE = /(?<![\p{L}\p{N}_@])@[A-Za-z0-9_]{3,32}(?![\p{L}\p{N}_])/gu;
-const CSS_AT_RULES = new Set([
-  'media',
-  'import',
-  'keyframes',
-  'font-face',
-  'supports',
-  'charset',
-  'page',
-  'layer',
-  'container',
-  'namespace',
-  'property',
-]);
+/** Digit groups of 2+ joined by 1 to 3 punctuation or symbol characters (never a newline). */
+const JOINED_NUMBER = /(?<!\d)\d{2,}(?:[^\p{L}\p{N}\r\n]{1,3}\d{2,}){1,12}(?!\d)/gu;
 const PHONE = /(?<!\d)\+?\(?\d(?:[\d \t()./_~·•⁄-]|(?<=\d),(?=\d)){7,40}\d/g;
 const ISO_DATE = /(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)/g;
 const SLASH_DATE = /(?<!\d)\d{1,2}[./]\d{1,2}[./]\d{4}(?!\d)/g;
@@ -100,10 +107,16 @@ const MARKS = /\p{M}/gu;
 const DECIMAL = /\p{Nd}/gu;
 const DASHES = /[\p{Pd}−]/gu;
 const SPACES = /[⠀\p{Zs}]/gu;
+const IDEOGRAPHIC_STOPS = /[\u3002\uFF0E\uFF61]/gu;
 /** A base character and the combining marks after it (or a run of stray marks). */
 const CHUNK = /[^\p{M}]\p{M}*|\p{M}+/uy;
-/** Compatibility characters whose meaning NFKC would change: kept as they are. */
-const KEEP_AS_IS = /^[²³¹¼-¾⁰-₟⅐-↏①-⓿❶-➓㈠-㈩㉀-㊿]/u;
+/**
+ * Digit-like compatibility characters NFKC would turn into plain digits: superscript and
+ * subscript digits, fractions, circled and parenthesised numbers. They stay as they are, so
+ * `10⁹`, `E=mc²` and `½` are not changed. Letters (circled, parenthesised) are NOT in this list:
+ * they are folded, so `ⓙⓞⓗⓝ@gmail.com` is found.
+ */
+const KEEP_AS_IS = /^[²³¹¼-¾⁰⁴-⁹₀-₉⅐-⅟↉①-⒛⓪-⓿❶-➓㉑-㉟㊱-㊿]/u;
 
 /** The value (0 to 9) of a non-ASCII decimal digit: its offset in its block of ten. */
 function digitValue(ch: string): string {
@@ -127,9 +140,12 @@ function normaliseChunk(chunk: string): string {
     .replace(MARKS, '')
     .replace(DECIMAL, (d) => (d >= '0' && d <= '9' ? d : digitValue(d)))
     .replace(DASHES, '-')
-    .replace(SPACES, ' ');
-  if (chunkCache.size > 5000) chunkCache.clear();
-  chunkCache.set(chunk, out);
+    .replace(SPACES, ' ')
+    .replace(IDEOGRAPHIC_STOPS, '.');
+  if (chunk.length <= 8) {
+    if (chunkCache.size > 5000) chunkCache.clear();
+    chunkCache.set(chunk, out);
+  }
   return out;
 }
 
@@ -192,55 +208,81 @@ function isPhone(candidate: string): boolean {
 
 const DECORATED =
   /^\s*(?:def|class|function|public|private|protected|static|async|export|final|abstract|override)\b/i;
-const SQL_WORD =
-  /\b(?:select|where|from|insert|update|delete|exec|execute|declare|join|having|values)\b/i;
+/** What may follow a decorator name on its line: `.route("/")`, `(arg)`, or nothing. */
+const DECORATOR_REST = /^(?:\.[\w.]*)?(?:\([^\n]*\))?\s*$/;
+/** Where an npm scope (`@types/node`) is written: right after a quote or an install command. */
+const NPM_CONTEXT = /(?:["']|\b(?:npm|pnpm|yarn)\s+(?:i|install|add)\s+(?:-\S+\s+)*)$/;
+const NPM_NAME = /^\/[a-z0-9][a-z0-9._-]*/;
+const FENCE = '```';
 
-function backticksBefore(ticks: readonly number[], offset: number): number {
+function fencePositions(text: string): number[] {
+  const marks: number[] = [];
+  for (let i = text.indexOf(FENCE); i !== -1; i = text.indexOf(FENCE, i + FENCE.length)) {
+    marks.push(i);
+  }
+  return marks;
+}
+
+/** True inside a CLOSED ``` block (an opening fence with no closing one does not count). */
+function insideFence(marks: readonly number[], offset: number): boolean {
   let lo = 0;
-  let hi = ticks.length;
+  let hi = marks.length;
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
-    if ((ticks[mid] as number) < offset) lo = mid + 1;
+    if ((marks[mid] as number) < offset) lo = mid + 1;
     else hi = mid;
   }
-  return lo;
+  return lo % 2 === 1 && lo < marks.length;
 }
 
-function backtickPositions(text: string): number[] {
-  const ticks: number[] = [];
-  for (let i = text.indexOf('`'); i !== -1; i = text.indexOf('`', i + 1)) ticks.push(i);
-  return ticks;
-}
-
-/** Code that merely looks like a handle. Looks at a bounded window, never the whole text. */
+/**
+ * Code that merely looks like a handle. Deliberately narrow, because a wrong exemption leaks a
+ * handle while a wrong redaction only costs a code token: inside a closed ``` block; an npm
+ * scope (`@types/node`) in an import or install context; or a decorator on a line of its own
+ * (`@Override`, `@app.route("/")`) directly above a def/class/function line. Looks at a bounded
+ * window, never the whole text.
+ */
 function isCodeHandle(
   match: string,
   offset: number,
   full: string,
-  ticks: readonly number[],
+  fences: readonly number[],
 ): boolean {
-  if (CSS_AT_RULES.has(match.slice(1).toLowerCase())) return true;
+  if (insideFence(fences, offset)) return true;
   const end = offset + match.length;
-  if (full[end] === '(') return true;
-  if ((full[end] === '.' || full[end] === '/') && /[A-Za-z0-9_]/.test(full[end + 1] ?? '')) {
-    return true;
-  }
-  if (backticksBefore(ticks, offset) % 2 === 1) return true;
   const windowStart = Math.max(0, offset - 200);
   const seg = full.slice(windowStart, offset);
+  if (NPM_NAME.test(full.slice(end, end + 80)) && NPM_CONTEXT.test(seg.slice(-60))) return true;
   const newline = seg.lastIndexOf('\n');
   const linePrefix = newline >= 0 ? seg.slice(newline + 1) : windowStart === 0 ? seg : 'x';
-  if (linePrefix.trim() === '' && DECORATED.test(full.slice(end, end + 80))) return true;
-  const before = seg.slice(-120);
-  if (/\b(?:declare|set|select|exec|execute)\s+$/i.test(before.slice(-12))) return true;
-  return SQL_WORD.test(before) && /[=<>,(]\s*$/.test(before);
+  if (linePrefix.trim() !== '') return false;
+  const rest = full.slice(end, end + 200);
+  const lineEnd = rest.indexOf('\n');
+  return (
+    lineEnd >= 0 &&
+    DECORATOR_REST.test(rest.slice(0, lineEnd)) &&
+    DECORATED.test(rest.slice(lineEnd + 1))
+  );
 }
 
 function handleSpans(text: string): [number, number][] {
-  const ticks = backtickPositions(text);
+  const fences = fencePositions(text);
   const spans: [number, number][] = [];
   for (const m of text.matchAll(HANDLE)) {
-    if (!isCodeHandle(m[0], m.index, text, ticks)) spans.push([m.index, m.index + m[0].length]);
+    if (!isCodeHandle(m[0], m.index, text, fences)) spans.push([m.index, m.index + m[0].length]);
+  }
+  return spans;
+}
+
+/** Bare hosts such as `jane.me`; file names (`notes.txt`) and mixed-case code tokens are not. */
+function hostSpans(text: string): [number, number][] {
+  const spans: [number, number][] = [];
+  for (const m of text.matchAll(BARE_HOST)) {
+    const tld = m[1] as string;
+    const lower = tld === tld.toLowerCase();
+    if (TLDS.has(tld.toLowerCase()) || (lower && !FILE_EXTENSIONS.has(tld))) {
+      spans.push([m.index, m.index + m[0].length]);
+    }
   }
   return spans;
 }
@@ -266,10 +308,10 @@ function findSpans(text: string, known: RegExp | null): [number, number][] {
     ...spansOf(text, URL_SCHEME),
     ...spansOf(text, WWW),
     ...spansOf(text, PATH_URL),
-    ...spansOf(text, BARE_HOST),
+    ...hostSpans(text),
     ...handleSpans(text),
     ...(known ? spansOf(text, known) : []),
-    ...[...text.matchAll(PHONE)]
+    ...[...text.matchAll(PHONE), ...text.matchAll(JOINED_NUMBER)]
       .filter((m) => isPhone(m[0]))
       .map((m): [number, number] => [m.index, m.index + m[0].length]),
   ];
@@ -328,12 +370,14 @@ export function findPii(text: string, options: RedactOptions = {}): PiiKind[] {
     test(URL_SCHEME, probe) ||
     test(WWW, probe) ||
     test(PATH_URL, probe) ||
-    test(BARE_HOST, probe)
+    hostSpans(probe).length > 0
   ) {
     kinds.push('url');
   }
   if (handleSpans(probe).length > 0) kinds.push('handle');
-  if ((probe.match(PHONE) ?? []).some(isPhone)) kinds.push('phone');
+  if ([...probe.matchAll(PHONE), ...probe.matchAll(JOINED_NUMBER)].some((m) => isPhone(m[0]))) {
+    kinds.push('phone');
+  }
   const known = knownIdentifierPattern(options.knownIdentifiers ?? []);
   if (known && test(known, probe)) kinds.push('identifier');
   return kinds;
@@ -362,8 +406,14 @@ export function knownIdentifiersFor(user: {
     const distinctive = local.length >= 5 || /\P{L}/u.test(local);
     if (distinctive && local.length >= 3) ids.push(local);
   }
+  const tokens: string[] = [];
   for (const token of normaliseForMatching(user.displayName ?? '').split(/\P{L}+/u)) {
-    if ([...token].length >= 3) ids.push(token);
+    if ([...token].length >= 3) tokens.push(token);
+  }
+  ids.push(...tokens);
+  if (tokens.length > 1) {
+    // "EyalPinto", "Eyal.Pinto" and "Eyal_Pinto" would otherwise slip past the word boundaries.
+    for (const joiner of ['', '.', '_']) ids.push(tokens.join(joiner));
   }
   return ids;
 }

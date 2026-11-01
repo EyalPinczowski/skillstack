@@ -34,35 +34,57 @@ describe('the text outside a removed span is sent unchanged (5)', () => {
   });
 });
 
-describe('code is not redacted, real handles are (6)', () => {
-  const code = [
+describe('only narrow code shapes keep an @ token (6)', () => {
+  const FENCE = '```';
+  const exempt = [
+    `${FENCE}\nSELECT * FROM users WHERE id = @UserId\n${FENCE}`,
+    `text\n${FENCE}sql\nDECLARE @total INT; SET @total = 5\nEXEC @result = proc\n${FENCE}\nmore`,
+    `${FENCE}\n@media screen { }\n@Component(selector)\n${FENCE}`,
     '@dataclass\nclass Point:\n    x: int',
     'intro line\n@dataclass\nclass Later: pass',
-    '@Override\npublic void run() {}',
     '  @staticmethod\n  def f(): pass',
-    '@app.route("/")',
+    '@Override\npublic void run() {}',
+    '@app.route("/")\ndef index(): pass',
     "import x from '@angular/core'",
+    'import y from "@types/node"',
     'npm i @types/node',
-    'SELECT * FROM users WHERE id = @UserId',
-    'SELECT * FROM t WHERE a = @First AND b IN (@Second, @Third)',
-    'EXEC @result = proc',
+    'pnpm add -D @types/node',
   ];
-  it.each(code)('%j', (text) => {
+  it.each(exempt)('exempt: %j', (text) => {
     expect(redactPii(text).count).toBe(0);
     expect(findPii(text)).toEqual([]);
   });
-  const real = [
+  const leaks = [
+    'Feedback from my mentor, @janedoe',
+    'Greetings from Tel Aviv (@janedoe)',
+    'Please select @janedoe for the panel',
+    'I set @janedoe as reviewer',
+    'can`t` then ping @janedoe',
+    'my twitter is `@janedoe`',
+    'ping @janedoe.Thanks',
+    'ping @janedoe/twitter',
+    'ping @janedoe(thanks)',
     'thanks @eyalcohen for the help',
     '@eyalcohen is the owner',
+    '@eyalcohen is the owner\nclass starts at nine',
     'ping @jane.',
     'ping @jane, thanks',
     'hi, @jane_doe',
     'cc @eyalcohen\nclass starts at nine',
     'please set up a call with @eyalcohen',
+    '@Override public void run() {}',
+    'SELECT * FROM users WHERE id = @UserId',
+    `${FENCE}\nunclosed fence @janedoe`,
+    `${FENCE}\ncode\n${FENCE}\nafter the fence @janedoe`,
+    '@media screen and @import url',
+    'from @janedoe/twitter',
   ];
-  it.each(real)('%j', (text) => {
-    expect(redactPii(text).count).toBe(1);
+  it.each(leaks)('redacted: %j', (text) => {
+    expect(redactPii(text).count).toBeGreaterThan(0);
     expect(findPii(text)).toEqual(['handle']);
+  });
+  it('limits the handle length to 32', () => {
+    expect(redactPii('ping @' + 'a'.repeat(32) + ' now').count).toBe(1);
   });
 });
 
@@ -81,8 +103,8 @@ describe('phone separators (7)', () => {
     expect(r.text).toBe(`call ${REDACTED} now`);
     expect(findPii(`call ${phone} now`)).toEqual(['phone']);
   });
-  it('a comma followed by a space does not join numbers', () => {
-    expect(redactPii('scores 10, 20, 30, 40, 50').count).toBe(0);
+  it('a short list of numbers is not a phone', () => {
+    expect(redactPii('scores 10, 20, 30').count).toBe(0);
   });
 });
 
