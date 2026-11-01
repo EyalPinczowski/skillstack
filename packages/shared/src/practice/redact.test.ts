@@ -102,8 +102,11 @@ describe('knownIdentifiersFor', () => {
       'Doe',
       'Smith',
       'JaneDoeSmith',
+      'SmithDoeJane',
       'Jane.Doe.Smith',
+      'Smith.Doe.Jane',
       'Jane_Doe_Smith',
+      'Smith_Doe_Jane',
     ]);
   });
   it('skips a short local part and empty inputs', () => {
@@ -238,13 +241,13 @@ describe('normalisation closes format-character bypasses (B3)', () => {
 describe('known-name tokenising keeps every script (B4)', () => {
   it('keeps Devanagari names, whose vowel signs are marks', () => {
     const ids = knownIdentifiersFor({ displayName: 'प्रिया शर्मा' });
-    expect(ids.length).toBe(5);
+    expect(ids.length).toBe(8);
     const r = redactPii('hello प्रिया and शर्मा', { knownIdentifiers: ids });
     expect(r.text).toBe(`hello ${REDACTED} and ${REDACTED}`);
   });
   it('keeps Hebrew with niqqud', () => {
     const ids = knownIdentifiersFor({ displayName: 'דָּנָה לֵוִי' });
-    expect(ids.length).toBe(5);
+    expect(ids.length).toBe(8);
     expect(redactPii('שלום דָּנָה', { knownIdentifiers: ids }).count).toBe(1);
   });
   it('counts letters, not UTF-16 units, and matches composed against decomposed', () => {

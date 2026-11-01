@@ -25,7 +25,7 @@
  * - digit runs of 9 or more with separators (space, dot, dash, slash, parentheses, `_`, `~`,
  *   middle dots, fraction slash, a comma between digits), and digit groups of 2+ joined by 1 to 3
  *   punctuation or symbol characters (`054 ∙ 123 * 4567`, `1990, 2005, 2010`);
- * - the user's known identifiers, matched as whole words (letters on both sides, marks ignored).
+ * - the user's known identifiers, matched as whole words (letters on both sides; combining marks are ignored on both the name and the text).
  *
  * Limits (also stated in the privacy page):
  * - names the app does not know (a recruiter in a job description, a friend in a chat turn)
@@ -74,7 +74,7 @@ const EMAIL = /[\p{L}\p{N}._%+-]{1,64}@[\p{L}\p{N}-]{1,63}(?:\.[\p{L}\p{N}-]{1,6
 const URL_SCHEME = /(?:https?|ftp|file):\/\/[^\s<>"]{1,2000}/giu;
 const WWW = /\bwww\.[^\s<>"]{1,2000}/giu;
 const PATH_URL =
-  /(?<![\p{L}\p{N}@.-])(?:[\p{L}\p{N}-]{1,63}\.){1,30}\p{L}{2,24}\/[^\s<>"]{1,2000}/gu;
+  /(?<![\p{L}\p{N}@-])(?<![\p{L}\p{N}]\.)(?:[\p{L}\p{N}-]{1,63}\.){1,30}\p{L}{2,24}\/[^\s<>"]{1,2000}/gu;
 /** TLDs that are always a host, in any case. */
 const TLDS = new Set(
   (
@@ -93,10 +93,13 @@ const FILE_EXTENSIONS = new Set(
 // Any letters-only TLD of 2 to 24 characters. An allowlisted TLD matches in any case; any other
 // must be lowercase and not a file extension (see `hostSpans`).
 const BARE_HOST =
-  /(?<![\p{L}\p{N}@.-])(?:[\p{L}\p{N}-]{1,63}\.){1,30}(\p{L}{2,24})(?![\p{L}\p{N}-])/gu;
-const HANDLE = /(?<![\p{L}\p{N}_@])@[A-Za-z0-9_]{3,32}(?![\p{L}\p{N}_])/gu;
+  /(?<![\p{L}\p{N}@-])(?<![\p{L}\p{N}]\.)(?:[\p{L}\p{N}-]{1,63}\.){1,30}(\p{L}{2,24})(?![\p{L}\p{N}-])/gu;
+const HANDLE =
+  /(?<![\p{L}\p{N}])@[A-Za-z0-9_-]{3,32}(?:\.[A-Za-z0-9_-]{1,32}){0,5}(?![\p{L}\p{N}_])/gu;
 /** Digit groups of 2+ joined by 1 to 3 punctuation or symbol characters (never a newline). */
 const JOINED_NUMBER = /(?<!\d)\d{2,}(?:[^\p{L}\p{N}\r\n]{1,3}\d{2,}){1,12}(?!\d)/gu;
+/** Single digits joined by 1 to 3 symbols (`0*5*0*1*2*3*4*5*6`); 9 or more digits. */
+const JOINED_SINGLES = /(?<!\d)\d(?:[^\p{L}\p{N}\r\n]{1,3}\d){8,12}(?!\d)/gu;
 const PHONE = /(?<!\d)\+?\(?\d(?:[\d \t()./_~·•⁄-]|(?<=\d),(?=\d)){7,40}\d/g;
 const ISO_DATE = /(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)/g;
 const SLASH_DATE = /(?<!\d)\d{1,2}[./]\d{1,2}[./]\d{4}(?!\d)/g;
@@ -206,19 +209,42 @@ function isPhone(candidate: string): boolean {
   return !versionLike;
 }
 
-const DECORATED =
-  /^\s*(?:def|class|function|public|private|protected|static|async|export|final|abstract|override)\b/i;
+/**
+ * The line below a decorator must be code, not English: `def f(`, `class Name:`, `function f(`
+ * or modifiers + type + `name(`. Case-sensitive (`Static site` and `Export of` are prose).
+ */
+const DECORATED = new RegExp(
+  '^\\s*(?:' +
+    'def\\s+\\w+\\s*\\(' +
+    '|(?:(?:abstract|final|export|public|default)\\s+)*class\\s+[A-Z]\\w*\\s*[:({]' +
+    '|(?:async\\s+)?function\\s*\\*?\\s*\\w+\\s*\\(' +
+    '|(?:(?:public|private|protected|static|async|final|abstract|override|export)\\s+)+' +
+    '(?:[\\w<>\\[\\],.?]+\\s+)+\\w+\\s*\\(' +
+    ')',
+);
 /** What may follow a decorator name on its line: `.route("/")`, `(arg)`, or nothing. */
 const DECORATOR_REST = /^(?:\.[\w.]*)?(?:\([^\n]*\))?\s*$/;
-/** Where an npm scope (`@types/node`) is written: right after a quote or an install command. */
-const NPM_CONTEXT = /(?:["']|\b(?:npm|pnpm|yarn)\s+(?:i|install|add)\s+(?:-\S+\s+)*)$/;
 const NPM_NAME = /^\/[a-z0-9][a-z0-9._-]*/;
+/** Scopes recognised after a bare quote; any other scope needs an install command. */
+const KNOWN_SCOPES = new Set([
+  '@types',
+  '@angular',
+  '@babel',
+  '@vitejs',
+  '@testing-library',
+  '@tanstack',
+  '@nestjs',
+  '@aws-sdk',
+]);
+const NPM_COMMAND = /\b(?:npm|pnpm|yarn)\s+(?:i|install|add)\s+(?:-\S+\s+)*$/;
 const FENCE = '```';
 
 function fencePositions(text: string): number[] {
   const marks: number[] = [];
   for (let i = text.indexOf(FENCE); i !== -1; i = text.indexOf(FENCE, i + FENCE.length)) {
-    marks.push(i);
+    // Only a fence at the start of a line (indent up to 3 spaces) counts.
+    const lineStart = text.lastIndexOf('\n', i - 1) + 1;
+    if (i - lineStart <= 3 && text.slice(lineStart, i).trim() === '') marks.push(i);
   }
   return marks;
 }
@@ -252,7 +278,11 @@ function isCodeHandle(
   const end = offset + match.length;
   const windowStart = Math.max(0, offset - 200);
   const seg = full.slice(windowStart, offset);
-  if (NPM_NAME.test(full.slice(end, end + 80)) && NPM_CONTEXT.test(seg.slice(-60))) return true;
+  if (NPM_NAME.test(full.slice(end, end + 80))) {
+    const before = seg.slice(-60);
+    if (NPM_COMMAND.test(before)) return true;
+    if (/["']$/.test(before) && KNOWN_SCOPES.has(match.toLowerCase())) return true;
+  }
   const newline = seg.lastIndexOf('\n');
   const linePrefix = newline >= 0 ? seg.slice(newline + 1) : windowStart === 0 ? seg : 'x';
   if (linePrefix.trim() !== '') return false;
@@ -311,7 +341,7 @@ function findSpans(text: string, known: RegExp | null): [number, number][] {
     ...hostSpans(text),
     ...handleSpans(text),
     ...(known ? spansOf(text, known) : []),
-    ...[...text.matchAll(PHONE), ...text.matchAll(JOINED_NUMBER)]
+    ...[...text.matchAll(PHONE), ...text.matchAll(JOINED_NUMBER), ...text.matchAll(JOINED_SINGLES)]
       .filter((m) => isPhone(m[0]))
       .map((m): [number, number] => [m.index, m.index + m[0].length]),
   ];
@@ -375,7 +405,13 @@ export function findPii(text: string, options: RedactOptions = {}): PiiKind[] {
     kinds.push('url');
   }
   if (handleSpans(probe).length > 0) kinds.push('handle');
-  if ([...probe.matchAll(PHONE), ...probe.matchAll(JOINED_NUMBER)].some((m) => isPhone(m[0]))) {
+  if (
+    [
+      ...probe.matchAll(PHONE),
+      ...probe.matchAll(JOINED_NUMBER),
+      ...probe.matchAll(JOINED_SINGLES),
+    ].some((m) => isPhone(m[0]))
+  ) {
     kinds.push('phone');
   }
   const known = knownIdentifierPattern(options.knownIdentifiers ?? []);
@@ -413,7 +449,9 @@ export function knownIdentifiersFor(user: {
   ids.push(...tokens);
   if (tokens.length > 1) {
     // "EyalPinto", "Eyal.Pinto" and "Eyal_Pinto" would otherwise slip past the word boundaries.
-    for (const joiner of ['', '.', '_']) ids.push(tokens.join(joiner));
+    for (const joiner of ['', '.', '_']) {
+      ids.push(tokens.join(joiner), [...tokens].reverse().join(joiner));
+    }
   }
   return ids;
 }

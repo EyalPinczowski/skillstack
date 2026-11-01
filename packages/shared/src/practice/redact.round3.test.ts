@@ -74,10 +74,25 @@ describe('truncation happens at a boundary, so a cut address cannot survive (3)'
     expect(r.text).not.toContain('example');
     expect(r.text.length).toBeLessThanOrEqual(MAX_USER_TEXT_LENGTH);
   });
-  it('drops a long token with no whitespace near the limit instead of cutting it', () => {
+  it('cuts a long token to the limit', () => {
     const r = sanitizeUserText('a'.repeat(MAX_USER_TEXT_LENGTH + 100));
     expect(r.truncated).toBe(true);
-    expect(r.text.length).toBeLessThan(MAX_USER_TEXT_LENGTH);
+    expect(r.text.length).toBe(MAX_USER_TEXT_LENGTH);
+  });
+  it('never splits a surrogate pair', () => {
+    const r = sanitizeUserText('\u{1F600}'.repeat(MAX_USER_TEXT_LENGTH));
+    expect(r.text.length).toBe(MAX_USER_TEXT_LENGTH);
+    expect(r.text).not.toMatch(/[\uD800-\uDBFF]$/);
+    const odd = sanitizeUserText('a' + '\u{1F600}'.repeat(MAX_USER_TEXT_LENGTH));
+    expect(odd.text.length).toBe(MAX_USER_TEXT_LENGTH - 1);
+  });
+  it('drops a phone number that straddles the limit', () => {
+    const text = `${'w '.repeat((MAX_USER_TEXT_LENGTH - 6) / 2)}0501234567 after`;
+    expect(sanitizeUserText(text).text).not.toMatch(/\d{3}/);
+  });
+  it('drops a host that straddles the limit', () => {
+    const text = `${'w '.repeat((MAX_USER_TEXT_LENGTH - 6) / 2)}janedoe.com after`;
+    expect(sanitizeUserText(text).text).not.toContain('janedoe');
   });
 });
 

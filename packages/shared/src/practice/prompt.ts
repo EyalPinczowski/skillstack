@@ -92,23 +92,22 @@ export function neutraliseMarkup(text: string): string {
 
 /** The longest text redacted in one go (a chat turn or a long field); the rest is dropped. */
 export const MAX_USER_TEXT_LENGTH = 16 * 1024;
-/** How far back from the limit the cut looks for whitespace, so no address is cut in half. */
-const CUT_WINDOW = 512;
+/** Extra text redacted past the limit, so an address that starts before it is seen whole. */
+const CUT_MARGIN = 1024;
 
-/** Cuts at a whitespace boundary near the limit, or `CUT_WINDOW` early when there is none. */
-function cutAtBoundary(text: string): string {
-  const limit = MAX_USER_TEXT_LENGTH;
-  for (let i = limit; i > limit - CUT_WINDOW; i -= 1) {
-    if (/\s/.test(text[i] as string)) return text.slice(0, i);
-  }
-  return text.slice(0, limit - CUT_WINDOW);
+/** Cuts to `max` UTF-16 units without splitting a surrogate pair. */
+function cut(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const high = text.charCodeAt(max - 1);
+  return text.slice(0, high >= 0xd800 && high <= 0xdbff ? max - 1 : max);
 }
 
 /**
  * Prepares one piece of user-controlled text for a model and verifies the result. Use it for
  * every chat turn and every prompt field. In order: markup is neutralised (`neutraliseMarkup`),
- * text over `MAX_USER_TEXT_LENGTH` is cut back to a whitespace boundary (`truncated` is true),
- * personal details are redacted, and the result is checked again, known identifiers included.
+ * personal details are redacted in a window just past `MAX_USER_TEXT_LENGTH`, the result is cut
+ * to that length (`truncated` is true when text was dropped), and it is checked again, known
+ * identifiers included.
  * Throws `PiiLeakError` when something personal survives.
  */
 export function sanitizeUserText(
@@ -121,9 +120,10 @@ export function sanitizeUserText(
 } {
   const neutral = neutraliseMarkup(text);
   const truncated = neutral.length > MAX_USER_TEXT_LENGTH;
-  const result = redactPii(truncated ? cutAtBoundary(neutral) : neutral, options);
-  assertNoPii(result.text, options);
-  return { ...result, truncated };
+  const redacted = redactPii(cut(neutral, MAX_USER_TEXT_LENGTH + CUT_MARGIN), options);
+  const out = cut(redacted.text, MAX_USER_TEXT_LENGTH);
+  assertNoPii(out, options);
+  return { text: out, count: redacted.count, truncated };
 }
 
 /** Builds the prompt for one practice from the allowlisted input. Throws on invalid input. */
