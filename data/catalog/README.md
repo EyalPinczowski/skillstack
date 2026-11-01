@@ -8,15 +8,15 @@ Researched on 2026-10-29. Put this folder in the repo as `data/catalog/`.
 
 | File | What it is |
 |---|---|
-| `catalog.json` | 121 learning items: 95 courses / certificate exams + 26 practice templates. Cost model, certificate type, recognition, hours, skills, roles, prerequisites, free alternatives, and verification flags. |
+| `catalog.json` | 122 learning items: 96 courses / certificate exams + 26 practice templates. Cost model, certificate type, recognition, hours, skills, roles, prerequisites, free alternatives, and verification flags. |
 | `roles.json` | 19 target roles with aliases (job titles), summary, weighted skills (1–5), job-description keywords, and an auto-ranked suggested path (`core`, `optional`, `practice`, `free_only`). |
 | `skills.json` | 41 skills in 13 categories, each with synonyms/keywords. This is the shared vocabulary for tagging courses, matching job descriptions and (later) reading a CV. |
 | `questions.json` | The guided intake: 28 questions in 7 stages (goal, role discovery, background, skill check, time, budget, learning style), each with a "why we ask" hint, branching (`show_if`), and the field it fills (`maps_to`), plus 5 follow-up rules for conflicting answers. Discovery options map interests to roles. |
-| `documents.jsonl` | 181 retrieval documents (one per item, role and skill), written as natural-language text ready to embed, with filterable metadata. |
+| `documents.jsonl` | 182 retrieval documents (one per item, role and skill), written as natural-language text ready to embed, with filterable metadata. |
 | `schema.sql` | Postgres/Supabase schema: taxonomy, catalog, links, `rag_documents` with a pgvector column + HNSW index, keyword search (tsvector), and `match_catalog()` with budget / free-only / recognition filters. |
 | `seed.sql` | Loads all of the above into the schema (idempotent – safe to re-run). |
 | `catalog.csv` | The catalog as a spreadsheet, for quick review. |
-| `build/` | Python source (`taxonomy.py`, `catalog.py`) and `build.py`, which validates references and regenerates every file above. Edit the source, then run `python3 build/build.py`. |
+| `build/` | Python source (`taxonomy.py`, `catalog.py`) and `build.py`, which validates references, runs the lint in `lint.py` and regenerates every file above. Edit the source, then run `python3 build.py` from `build/`. `test_lint.py` tests the lint (`python3 -m unittest test_lint` from `build/`). |
 
 ## Roles covered
 
@@ -39,12 +39,34 @@ Every role now has at least 6 core items, a free-only path and 4 practice templa
 
 ## Data quality – read before using
 
-- `url_verified` / `price_verified` = `true` means the URL or price was confirmed in a source found during research. After the 2026-11-01 link check, **79 of 95** item URLs and **62 of 95** prices are verified; the rest follow the provider's known URL pattern but must be checked. A price is only marked verified when it is stated on the official page; a price that could not be confirmed keeps its earlier value with `price_verified: false` (notes say "Price unverified" where needed). `price: null` is used only where the price varies by country or is not known (8 of 95); price-cap filters exclude those items. The app should show unverified items with a "needs check" badge until the weekly link checker confirms them.
+- `url_verified` / `price_verified` = `true` means the URL or price was confirmed in a source found during research. After the 2026-11-01 link check, **80 of 96** item URLs and **62 of 96** prices are verified; the rest follow the provider's known URL pattern but must be checked. A price is only marked verified when it is stated on the official page; a price that could not be confirmed keeps its earlier value with `price_verified: false` (notes say "Price unverified" where needed). `price: null` is used only where the price varies by country or is not known (9 of 96); price-cap filters exclude those items. The app should show unverified items with a "needs check" badge until the weekly link checker confirms them.
 - Prices change often (exams, subscriptions, Udemy sales). `price: null` means it varies by country – show "check price".
-- `ai-900` is kept because roles and suggested paths reference it, but the official page now lists exam AI-901 as the required exam; treat it as possibly retired (needs check).
+- `ai-900` is **superseded** by `ai-901`. The official certification page (checked 2026-11-01) lists AI-901 as the required exam and does not name AI-900, so the replacement is inferred. `ai-900` stays in the catalog but no role points to it; `ai-901` has `price: null` (varies by country) and its hours and recognition are Skillstack estimates carried over from `ai-900`.
+- `scrum-open` and `power-bi-learn-path` are prerequisites whose pages could not be reached on 2026-11-01. They are kept, stay `url_verified: false` and say `UNVERIFIED` in their notes; any plan that includes them must show "needs check". Replacement items are not part of this data yet.
 - **Subscriptions** (`cost_type: subscription`, e.g. Coursera Plus at $59/month) are stored as a monthly price. The plan builder must compute the real cost from how many months the plan uses them; `match_catalog`'s `max_price` filter compares the monthly price only.
-- The `suggested_path` per role is generated by a simple score (skill weight + role tag + recognition). It's a sensible starting point, not a curated career plan – review it per role.
+- The `suggested_path` per role is generated by a simple score (skill weight + role tag + recognition). Each of the 6 best-scoring items brings its transitive **required** prerequisites into `core` as a bundle, prerequisites first, so `core` can hold more than 6 ids. It's a sensible starting point, not a curated career plan – review it per role.
 - Hour estimates are approximate and should be recalibrated from users' actual hours (spec 3.4).
+
+## Structure fields and lint
+
+Added to every item (all additive; defaults mean "not set"):
+
+| Field | Meaning |
+|---|---|
+| `prerequisite_kinds` | One entry per id in `prerequisites`: `required` (a plan must include it first) or `recommended` (order it first if both are in the plan, never add it on its own). All current prerequisites are `required`. In Postgres: `item_links.prerequisite_kind`. |
+| `last_verified_at` | `YYYY-MM-DD` of the link check that confirmed `url_verified`, or `null`. Set to `2026-11-01` for the 41 items confirmed in that check; `null` for items verified only in the earlier research pass and for unverified items. In Postgres: `catalog_items.last_verified_at date`. |
+| `subscription_group` | Items that share one subscription (currently `coursera-plus`, 12 items). A plan pays for each month of a group once, not once per item. Members must agree on period and price. In Postgres: `catalog_items.subscription_group`. |
+| `skill_depth` | Optional map of skill id to `beginner`, `intermediate` or `advanced`: how far the item takes that skill. Empty for every item; only the field and its validation exist. In Postgres: `item_skills.depth`. |
+
+Learn-before-practice ordering for the same skill is a planner rule; this data only provides the prerequisite edges.
+
+`build.py` fails (exit 1, nothing written) when:
+
+- a prerequisite id does not exist, or an item lists itself;
+- the prerequisites contain a cycle (the exact cycle is printed, e.g. `a -> b -> c -> a`; required and recommended edges both count);
+- a role's `suggested_path.core` holds an item whose required prerequisite is missing from `core` or comes after the item;
+- an item has `url_verified: true` but no `https://` url;
+- `prerequisite_kinds`, `last_verified_at`, `subscription_group` or `skill_depth` are malformed.
 
 ## Main sources
 
