@@ -333,18 +333,23 @@ function ruleEstimateDrift(ctx: Context): Suggestion[] {
     if (compareDates(l.date, today) > 0 || !(l.hours > 0)) continue;
     loggedMinutes.set(l.taskId, (loggedMinutes.get(l.taskId) ?? 0) + hoursToMinutes(l.hours));
   }
+  // `doneHours` is the stored total (hours imported with the plan plus every logged entry), so
+  // a task's actual time is the larger of it and the logs counted here; a task whose hours
+  // all came with the plan file has no logs but still counts.
+  const doneMinutes = (t: Task): number =>
+    Math.max(hoursToMinutes(t.doneHours), loggedMinutes.get(t.id) ?? 0);
   const out: Suggestion[] = [];
   const types = uniqueSorted(tasks.map((t) => t.type)) as TaskType[];
   for (const type of types) {
     if (FIXED_LENGTH_TYPES.includes(type)) continue;
     const completed = tasks
       .filter(
-        (t) => t.type === type && t.status === 'done' && !used.has(t.id) && loggedMinutes.has(t.id),
+        (t) => t.type === type && t.status === 'done' && !used.has(t.id) && doneMinutes(t) > 0,
       )
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     if (completed.length < MIN_COMPLETED_TASKS_FOR_ESTIMATES) continue;
     const estimated = completed.reduce((s, t) => s + hoursToMinutes(t.estHours), 0);
-    const actual = completed.reduce((s, t) => s + (loggedMinutes.get(t.id) ?? 0), 0);
+    const actual = completed.reduce((s, t) => s + doneMinutes(t), 0);
     if (estimated <= 0) continue;
     // Integer math: |actual - estimated| / estimated > 25% without float rounding at the edge.
     if (Math.abs(actual - estimated) * 100 <= estimated * ESTIMATE_DEVIATION_PERCENT) continue;
@@ -462,6 +467,15 @@ export function suggestAdjustments(input: AdjustmentInput): Suggestion[] {
 
 const roundToQuarterHour = (hours: number): number => Math.max(0.25, Math.round(hours * 4) / 4);
 
+/**
+ * The estimate after scaling by `factor`: a quarter-hour step, within the schema's 500 h cap,
+ * and never below the hours already done (a lower estimate would leave nothing to do).
+ */
+export function scaledEstimate(task: Task, factor: number): number {
+  const doneFloor = Math.ceil(task.doneHours * 4) / 4;
+  return Math.max(Math.min(500, roundToQuarterHour(task.estHours * factor)), doneFloor);
+}
+
 function applyCapacityDelta(
   pattern: WeekPattern,
   overrides: DayOverride[],
@@ -529,7 +543,7 @@ export function applySuggestion(
         overrides,
         tasks: tasks.map((t) =>
           ids.has(t.id) && t.type === change.taskType
-            ? { ...t, estHours: Math.min(500, roundToQuarterHour(t.estHours * change.factor)) }
+            ? { ...t, estHours: scaledEstimate(t, change.factor) }
             : t,
         ),
       };
