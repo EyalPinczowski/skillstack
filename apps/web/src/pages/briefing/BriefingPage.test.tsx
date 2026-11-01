@@ -244,6 +244,53 @@ describe('Day briefing', () => {
     expect(await screen.findByRole('heading', { name: 'Today', level: 1 })).toBeInTheDocument();
   });
 
+  describe('Idea of the day', () => {
+    const podcast = {
+      title: 'Hidden Brain',
+      publisher: 'Hidden Brain Media (page copyright)',
+      skillLink: 'Stories about how people think and work together.',
+      oneLine: 'A show about the unseen patterns in human behavior.',
+      spotifyUrl: 'https://open.spotify.com/show/abc123',
+    };
+
+    it('shows the podcast as a plain block with a safe Spotify link and no free claim', async () => {
+      open({ [BRIEFING]: () => json(briefingBody({ podcast })) });
+      const heading = await screen.findByRole('heading', { name: 'Idea of the day', level: 2 });
+      const block = within(heading.closest('section') as HTMLElement);
+      expect(block.getByText('Hidden Brain')).toBeInTheDocument();
+      expect(block.getByText(podcast.oneLine)).toBeInTheDocument();
+      expect(block.getByText(podcast.skillLink)).toBeInTheDocument();
+      const link = block.getByRole('link', { name: /Spotify.*Hidden Brain/ });
+      expect(link).toHaveAttribute('href', podcast.spotifyUrl);
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      expect(heading.closest('section')).not.toHaveTextContent(/free/i);
+      // It is not a task.
+      expect(screen.queryByRole('heading', { name: 'Hidden Brain', level: 3 })).toBeNull();
+    });
+
+    it('leaves out the description and a non-web link when they are missing', async () => {
+      const bad = { ...podcast, oneLine: null, spotifyUrl: 'javascript:alert(1)' };
+      open({ [BRIEFING]: () => json(briefingBody({ podcast: bad })) });
+      const heading = await screen.findByRole('heading', { name: 'Idea of the day' });
+      const block = within(heading.closest('section') as HTMLElement);
+      expect(block.queryByRole('link')).toBeNull();
+      expect(block.queryByText(podcast.oneLine)).toBeNull();
+    });
+
+    it('shows no podcast line when the briefing has none', async () => {
+      open();
+      await screen.findByRole('heading', { name: 'Intro to SQL' });
+      expect(screen.queryByText(/Idea of the day/)).toBeNull();
+    });
+
+    it('has no accessibility violations', async () => {
+      open({ [BRIEFING]: () => json(briefingBody({ podcast })) });
+      await screen.findByRole('heading', { name: 'Idea of the day' });
+      await expectNoAxeViolations();
+    });
+  });
+
   it('has no accessibility violations', async () => {
     open();
     await screen.findByRole('heading', { name: 'Intro to SQL' });

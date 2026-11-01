@@ -144,6 +144,36 @@ function TaskCard({ task }: { task: BriefingTask }) {
   );
 }
 
+type Podcast = NonNullable<Briefing['podcast']>;
+
+/** One podcast about the ideas around the plan's skills. Not a task: no time, no checkbox. */
+function IdeaOfTheDay({ podcast }: { podcast: Podcast }) {
+  const link = safeWebUrl(podcast.spotifyUrl);
+  return (
+    <section aria-labelledby="idea-heading" className="space-y-1">
+      <h2 id="idea-heading">Idea of the day</h2>
+      {/* The publisher is not shown: the research data annotates it ("page footer"). */}
+      <p>
+        <strong>{podcast.title}</strong>
+      </p>
+      {podcast.oneLine ? <p>{podcast.oneLine}</p> : null}
+      <p className="text-muted">{podcast.skillLink}</p>
+      <p className="text-muted">
+        A podcast about ideas around your skills, not a lesson. It is not part of your plan or your
+        study time.
+      </p>
+      {link ? (
+        <p>
+          <ExternalLink href={link}>
+            Find the show on Spotify
+            <span className="sr-only">: {podcast.title}</span>
+          </ExternalLink>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 function StartDay({
   planId,
   date,
@@ -227,6 +257,8 @@ function BriefingBody({
         ) : null}
         <StartDay planId={planId} date={briefing.date} state={dayState} />
       </section>
+
+      {briefing.podcast ? <IdeaOfTheDay podcast={briefing.podcast} /> : null}
 
       {briefing.suggestedOrder.length > 0 ? (
         <section aria-labelledby="order-heading" className="space-y-2">
